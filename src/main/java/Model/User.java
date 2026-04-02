@@ -11,7 +11,7 @@ public class User {
     private final Timestamp DOB;
     private boolean isActive;
     private char gender;
-    private Document ArrayList<Document>;
+    private List<Document> documents;
     private boolean isVerified;
 
     public User(String name, int id, String email, String password, String number, Timestamp DOB, boolean isActive, char gender, Document arrayList, boolean isVerified) {
