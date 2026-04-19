@@ -10,6 +10,7 @@ import Util.PasswordUtil;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -30,9 +31,11 @@ public class AuthServlet extends BaseApiServlet {
                 default -> writeError(response, HttpServletResponse.SC_NOT_FOUND, "Unknown auth endpoint");
             }
         } catch (IllegalArgumentException e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            handleAuthFailure(request, response, HttpServletResponse.SC_BAD_REQUEST,
+                    e.getMessage(), resolveRedirectPath(path));
         } catch (SQLException e) {
-            writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            handleAuthFailure(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    e.getMessage(), resolveRedirectPath(path));
         }
     }
 
@@ -43,17 +46,22 @@ public class AuthServlet extends BaseApiServlet {
         citizen.setPhone(getRequiredParameter(request, "phone"));
         citizen.setPasswordHash(PasswordUtil.hash(getRequiredParameter(request, "password")));
         citizen.setDateOfBirth(LocalDate.parse(getRequiredParameter(request, "dateOfBirth")));
-        citizen.setGender(getRequiredParameter(request, "gender"));
+        citizen.setGender(normalizeGender(getRequiredParameter(request, "gender")));
         citizen.setCreatedAt(LocalDateTime.now());
 
         try (Connection connection = DatabaseConnection.getConnection()) {
             CitizenDAO citizenDAO = new CitizenDAO(connection);
             if (citizenDAO.findByEmail(citizen.getEmail()).isPresent()) {
-                writeError(response, HttpServletResponse.SC_CONFLICT, "Citizen email already exists");
+                handleAuthFailure(request, response, HttpServletResponse.SC_CONFLICT,
+                        "Citizen email already exists", "/register.jsp");
                 return;
             }
 
             Citizen savedCitizen = citizenDAO.create(citizen);
+            if (isBrowserFormRequest(request)) {
+                response.sendRedirect(request.getContextPath() + "/login.jsp?registered=1");
+                return;
+            }
             writeJson(response, HttpServletResponse.SC_CREATED,
                     "{\"success\":true,\"citizen\":" + toCitizenJson(savedCitizen) + "}");
         }
@@ -72,6 +80,14 @@ public class AuthServlet extends BaseApiServlet {
                 AdminUserDAO adminUserDAO = new AdminUserDAO(connection);
                 Optional<AdminUser> adminUser = adminUserDAO.findByEmail(email);
                 if (adminUser.isPresent() && PasswordUtil.matches(password, adminUser.get().getPasswordHash())) {
+                    if (isBrowserFormRequest(request)) {
+                        HttpSession session = request.getSession(true);
+                        session.setAttribute("userRole", "admin");
+                        session.setAttribute("adminId", adminUser.get().getAdminId());
+                        session.setAttribute("displayName", adminUser.get().getFullName());
+                        response.sendRedirect(request.getContextPath() + "/index.jsp?login=success");
+                        return;
+                    }
                     writeJson(response, HttpServletResponse.SC_OK,
                             "{\"success\":true,\"role\":\"admin\",\"user\":" + toAdminJson(adminUser.get()) + "}");
                     return;
@@ -80,6 +96,14 @@ public class AuthServlet extends BaseApiServlet {
                 CitizenDAO citizenDAO = new CitizenDAO(connection);
                 Optional<Citizen> citizen = citizenDAO.findByEmail(email);
                 if (citizen.isPresent() && PasswordUtil.matches(password, citizen.get().getPasswordHash())) {
+                    if (isBrowserFormRequest(request)) {
+                        HttpSession session = request.getSession(true);
+                        session.setAttribute("userRole", "citizen");
+                        session.setAttribute("citizenId", citizen.get().getCitizenId());
+                        session.setAttribute("displayName", citizen.get().getFullName());
+                        response.sendRedirect(request.getContextPath() + "/index.jsp?login=success");
+                        return;
+                    }
                     writeJson(response, HttpServletResponse.SC_OK,
                             "{\"success\":true,\"role\":\"citizen\",\"user\":" + toCitizenJson(citizen.get()) + "}");
                     return;
@@ -87,7 +111,39 @@ public class AuthServlet extends BaseApiServlet {
             }
         }
 
-        writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid credentials");
+        handleAuthFailure(request, response, HttpServletResponse.SC_UNAUTHORIZED,
+                "Invalid credentials", "/login.jsp");
+    }
+
+    private void handleAuthFailure(HttpServletRequest request, HttpServletResponse response,
+                                   int statusCode, String message, String redirectPath) throws IOException {
+        if (isBrowserFormRequest(request)) {
+            response.sendRedirect(request.getContextPath() + redirectPath + "?error=" + encode(message));
+            return;
+        }
+        writeError(response, statusCode, message);
+    }
+
+    private boolean isBrowserFormRequest(HttpServletRequest request) {
+        String accept = request.getHeader("Accept");
+        return accept != null && accept.contains("text/html");
+    }
+
+    private String normalizeGender(String gender) {
+        return switch (gender.trim().toUpperCase()) {
+            case "M", "MALE" -> "M";
+            case "F", "FEMALE" -> "F";
+            case "O", "OTHER" -> "O";
+            default -> throw new IllegalArgumentException("gender must be M, F, or O");
+        };
+    }
+
+    private String encode(String value) {
+        return java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    private String resolveRedirectPath(String path) {
+        return "/register/citizen".equals(path) ? "/register.jsp" : "/login.jsp";
     }
 
     private String toCitizenJson(Citizen citizen) {

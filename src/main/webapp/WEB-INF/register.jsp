@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900">
+    <% String error = request.getParameter("error"); %>
     <div class="flex min-h-screen flex-col">
         <main class="grid flex-1 lg:grid-cols-2">
             <section class="relative hidden overflow-hidden lg:flex">
@@ -52,6 +53,11 @@
                     </div>
 
                     <div class="mt-8">
+                        <% if (error != null && !error.isBlank()) { %>
+                            <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+                                <%= error %>
+                            </div>
+                        <% } %>
                         <form action="${pageContext.request.contextPath}/api/auth/register/citizen" method="post" class="space-y-5">
                             <div>
                                 <label for="fullName" class="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
@@ -98,13 +104,24 @@
 
                             <div>
                                 <label for="password" class="mb-2 block text-sm font-medium text-slate-700">Password</label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    required
-                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
-                                >
+                                <div class="relative">
+                                    <input
+                                        id="password"
+                                        type="password"
+                                        name="password"
+                                        required
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-16 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                    >
+                                    <button
+                                        type="button"
+                                        class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500 transition hover:text-[#154a91]"
+                                        data-target="password"
+                                        aria-label="Show password"
+                                        aria-pressed="false"
+                                    >
+                                        Show
+                                    </button>
+                                </div>
                                 <p class="mt-2 text-xs text-slate-500">Must be at least 8 characters, with one uppercase and one symbol.</p>
                             </div>
 
@@ -133,10 +150,10 @@
                                 <div>
                                     <span class="mb-2 block text-sm font-medium text-slate-700">Gender</span>
                                     <div class="grid grid-cols-3 rounded-xl bg-slate-100 p-1">
-                                        <button type="button" class="gender-toggle rounded-lg bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm transition" data-value="Male">Male</button>
-                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="Female">Female</button>
-                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="Other">Other</button>
-                                        <input type="hidden" name="gender" id="gender-input" value="Male">
+                                        <button type="button" class="gender-toggle rounded-lg bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm transition" data-value="M">Male</button>
+                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="F">Female</button>
+                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="O">Other</button>
+                                        <input type="hidden" name="gender" id="gender-input" value="M">
                                     </div>
                                 </div>
                             </div>
@@ -180,6 +197,18 @@
 
         toggleButtons.forEach((button) => {
             button.addEventListener("click", () => setActiveGender(button));
+        });
+
+        document.querySelectorAll(".password-toggle").forEach((button) => {
+            button.addEventListener("click", () => {
+                const input = document.getElementById(button.dataset.target);
+                const showPassword = input.type === "password";
+
+                input.type = showPassword ? "text" : "password";
+                button.textContent = showPassword ? "Hide" : "Show";
+                button.setAttribute("aria-label", showPassword ? "Hide password" : "Show password");
+                button.setAttribute("aria-pressed", String(showPassword));
+            });
         });
     </script>
 </body>
