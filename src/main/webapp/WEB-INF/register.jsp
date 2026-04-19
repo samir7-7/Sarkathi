@@ -6,152 +6,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SarkarSathi - Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: "#eff6ff",
-                            100: "#dbeafe",
-                            500: "#2563eb",
-                            600: "#1d4ed8",
-                            700: "#1e40af",
-                            900: "#172554"
-                        }
-                    },
-                    boxShadow: {
-                        soft: "0 24px 80px rgba(15, 23, 42, 0.14)"
-                    }
-                }
-            }
-        };
-    </script>
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-900">
-    <div class="relative isolate overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(37,99,235,0.26),_transparent_34%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.18),_transparent_28%),linear-gradient(155deg,_#020617_0%,_#0f172a_48%,_#111827_100%)]"></div>
-        <div class="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8 lg:px-10">
-            <div class="grid flex-1 overflow-hidden rounded-[2rem] border border-white/10 bg-white/8 shadow-soft backdrop-blur xl:grid-cols-[0.95fr_1.05fr]">
-                <section class="flex flex-col justify-between border-b border-white/10 px-8 py-10 text-white xl:border-b-0 xl:border-r xl:px-12 xl:py-12">
-                    <div>
-                        <div class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-sky-100">
-                            <span class="h-2 w-2 rounded-full bg-sky-300"></span>
-                            Citizen Onboarding
-                        </div>
-                        <h1 class="mt-8 max-w-md text-4xl font-semibold leading-tight sm:text-5xl">Join SarkarSathi and power your civic journey.</h1>
-                        <p class="mt-6 max-w-xl text-base leading-7 text-slate-200 sm:text-lg">
+<body class="min-h-screen bg-slate-100 text-slate-900">
+    <div class="flex min-h-screen flex-col">
+        <main class="grid flex-1 lg:grid-cols-2">
+            <section class="relative hidden overflow-hidden lg:flex">
+                <img
+                    src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?q=80&w=1600&auto=format&fit=crop"
+                    alt="Municipal building"
+                    class="absolute inset-0 h-full w-full object-cover"
+                >
+                <div class="absolute inset-0 bg-[#0f63a8]/78"></div>
+                <div class="absolute inset-0 bg-gradient-to-b from-[#2c86ca]/30 via-[#0b5ea8]/35 to-[#083d76]/88"></div>
+
+                <div class="relative flex h-full w-full flex-col justify-between px-12 py-16 text-white">
+                    <div class="max-w-xl pt-8">
+                        <h1 class="text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
+                            Join<br>
+                            SarkarSathi:<br>
+                            Empowering<br>
+                            Your Civic<br>
+                            Journey
+                        </h1>
+                        <p class="mt-8 max-w-lg text-lg leading-relaxed text-blue-100/90">
                             A modern bridge between citizens and municipal excellence. Secure, fast, and accessible for everyone.
                         </p>
                     </div>
 
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-4">
-                            <div class="flex -space-x-3">
-                                <img src="images/avatar.png" alt="Citizen" class="h-12 w-12 rounded-full border-2 border-slate-900/80 object-cover">
-                                <img src="images/avatar.png" alt="Citizen" class="h-12 w-12 rounded-full border-2 border-slate-900/80 object-cover">
-                                <img src="images/avatar.png" alt="Citizen" class="h-12 w-12 rounded-full border-2 border-slate-900/80 object-cover">
-                            </div>
-                            <p class="text-sm font-medium text-slate-200">+10k citizens joined this week</p>
+                    <div class="flex items-center gap-4 pb-8">
+                        <div class="flex -space-x-2">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=120&auto=format&fit=crop" alt="Citizen" class="h-10 w-10 rounded-full border-2 border-white/90 object-cover">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=120&auto=format&fit=crop" alt="Citizen" class="h-10 w-10 rounded-full border-2 border-white/90 object-cover">
+                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=120&auto=format&fit=crop" alt="Citizen" class="h-10 w-10 rounded-full border-2 border-white/90 object-cover">
                         </div>
-
-                        <div class="grid gap-3 text-sm text-slate-200 sm:grid-cols-2">
-                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                <p class="font-semibold text-white">Single Account</p>
-                                <p class="mt-2 leading-6 text-slate-300">Access permits, registrations, notices, and local updates from one secure profile.</p>
-                            </div>
-                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                <p class="font-semibold text-white">Citizen Ready</p>
-                                <p class="mt-2 leading-6 text-slate-300">Designed for quick onboarding with mobile-friendly forms and transparent workflows.</p>
-                            </div>
-                        </div>
+                        <p class="text-sm font-semibold tracking-wide text-white">+10k Citizens Joined This Week</p>
                     </div>
-                </section>
-
-                <section class="bg-white px-6 py-10 sm:px-10 xl:px-12">
-                    <div class="mx-auto w-full max-w-2xl">
-                        <div class="text-center xl:text-left">
-                            <h2 class="text-3xl font-semibold tracking-tight text-slate-900">Create Your Citizen Account</h2>
-                            <p class="mt-3 text-sm leading-6 text-slate-600">Complete the form below to access municipal services.</p>
-                        </div>
-
-                        <div class="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-200/70 sm:p-8">
-                            <form action="${pageContext.request.contextPath}/api/auth/register/citizen" method="post" class="space-y-5">
-                                <div>
-                                    <label for="fullName" class="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
-                                    <input id="fullName" type="text" name="fullName" placeholder="John Doe" required
-                                           class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
-                                </div>
-
-                                <div>
-                                    <label for="email" class="mb-2 block text-sm font-medium text-slate-700">Email Address</label>
-                                    <div class="relative">
-                                        <input id="email" type="email" name="email" placeholder="name@domain.com" required
-                                               class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pr-12 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
-                                        <svg class="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                        </svg>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label for="phone" class="mb-2 block text-sm font-medium text-slate-700">Phone Number</label>
-                                    <input id="phone" type="tel" name="phone" placeholder="+977-9800000000" required
-                                           class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
-                                </div>
-
-                                <div>
-                                    <label for="password" class="mb-2 block text-sm font-medium text-slate-700">Password</label>
-                                    <input id="password" type="password" name="password" required
-                                           class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
-                                    <p class="mt-2 text-xs leading-5 text-slate-500">Must be at least 8 characters, with one uppercase and one symbol.</p>
-                                </div>
-
-                                <div class="grid gap-5 md:grid-cols-2">
-                                    <div>
-                                        <label for="dateOfBirth" class="mb-2 block text-sm font-medium text-slate-700">Date of Birth</label>
-                                        <input id="dateOfBirth" type="date" name="dateOfBirth" required
-                                               class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100">
-                                    </div>
-
-                                    <div>
-                                        <span class="mb-2 block text-sm font-medium text-slate-700">Gender</span>
-                                        <div class="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-1">
-                                            <button type="button" class="gender-toggle rounded-xl bg-brand-600 px-3 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700" data-value="Male">Male</button>
-                                            <button type="button" class="gender-toggle rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900" data-value="Female">Female</button>
-                                            <button type="button" class="gender-toggle rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900" data-value="Other">Other</button>
-                                            <input type="hidden" name="gender" id="gender-input" value="Male">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button type="submit"
-                                        class="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-slate-300">
-                                    Register
-                                </button>
-                            </form>
-
-                            <p class="mt-6 text-center text-sm text-slate-600">
-                                Already have an account?
-                                <a href="login.jsp" class="font-semibold text-brand-600 transition hover:text-brand-700">Login</a>
-                            </p>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <footer class="mt-6 flex flex-col items-center justify-between gap-3 px-2 text-center text-sm text-slate-300 sm:flex-row sm:text-left">
-                <div class="text-lg font-semibold text-white">SarkarSathi</div>
-                <div class="flex flex-wrap items-center justify-center gap-4">
-                    <a href="#" class="transition hover:text-white">Privacy Policy</a>
-                    <a href="#" class="transition hover:text-white">Terms of Service</a>
-                    <a href="#" class="transition hover:text-white">Accessibility</a>
-                    <a href="#" class="transition hover:text-white">Sitemap</a>
                 </div>
-                <div>&copy; 2024 SarkarSathi Municipal Services. All rights reserved.</div>
-            </footer>
-        </div>
+            </section>
+
+            <section class="flex items-center justify-center bg-[#f7f7fb] px-6 py-10 lg:px-12">
+                <div class="w-full max-w-lg">
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Create Your Citizen Account</h2>
+                        <p class="mt-3 text-base text-slate-600">Complete the form below to access municipal services.</p>
+                    </div>
+
+                    <div class="mt-8">
+                        <form action="${pageContext.request.contextPath}/api/auth/register/citizen" method="post" class="space-y-5">
+                            <div>
+                                <label for="fullName" class="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
+                                <input
+                                    id="fullName"
+                                    type="text"
+                                    name="fullName"
+                                    placeholder="John Doe"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="email" class="mb-2 block text-sm font-medium text-slate-700">Email Address</label>
+                                <div class="relative">
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        placeholder="name@domain.com"
+                                        required
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                    >
+                                    <span class="pointer-events-none absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-[#1f7a2e] text-white">
+                                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="phone" class="mb-2 block text-sm font-medium text-slate-700">Phone Number</label>
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    name="phone"
+                                    placeholder="+977-9800000000"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="password" class="mb-2 block text-sm font-medium text-slate-700">Password</label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                >
+                                <p class="mt-2 text-xs text-slate-500">Must be at least 8 characters, with one uppercase and one symbol.</p>
+                            </div>
+
+                            <div class="grid gap-5 md:grid-cols-[1fr_1.1fr]">
+                                <div>
+                                    <label for="dateOfBirth" class="mb-2 block text-sm font-medium text-slate-700">Date of Birth</label>
+                                    <div class="relative">
+                                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                        </span>
+                                        <input
+                                            id="dateOfBirth"
+                                            type="date"
+                                            name="dateOfBirth"
+                                            required
+                                            class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span class="mb-2 block text-sm font-medium text-slate-700">Gender</span>
+                                    <div class="grid grid-cols-3 rounded-xl bg-slate-100 p-1">
+                                        <button type="button" class="gender-toggle rounded-lg bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm transition" data-value="Male">Male</button>
+                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="Female">Female</button>
+                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="Other">Other</button>
+                                        <input type="hidden" name="gender" id="gender-input" value="Male">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="inline-flex w-full items-center justify-center rounded-xl bg-[#154a91] px-5 py-3 text-base font-semibold text-white shadow-md transition hover:bg-[#103b74] focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-1"
+                            >
+                                Register
+                            </button>
+                        </form>
+
+                        <div class="mt-8 text-center text-sm text-slate-600">
+                            Already have an account?
+                            <a href="login.jsp" class="ml-1 font-semibold text-[#0b3d86] transition hover:text-[#154a91]">Login</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+
     </div>
 
     <script>
@@ -161,13 +168,11 @@
         function setActiveGender(activeButton) {
             toggleButtons.forEach((button) => {
                 const isActive = button === activeButton;
-                button.classList.toggle("bg-brand-600", isActive);
-                button.classList.toggle("text-white", isActive);
+                button.classList.toggle("bg-white", isActive);
+                button.classList.toggle("text-slate-800", isActive);
                 button.classList.toggle("shadow-sm", isActive);
-                button.classList.toggle("hover:bg-brand-700", isActive);
-                button.classList.toggle("text-slate-600", !isActive);
-                button.classList.toggle("hover:bg-white", !isActive);
-                button.classList.toggle("hover:text-slate-900", !isActive);
+                button.classList.toggle("text-slate-500", !isActive);
+                button.classList.toggle("hover:text-slate-700", !isActive);
             });
 
             genderInput.value = activeButton.dataset.value;
