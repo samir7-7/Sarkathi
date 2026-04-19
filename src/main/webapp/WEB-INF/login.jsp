@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900">
+    <% String error = request.getParameter("error"); %>
+    <% String registered = request.getParameter("registered"); %>
     <div class="flex min-h-screen flex-col">
         <main class="grid flex-1 lg:grid-cols-2">
             <section class="relative hidden overflow-hidden lg:flex">
@@ -64,7 +66,18 @@
                     </div>
 
                     <div class="mt-8 rounded-2xl bg-white px-6 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:px-8">
+                        <% if ("1".equals(registered)) { %>
+                            <div class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+                                Registration completed. Please log in with your new citizen account.
+                            </div>
+                        <% } %>
+                        <% if (error != null && !error.isBlank()) { %>
+                            <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+                                <%= error %>
+                            </div>
+                        <% } %>
                         <form action="${pageContext.request.contextPath}/api/auth/login" method="post" class="space-y-6">
+                            <input type="hidden" name="userType" value="citizen">
                             <div>
                                 <label for="email" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-800">Email Address</label>
                                 <input
@@ -82,14 +95,25 @@
                                     <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-800">Password</label>
                                     <a href="#" class="text-xs font-semibold text-[#0b3d86] transition hover:text-[#154a91]">Forgot Password?</a>
                                 </div>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    placeholder="••••••••"
-                                    required
-                                    class="w-full rounded-xl border border-slate-200 bg-[#f4f5fa] px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
-                                >
+                                <div class="relative">
+                                    <input
+                                        id="password"
+                                        type="password"
+                                        name="password"
+                                        placeholder="Password"
+                                        required
+                                        class="w-full rounded-xl border border-slate-200 bg-[#f4f5fa] px-4 py-3 pr-16 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                    >
+                                    <button
+                                        type="button"
+                                        class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold uppercase tracking-wider text-slate-500 transition hover:text-[#154a91]"
+                                        data-target="password"
+                                        aria-label="Show password"
+                                        aria-pressed="false"
+                                    >
+                                        Show
+                                    </button>
+                                </div>
                             </div>
 
                             <button
@@ -119,8 +143,19 @@
                 </div>
             </section>
         </main>
-
-       
     </div>
+    <script>
+        document.querySelectorAll(".password-toggle").forEach((button) => {
+            button.addEventListener("click", () => {
+                const input = document.getElementById(button.dataset.target);
+                const showPassword = input.type === "password";
+
+                input.type = showPassword ? "text" : "password";
+                button.textContent = showPassword ? "Hide" : "Show";
+                button.setAttribute("aria-label", showPassword ? "Hide password" : "Show password");
+                button.setAttribute("aria-pressed", String(showPassword));
+            });
+        });
+    </script>
 </body>
 </html>

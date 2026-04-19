@@ -35,6 +35,9 @@
     </style>
 </head>
 <body class="bg-[#fafafc] text-slate-800">
+    <% String displayName = (String) session.getAttribute("displayName"); %>
+    <% boolean loggedIn = displayName != null && !displayName.isBlank(); %>
+    <% String login = request.getParameter("login"); %>
     <div class="relative isolate overflow-hidden">
         <!-- Subtle background gradients -->
         <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/50 via-white to-white"></div>
@@ -52,8 +55,12 @@
                 </div>
 
                 <div class="flex items-center gap-6">
-                    <a href="login.jsp" class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block">Login</a>
-                    <a href="register.jsp" class="inline-flex items-center rounded-xl bg-brand-900 px-6 py-2.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-800">Register</a>
+                    <% if (loggedIn) { %>
+                        <span class="hidden text-[15px] font-semibold text-brand-900 sm:inline-block">Welcome, <%= displayName %></span>
+                    <% } else { %>
+                        <a href="login.jsp" class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block">Login</a>
+                        <a href="register.jsp" class="inline-flex items-center rounded-xl bg-brand-900 px-6 py-2.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-800">Register</a>
+                    <% } %>
                 </div>
             </nav>
         </header>
@@ -62,6 +69,11 @@
             <section class="px-6 pb-16 pt-16 lg:px-12 lg:pb-24 lg:pt-20">
                 <div class="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[1fr_1fr]">
                     <div class="max-w-2xl">
+                        <% if ("success".equals(login) && loggedIn) { %>
+                            <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-green-800 shadow-sm">
+                                Citizen login successful
+                            </div>
+                        <% } %>
                         <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-900 shadow-sm">
                             <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                             Official Portal of Nepal Municipality
