@@ -120,8 +120,10 @@
                 <version>2.2</version>
                 <configuration>
                     <port>7777</port>
-                    <path>/</path>
+                    <path>/SarkarSatthi</path>
                     <ignorePackaging>true</ignorePackaging>
+                    <update>true</update>
+                    <reload>true</reload>
                 </configuration>
             </plugin>
         </plugins>

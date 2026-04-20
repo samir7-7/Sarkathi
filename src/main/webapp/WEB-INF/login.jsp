@@ -218,7 +218,7 @@
             </section>
         </main>
     </div>
-<<<<<<< HEAD
+
     <script>
         document.querySelectorAll(".password-toggle").forEach((button) => {
             button.addEventListener("click", () => {
@@ -231,9 +231,9 @@
                 button.setAttribute("aria-pressed", String(showPassword));
             });
         });
-=======
 
-    <script>
+
+    
         // Role toggle logic
         const citizenRadio = document.getElementById('role-citizen');
         const adminRadio = document.getElementById('role-admin');
@@ -257,12 +257,11 @@
         adminRadio.addEventListener('change', updateRole);
 
         // Preserve selection after error
-        <% String prevUserType = request.getParameter("userType"); %>
-        <% if ("admin".equals(prevUserType)) { %>
+        var userType = '<%= request.getParameter("userType") != null ? request.getParameter("userType") : "" %>';
+        if (userType === 'admin') {
             adminRadio.checked = true;
             updateRole();
-        <% } %>
->>>>>>> origin/frontend
+        }
     </script>
 </body>
 </html>

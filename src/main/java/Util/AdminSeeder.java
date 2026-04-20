@@ -89,7 +89,10 @@ public class AdminSeeder {
 
         } catch (SQLException e) {
             System.err.println("Database error: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Stack trace:");
+            for (StackTraceElement element : e.getStackTrace()) {
+                System.err.println("  at " + element);
+            }
         }
     }
 

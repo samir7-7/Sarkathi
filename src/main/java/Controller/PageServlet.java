@@ -1,14 +1,14 @@
 package Controller;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.Map;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "pageServlet", urlPatterns = {"/", "/index.jsp", "/login.jsp", "/register.jsp"})
 public class PageServlet extends HttpServlet {
@@ -22,6 +22,12 @@ public class PageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String servletPath = request.getServletPath();
+        
+        // Handle empty path (root request) or missing servlet path
+        if (servletPath == null || servletPath.isEmpty() || "/".equals(servletPath)) {
+            servletPath = "/";
+        }
+        
         String target = PAGE_MAPPINGS.get(servletPath);
 
         if (target == null) {

@@ -54,7 +54,6 @@
                     <a href="#" class="transition hover:text-brand-900">Agriculture</a>
                 </div>
 
-<<<<<<< HEAD
                 <div class="flex items-center gap-6">
                     <% if (loggedIn) { %>
                         <span class="hidden text-[15px] font-semibold text-brand-900 sm:inline-block">Welcome, <%= displayName %></span>
@@ -65,22 +64,6 @@
                 </div>
             </nav>
         </header>
-=======
-          <div class="flex items-center gap-6">
-            <a
-              href="${pageContext.request.contextPath}/login"
-              class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block"
-              >Login</a
-            >
-            <a
-              href="register.jsp"
-              class="inline-flex items-center rounded-xl bg-brand-900 px-6 py-2.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-800"
-              >Register</a
-            >
-          </div>
-        </nav>
-      </header>
->>>>>>> origin/frontend
 
         <main>
             <section class="px-6 pb-16 pt-16 lg:px-12 lg:pb-24 lg:pt-20">
@@ -105,7 +88,6 @@
                             Experience a seamless bridge between citizens and administration. Access public services, track progress, and contribute to your community's growth effortlessly.
                         </p>
 
-<<<<<<< HEAD
                         <div class="mt-10 flex flex-col gap-4 sm:flex-row">
                             <a href="register.jsp" class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-900 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-900/20 transition hover:bg-brand-800">
                                 Get Started
@@ -115,50 +97,6 @@
                                 Explore Services
                             </a>
                         </div>
-=======
-              <div class="mt-10 flex flex-col gap-4 sm:flex-row">
-                <a
-                  href="${pageContext.request.contextPath}/login"
-                  class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-900 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-900/20 transition hover:bg-brand-800"
-                >
-                  Get Started
-                  <i data-lucide="arrow-right" class="h-4 w-4"></i>
-                </a>
-                <a
-                  href="#"
-                  class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-8 py-4 text-base font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-                >
-                  Explore Services
-                </a>
-              </div>
-            </div>
-
-            <div class="relative">
-              <div
-                class="absolute -right-10 -top-10 h-64 w-64 rounded-full border border-slate-200 bg-transparent"
-              ></div>
-              <div
-                class="absolute -right-4 -top-4 h-64 w-64 rounded-full border border-slate-200 bg-transparent"
-              ></div>
-
-              <div
-                class="relative overflow-hidden rounded-[2rem] bg-white p-2 shadow-2xl shadow-slate-200"
-              >
-                <img
-                  class="h-[500px] w-full rounded-[1.5rem] object-cover"
-                  src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800&auto=format&fit=crop"
-                  alt="Himalayas"
-                />
-
-                <div
-                  class="absolute -left-6 bottom-12 rounded-2xl border border-white/40 bg-white/60 p-4 pr-12 shadow-xl backdrop-blur-md"
-                >
-                  <div class="flex items-start gap-4">
-                    <div
-                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-50 text-green-600 shadow-sm"
-                    >
-                      <i data-lucide="shield-check" class="h-5 w-5"></i>
->>>>>>> origin/frontend
                     </div>
 
                     <div class="relative">
