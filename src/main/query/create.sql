@@ -106,7 +106,7 @@ CREATE TABLE `ISSUED_CERTIFICATE` (
 );
 
 CREATE TABLE `NOTIFICATION` (
-  `NotificationID` INT PRIMARY KEY,
+  `NotificationID` INT PRIMARY KEY AUTO_INCREMENT,
   `CitizenID` INT,
   `ApplicationID` INT,
   `Message` TEXT,
