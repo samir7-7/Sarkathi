@@ -70,7 +70,7 @@
 
           <div class="flex items-center gap-6">
             <a
-              href="login.jsp"
+              href="${pageContext.request.contextPath}/login"
               class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block"
               >Login</a
             >
@@ -111,7 +111,7 @@
 
               <div class="mt-10 flex flex-col gap-4 sm:flex-row">
                 <a
-                  href="register.jsp"
+                  href="${pageContext.request.contextPath}/login"
                   class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-900 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-900/20 transition hover:bg-brand-800"
                 >
                   Get Started

@@ -1,4 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+    String adminName = (String) request.getAttribute("adminName");
+    String adminEmail = (String) request.getAttribute("adminEmail");
+    String adminRole = (String) request.getAttribute("adminRole");
+    if (adminName == null) adminName = "Admin";
+    if (adminEmail == null) adminEmail = "";
+    if (adminRole == null) adminRole = "admin";
+    String initials = "";
+    String[] parts = adminName.split(" ");
+    for (String p : parts) { if (!p.isEmpty()) initials += p.charAt(0); }
+    if (initials.length() > 2) initials = initials.substring(0, 2);
+    initials = initials.toUpperCase();
+%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -145,8 +158,8 @@
             <i data-lucide="landmark" class="h-4 w-4"></i>
           </div>
           <div>
-            <p class="text-sm font-semibold text-brand-900">Admin Portal</p>
-            <p class="text-[11px] text-slate-500">City Governance</p>
+            <p class="text-sm font-semibold text-brand-900"><%= adminName %></p>
+            <p class="text-[11px] text-slate-500"><%= adminRole.substring(0,1).toUpperCase() + adminRole.substring(1) %></p>
           </div>
         </div>
 
@@ -215,9 +228,19 @@
               <i data-lucide="settings" class="h-[18px] w-[18px]"></i>
             </button>
             <div class="h-5 w-px bg-slate-200"></div>
-            <button id="btn-profile" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-slate-800 text-white ring-2 ring-slate-200 ring-offset-2">
-              <i data-lucide="user" class="h-4 w-4"></i>
-            </button>
+            <div class="flex items-center gap-3">
+              <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-brand-900 text-white text-xs font-bold ring-2 ring-slate-200 ring-offset-2">
+                <%= initials %>
+              </div>
+              <div class="hidden sm:block">
+                <p class="text-sm font-semibold text-slate-800 leading-none"><%= adminName %></p>
+                <p class="text-[11px] text-slate-400 mt-0.5"><%= adminEmail %></p>
+              </div>
+            </div>
+            <a href="<%= request.getContextPath() %>/logout" id="btn-logout" class="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 hover:border-red-200">
+              <i data-lucide="log-out" class="h-3.5 w-3.5"></i>
+              Logout
+            </a>
           </div>
         </header>
 
