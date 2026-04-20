@@ -113,20 +113,6 @@
                     </div>
 
                     <div class="mt-8 rounded-2xl bg-white px-6 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:px-8">
-<<<<<<< HEAD
-                        <% if ("1".equals(registered)) { %>
-                            <div class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
-                                Registration completed. Please log in with your new citizen account.
-                            </div>
-                        <% } %>
-                        <% if (error != null && !error.isBlank()) { %>
-                            <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
-                                <%= error %>
-                            </div>
-                        <% } %>
-                        <form action="${pageContext.request.contextPath}/api/auth/login" method="post" class="space-y-6">
-                            <input type="hidden" name="userType" value="citizen">
-=======
 
                         <!-- Error message display -->
                         <% String error = (String) request.getAttribute("error"); %>
@@ -165,7 +151,6 @@
                         <form id="login-form" action="${pageContext.request.contextPath}/login" method="post" class="space-y-6">
                             <input type="hidden" name="userType" id="userType" value="citizen">
 
->>>>>>> origin/frontend
                             <div>
                                 <label for="email" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-800">Email Address</label>
                                 <input
