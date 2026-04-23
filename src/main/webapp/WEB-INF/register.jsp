@@ -8,7 +8,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900">
-    <% String error = request.getParameter("error"); %>
+    <%
+        String error = (String) request.getAttribute("error");
+        if (error == null) {
+            error = request.getParameter("error");
+        }
+        String fullName = (String) request.getAttribute("fullName");
+        if (fullName == null) fullName = "";
+        String email = (String) request.getAttribute("email");
+        if (email == null) email = "";
+        String phone = (String) request.getAttribute("phone");
+        if (phone == null) phone = "";
+        String dateOfBirth = (String) request.getAttribute("dateOfBirth");
+        if (dateOfBirth == null) dateOfBirth = "";
+        String gender = (String) request.getAttribute("gender");
+        if (gender == null || gender.isBlank()) gender = "M";
+    %>
     <div class="flex min-h-screen flex-col">
         <main class="grid flex-1 lg:grid-cols-2">
             <section class="relative hidden overflow-hidden lg:flex">
@@ -58,7 +73,7 @@
                                 <%= error %>
                             </div>
                         <% } %>
-                        <form action="${pageContext.request.contextPath}/api/auth/register/citizen" method="post" class="space-y-5">
+                        <form action="${pageContext.request.contextPath}/register" method="post" class="space-y-5">
                             <div>
                                 <label for="fullName" class="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
                                 <input
@@ -66,6 +81,7 @@
                                     type="text"
                                     name="fullName"
                                     placeholder="John Doe"
+                                    value="<%= fullName %>"
                                     required
                                     class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
                                 >
@@ -75,12 +91,13 @@
                                 <label for="email" class="mb-2 block text-sm font-medium text-slate-700">Email Address</label>
                                 <div class="relative">
                                     <input
-                                        id="email"
-                                        type="email"
-                                        name="email"
-                                        placeholder="name@domain.com"
-                                        required
-                                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    placeholder="name@domain.com"
+                                    value="<%= email %>"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
                                     >
                                     <span class="pointer-events-none absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-[#1f7a2e] text-white">
                                         <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -97,6 +114,7 @@
                                     type="tel"
                                     name="phone"
                                     placeholder="+977-9800000000"
+                                    value="<%= phone %>"
                                     required
                                     class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
                                 >
@@ -141,6 +159,7 @@
                                             id="dateOfBirth"
                                             type="date"
                                             name="dateOfBirth"
+                                            value="<%= dateOfBirth %>"
                                             required
                                             class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
                                         >
@@ -150,10 +169,10 @@
                                 <div>
                                     <span class="mb-2 block text-sm font-medium text-slate-700">Gender</span>
                                     <div class="grid grid-cols-3 rounded-xl bg-slate-100 p-1">
-                                        <button type="button" class="gender-toggle rounded-lg bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm transition" data-value="M">Male</button>
-                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="F">Female</button>
-                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition" data-value="O">Other</button>
-                                        <input type="hidden" name="gender" id="gender-input" value="M">
+                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium transition" data-value="M">Male</button>
+                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium transition" data-value="F">Female</button>
+                                        <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium transition" data-value="O">Other</button>
+                                        <input type="hidden" name="gender" id="gender-input" value="<%= gender %>">
                                     </div>
                                 </div>
                             </div>
@@ -168,7 +187,7 @@
 
                         <div class="mt-8 text-center text-sm text-slate-600">
                             Already have an account?
-                            <a href="login.jsp" class="ml-1 font-semibold text-[#0b3d86] transition hover:text-[#154a91]">Login</a>
+                            <a href="${pageContext.request.contextPath}/login" class="ml-1 font-semibold text-[#0b3d86] transition hover:text-[#154a91]">Login</a>
                         </div>
                     </div>
                 </div>
@@ -197,6 +216,9 @@
 
         toggleButtons.forEach((button) => {
             button.addEventListener("click", () => setActiveGender(button));
+            if (button.dataset.value === "<%= gender %>") {
+                setActiveGender(button);
+            }
         });
 
         document.querySelectorAll(".password-toggle").forEach((button) => {

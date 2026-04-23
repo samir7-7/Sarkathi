@@ -60,6 +60,20 @@
         if (error == null) {
             error = request.getParameter("error");
         }
+        String userType = (String) request.getAttribute("userType");
+        if (userType == null || userType.isBlank()) {
+            userType = request.getParameter("userType");
+        }
+        if (userType == null || userType.isBlank()) {
+            userType = "citizen";
+        }
+        String email = (String) request.getAttribute("email");
+        if (email == null) {
+            email = request.getParameter("email");
+        }
+        if (email == null) {
+            email = "";
+        }
     %>
     <% String registered = request.getParameter("registered"); %>
     <div class="flex min-h-screen flex-col">
@@ -118,6 +132,14 @@
                     </div>
 
                     <div class="mt-8 rounded-2xl bg-white px-6 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:px-8">
+                        <% if ("success".equals(registered)) { %>
+                        <div class="mb-5 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                            <svg class="h-5 w-5 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                            <p class="text-sm font-medium text-emerald-700">Registration successful. Please log in.</p>
+                        </div>
+                        <% } %>
 
                         <!-- Error message display -->
                         <% if (error != null) { %>
@@ -135,14 +157,14 @@
                         <div class="mb-6">
                             <p class="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-800">Login As</p>
                             <div class="role-toggle" id="role-toggle">
-                                <input type="radio" name="roleToggle" id="role-citizen" value="citizen" checked>
+                                <input type="radio" name="roleToggle" id="role-citizen" value="citizen" <%= "citizen".equalsIgnoreCase(userType) ? "checked" : "" %>>
                                 <label for="role-citizen">
                                     <span class="inline-flex items-center gap-1.5">
                                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                         Citizen
                                     </span>
                                 </label>
-                                <input type="radio" name="roleToggle" id="role-admin" value="admin">
+                                <input type="radio" name="roleToggle" id="role-admin" value="admin" <%= "admin".equalsIgnoreCase(userType) ? "checked" : "" %>>
                                 <label for="role-admin">
                                     <span class="inline-flex items-center gap-1.5">
                                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -153,7 +175,7 @@
                         </div>
 
                         <form id="login-form" action="${pageContext.request.contextPath}/login" method="post" class="space-y-6">
-                            <input type="hidden" name="userType" id="userType" value="citizen">
+                            <input type="hidden" name="userType" id="userType" value="<%= userType %>">
 
                             <div>
                                 <label for="email" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-800">Email Address</label>
@@ -162,6 +184,7 @@
                                     type="email"
                                     name="email"
                                     placeholder="name@example.com"
+                                    value="<%= email %>"
                                     required
                                     class="w-full rounded-xl border border-slate-200 bg-[#f4f5fa] px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100"
                                 >
@@ -206,9 +229,9 @@
                             </button>
                         </form>
 
-                        <div id="register-link" class="mt-8 border-t border-slate-100 pt-6 text-center text-sm text-slate-600">
+                        <div id="register-link" class="mt-8 border-t border-slate-100 pt-6 text-center text-sm text-slate-600" <%= "admin".equalsIgnoreCase(userType) ? "style='display: none;'" : "" %>>
                             Don't have an account?
-                            <a href="register.jsp" class="ml-1 font-semibold text-[#157a2f] transition hover:text-[#0f5d24]">Register as a Citizen</a>
+                            <a href="${pageContext.request.contextPath}/register.jsp" class="ml-1 font-semibold text-[#157a2f] transition hover:text-[#0f5d24]">Register as a Citizen</a>
                         </div>
                     </div>
 
@@ -261,7 +284,9 @@
         adminRadio.addEventListener('change', updateRole);
 
         // Preserve selection after error
-        var userType = '<%= request.getParameter("userType") != null ? request.getParameter("userType") : "" %>';
+        updateRole();
+
+        var userType = '<%= userType %>';
         if (userType === 'admin') {
             adminRadio.checked = true;
             updateRole();
