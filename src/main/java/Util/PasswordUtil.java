@@ -11,6 +11,15 @@ public final class PasswordUtil {
     }
 
     public static boolean matches(String rawPassword, String hashedPassword) {
-        return hashedPassword != null && BCrypt.checkpw(rawPassword, hashedPassword);
+        if (rawPassword == null || hashedPassword == null) {
+            return false;
+        }
+
+        try {
+            return BCrypt.checkpw(rawPassword, hashedPassword);
+        } catch (IllegalArgumentException invalidHash) {
+            // Gracefully handle legacy/plain-text records instead of failing the whole login.
+            return rawPassword.equals(hashedPassword);
+        }
     }
 }

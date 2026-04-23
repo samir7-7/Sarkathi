@@ -55,7 +55,12 @@
     </style>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900">
-    <% String error = request.getParameter("error"); %>
+    <%
+        String error = (String) request.getAttribute("error");
+        if (error == null) {
+            error = request.getParameter("error");
+        }
+    %>
     <% String registered = request.getParameter("registered"); %>
     <div class="flex min-h-screen flex-col">
         <main class="grid flex-1 lg:grid-cols-2">
@@ -115,7 +120,6 @@
                     <div class="mt-8 rounded-2xl bg-white px-6 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:px-8">
 
                         <!-- Error message display -->
-                        <% String error = (String) request.getAttribute("error"); %>
                         <% if (error != null) { %>
                         <div id="error-alert" class="mb-5 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 shake">
                             <svg class="h-5 w-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

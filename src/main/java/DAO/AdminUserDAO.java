@@ -16,7 +16,7 @@ public class AdminUserDAO {
     }
 
     public Optional<AdminUser> findByEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM ADMIN_USER WHERE Email = ?";
+        String sql = "SELECT * FROM ADMIN_USER WHERE LOWER(TRIM(Email)) = LOWER(TRIM(?))";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, email);
             try (ResultSet resultSet = statement.executeQuery()) {

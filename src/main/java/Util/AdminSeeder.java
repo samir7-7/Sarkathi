@@ -37,54 +37,10 @@ public class AdminSeeder {
         System.out.println("Seeding 5 admin accounts...\n");
 
         try (Connection connection = DatabaseConnection.getConnection()) {
-
-            // Ensure wards 1-5 exist
-            seedWards(connection);
-
-            String checkSql = "SELECT COUNT(*) FROM ADMIN_USER WHERE Email = ?";
-            String insertSql = "INSERT INTO ADMIN_USER (AdminID, WardID, FullName, Email, PasswordHash, Role) VALUES (?, ?, ?, ?, ?, ?)";
-
-            int created = 0;
-            int skipped = 0;
-
-            for (String[] admin : ADMINS) {
-                int adminId = Integer.parseInt(admin[0]);
-                String fullName = admin[1];
-                String email = admin[2];
-                String password = admin[3];
-                String role = admin[4];
-                int wardId = Integer.parseInt(admin[5]);
-
-                // Check if admin already exists
-                try (PreparedStatement check = connection.prepareStatement(checkSql)) {
-                    check.setString(1, email);
-                    try (ResultSet rs = check.executeQuery()) {
-                        rs.next();
-                        if (rs.getInt(1) > 0) {
-                            System.out.println("  SKIP  : " + email + " (already exists)");
-                            skipped++;
-                            continue;
-                        }
-                    }
-                }
-
-                // Hash password and insert
-                String hashedPassword = PasswordUtil.hash(password);
-                try (PreparedStatement insert = connection.prepareStatement(insertSql)) {
-                    insert.setInt(1, adminId);
-                    insert.setInt(2, wardId);
-                    insert.setString(3, fullName);
-                    insert.setString(4, email);
-                    insert.setString(5, hashedPassword);
-                    insert.setString(6, role);
-                    insert.executeUpdate();
-                    System.out.println("  CREATE: " + email + " (" + role + ", Ward " + wardId + ")");
-                    created++;
-                }
-            }
+            SeedResult result = seedAdmins(connection, false);
 
             System.out.println("\n=== Done ===");
-            System.out.println("Created: " + created + " | Skipped: " + skipped);
+            System.out.println("Created: " + result.created + " | Skipped: " + result.skipped);
             System.out.println("\nAll admin credentials use password: Admin@123");
 
         } catch (SQLException e) {
@@ -92,6 +48,70 @@ public class AdminSeeder {
             System.err.println("Stack trace:");
             for (StackTraceElement element : e.getStackTrace()) {
                 System.err.println("  at " + element);
+            }
+        }
+    }
+
+    public static boolean seedAdminsIfMissing() throws SQLException {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            SeedResult result = seedAdmins(connection, true);
+            return result.created > 0;
+        }
+    }
+
+    private static SeedResult seedAdmins(Connection connection, boolean onlyWhenTableEmpty) throws SQLException {
+        seedWards(connection);
+
+        if (onlyWhenTableEmpty && hasExistingAdmins(connection)) {
+            return new SeedResult(0, ADMINS.length);
+        }
+
+        String checkSql = "SELECT COUNT(*) FROM ADMIN_USER WHERE Email = ?";
+        String insertSql = "INSERT INTO ADMIN_USER (AdminID, WardID, FullName, Email, PasswordHash, Role) VALUES (?, ?, ?, ?, ?, ?)";
+
+        int created = 0;
+        int skipped = 0;
+
+        for (String[] admin : ADMINS) {
+            int adminId = Integer.parseInt(admin[0]);
+            String fullName = admin[1];
+            String email = admin[2];
+            String password = admin[3];
+            String role = admin[4];
+            int wardId = Integer.parseInt(admin[5]);
+
+            try (PreparedStatement check = connection.prepareStatement(checkSql)) {
+                check.setString(1, email);
+                try (ResultSet rs = check.executeQuery()) {
+                    rs.next();
+                    if (rs.getInt(1) > 0) {
+                        skipped++;
+                        continue;
+                    }
+                }
+            }
+
+            String hashedPassword = PasswordUtil.hash(password);
+            try (PreparedStatement insert = connection.prepareStatement(insertSql)) {
+                insert.setInt(1, adminId);
+                insert.setInt(2, wardId);
+                insert.setString(3, fullName);
+                insert.setString(4, email);
+                insert.setString(5, hashedPassword);
+                insert.setString(6, role);
+                insert.executeUpdate();
+                created++;
+            }
+        }
+
+        return new SeedResult(created, skipped);
+    }
+
+    private static boolean hasExistingAdmins(Connection connection) throws SQLException {
+        try (PreparedStatement check = connection.prepareStatement("SELECT COUNT(*) FROM ADMIN_USER")) {
+            try (ResultSet rs = check.executeQuery()) {
+                rs.next();
+                return rs.getInt(1) > 0;
             }
         }
     }
@@ -125,6 +145,16 @@ public class AdminSeeder {
                 insert.executeUpdate();
                 System.out.println("  WARD  : Created Ward " + ward[1]);
             }
+        }
+    }
+
+    private static final class SeedResult {
+        private final int created;
+        private final int skipped;
+
+        private SeedResult(int created, int skipped) {
+            this.created = created;
+            this.skipped = skipped;
         }
     }
 }
