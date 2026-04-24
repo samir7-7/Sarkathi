@@ -18,9 +18,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @WebServlet(name = "loginServlet", urlPatterns = "/login")
 public class LoginServlet extends HttpServlet {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -47,7 +49,11 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        email = email.trim();
+        email = email.trim().toLowerCase();
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            forwardToLogin(request, response, "Please enter a valid email address.", email, userType);
+            return;
+        }
         if (userType == null || userType.isBlank()) {
             userType = "citizen";
         }
@@ -73,6 +79,7 @@ public class LoginServlet extends HttpServlet {
 
         if (adminUser.isPresent() && PasswordUtil.matches(password, adminUser.get().getPasswordHash())) {
             HttpSession session = request.getSession(true);
+            session.setMaxInactiveInterval(30 * 60);
             session.setAttribute("role", "admin");
             session.setAttribute("adminId", adminUser.get().getAdminId());
             session.setAttribute("fullName", adminUser.get().getFullName());
@@ -94,12 +101,13 @@ public class LoginServlet extends HttpServlet {
 
         if (citizen.isPresent() && PasswordUtil.matches(password, citizen.get().getPasswordHash())) {
             HttpSession session = request.getSession(true);
+            session.setMaxInactiveInterval(30 * 60);
             session.setAttribute("role", "citizen");
             session.setAttribute("citizenId", citizen.get().getCitizenId());
             session.setAttribute("fullName", citizen.get().getFullName());
             session.setAttribute("email", citizen.get().getEmail());
 
-            response.sendRedirect(request.getContextPath() + "/");
+            response.sendRedirect(request.getContextPath() + "/citizen/dashboard");
         } else {
             forwardToLogin(request, response, "Invalid credentials. Please check your email and password.", email, "citizen");
         }
