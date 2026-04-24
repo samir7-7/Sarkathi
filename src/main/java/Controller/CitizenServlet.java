@@ -2,6 +2,8 @@ package Controller;
 
 import DAO.CitizenDAO;
 import DAO.CitizenDocumentVaultDAO;
+import Model.Citizen;
+import Model.CitizenDocumentVault;
 import Util.DatabaseConnection;
 
 import jakarta.servlet.annotation.WebServlet;
@@ -16,9 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import Model.Citizen;
-import Model.CitizenDocumentVault;
-
 @WebServlet(name = "citizenServlet", urlPatterns = "/api/citizens/*")
 public class CitizenServlet extends BaseApiServlet {
     @Override
@@ -29,17 +28,20 @@ public class CitizenServlet extends BaseApiServlet {
             CitizenDocumentVaultDAO vaultDAO = new CitizenDocumentVaultDAO(connection);
 
             if (path.isBlank() || "/".equals(path)) {
+                requireAdmin(request);
                 writeJson(response, HttpServletResponse.SC_OK, citizensToJson(citizenDAO.findAll()));
                 return;
             }
 
             if (path.endsWith("/documents")) {
                 int citizenId = extractCitizenId(path.replace("/documents", ""));
+                requireCitizenOwnership(request, citizenId);
                 writeJson(response, HttpServletResponse.SC_OK, documentsToJson(vaultDAO.findByCitizenId(citizenId)));
                 return;
             }
 
             int citizenId = extractCitizenId(path);
+            requireCitizenOwnership(request, citizenId);
             Citizen citizen = citizenDAO.findById(citizenId).orElse(null);
             writeJson(response, HttpServletResponse.SC_OK,
                     "{"
@@ -48,6 +50,8 @@ public class CitizenServlet extends BaseApiServlet {
                             + "}");
         } catch (IllegalArgumentException e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (SecurityException e) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (SQLException e) {
             writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -58,6 +62,7 @@ public class CitizenServlet extends BaseApiServlet {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
         try (Connection connection = DatabaseConnection.getConnection()) {
             int citizenId = extractCitizenId(path);
+            requireCitizenOwnership(request, citizenId);
             CitizenDAO citizenDAO = new CitizenDAO(connection);
             Citizen citizen = citizenDAO.findById(citizenId).orElse(null);
 
@@ -98,6 +103,8 @@ public class CitizenServlet extends BaseApiServlet {
                     "{\"success\":true,\"citizen\":" + toCitizenJson(updatedCitizen) + "}");
         } catch (IllegalArgumentException e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (SecurityException e) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (SQLException e) {
             writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -108,6 +115,7 @@ public class CitizenServlet extends BaseApiServlet {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
         try (Connection connection = DatabaseConnection.getConnection()) {
             int citizenId = extractCitizenId(path);
+            requireAdmin(request);
             CitizenDAO citizenDAO = new CitizenDAO(connection);
 
             if (!citizenDAO.findById(citizenId).isPresent()) {
@@ -120,6 +128,8 @@ public class CitizenServlet extends BaseApiServlet {
                     "{\"success\":true,\"message\":\"Citizen deleted successfully\"}");
         } catch (IllegalArgumentException e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (SecurityException e) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (SQLException e) {
             writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
