@@ -16,9 +16,19 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.regex.Pattern;
 
 @WebServlet(name = "registerServlet", urlPatterns = "/register")
 public class RegisterServlet extends HttpServlet {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^[0-9]{7,15}$");
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -28,10 +38,14 @@ public class RegisterServlet extends HttpServlet {
             citizen.setFullName(getRequiredParameter(request, "fullName"));
             citizen.setEmail(getRequiredParameter(request, "email"));
             citizen.setPhone(getRequiredParameter(request, "phone"));
-            citizen.setPasswordHash(PasswordUtil.hash(getRequiredParameter(request, "password")));
-            citizen.setDateOfBirth(LocalDate.parse(getRequiredParameter(request, "dateOfBirth")));
-            citizen.setGender(getRequiredParameter(request, "gender"));
+            String password = getRequiredParameter(request, "password");
+            citizen.setPasswordHash(PasswordUtil.hash(validatePassword(password)));
+            citizen.setDateOfBirth(validateDateOfBirth(getRequiredParameter(request, "dateOfBirth")));
+            citizen.setGender(validateGender(getRequiredParameter(request, "gender")));
             citizen.setCreatedAt(LocalDateTime.now());
+            citizen.setFullName(validateFullName(citizen.getFullName()));
+            citizen.setEmail(validateEmail(citizen.getEmail()));
+            citizen.setPhone(validatePhone(citizen.getPhone()));
 
             try (Connection connection = DatabaseConnection.getConnection()) {
                 CitizenDAO citizenDAO = new CitizenDAO(connection);
@@ -56,6 +70,52 @@ public class RegisterServlet extends HttpServlet {
             throw new IllegalArgumentException(parameterName + " is required");
         }
         return value.trim();
+    }
+
+    private String validateFullName(String fullName) {
+        if (fullName.length() < 3 || fullName.length() > 100) {
+            throw new IllegalArgumentException("Full name must be between 3 and 100 characters");
+        }
+        return fullName.replaceAll("\\s+", " ").trim();
+    }
+
+    private String validateEmail(String email) {
+        String normalized = email.trim().toLowerCase();
+        if (!EMAIL_PATTERN.matcher(normalized).matches()) {
+            throw new IllegalArgumentException("Please enter a valid email address");
+        }
+        return normalized;
+    }
+
+    private String validatePhone(String phone) {
+        String normalized = phone.replaceAll("[^0-9]", "");
+        if (!PHONE_PATTERN.matcher(normalized).matches()) {
+            throw new IllegalArgumentException("Phone number must contain 7 to 15 digits");
+        }
+        return normalized;
+    }
+
+    private String validatePassword(String password) {
+        if (password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
+        return password;
+    }
+
+    private LocalDate validateDateOfBirth(String value) {
+        LocalDate dateOfBirth = LocalDate.parse(value);
+        int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
+        if (age < 16 || age > 120) {
+            throw new IllegalArgumentException("Citizen age must be between 16 and 120 years");
+        }
+        return dateOfBirth;
+    }
+
+    private String validateGender(String gender) {
+        return switch (gender.trim().toUpperCase()) {
+            case "M", "F", "O" -> gender.trim().toUpperCase();
+            default -> throw new IllegalArgumentException("Gender must be M, F, or O");
+        };
     }
 
     private void forwardToRegister(HttpServletRequest request, HttpServletResponse response, String error)
