@@ -121,11 +121,11 @@ public class AdminSeeder {
         String insertSql = "INSERT INTO WARD (WardID, WardNumber, MunicipalityName, Province) VALUES (?, ?, ?, ?)";
 
         String[][] wards = {
-                { "1", "1", "Kathmandu Metropolitan City", "Bagmati" },
-                { "2", "2", "Kathmandu Metropolitan City", "Bagmati" },
-                { "3", "3", "Kathmandu Metropolitan City", "Bagmati" },
-                { "4", "4", "Kathmandu Metropolitan City", "Bagmati" },
-                { "5", "5", "Kathmandu Metropolitan City", "Bagmati" },
+                { "1", "1", "Birgunj Metropolitan City", "Madhesh" },
+                { "2", "2", "Birgunj Metropolitan City", "Madhesh" },
+                { "3", "3", "Birgunj Metropolitan City", "Madhesh" },
+                { "4", "4", "Birgunj Metropolitan City", "Madhesh" },
+                { "5", "5", "Birgunj Metropolitan City", "Madhesh" },
         };
 
         for (String[] ward : wards) {
