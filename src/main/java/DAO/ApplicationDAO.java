@@ -86,6 +86,16 @@ public class ApplicationDAO extends BaseDAO {
         }
     }
 
+    public Optional<Application> findById(int applicationId) throws SQLException {
+        String sql = "SELECT * FROM APPLICATION WHERE ApplicationID = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, applicationId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? Optional.of(map(resultSet)) : Optional.empty();
+            }
+        }
+    }
+
     public boolean updateStatus(String trackingId, String status, String remarks, int reviewedByAdminId) throws SQLException {
         String sql = """
                 UPDATE APPLICATION
@@ -97,6 +107,21 @@ public class ApplicationDAO extends BaseDAO {
             statement.setString(2, remarks);
             statement.setInt(3, reviewedByAdminId);
             statement.setString(4, trackingId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    public boolean updateStatusById(int applicationId, String status, String remarks, int reviewedByAdminId) throws SQLException {
+        String sql = """
+                UPDATE APPLICATION
+                SET Status = ?, Remarks = ?, ReviewedByAdminID = ?, LastUpdatedAt = CURRENT_TIMESTAMP
+                WHERE ApplicationID = ?
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, status);
+            statement.setString(2, remarks);
+            statement.setInt(3, reviewedByAdminId);
+            statement.setInt(4, applicationId);
             return statement.executeUpdate() > 0;
         }
     }
