@@ -76,6 +76,32 @@ public class CitizenDAO extends BaseDAO {
         return citizens;
     }
 
+    public Citizen update(Citizen citizen) throws SQLException {
+        String sql = """
+                UPDATE CITIZEN
+                SET FullName = ?, Email = ?, Phone = ?, DateOfBirth = ?, Gender = ?
+                WHERE CitizenID = ?
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, citizen.getFullName());
+            statement.setString(2, citizen.getEmail());
+            statement.setString(3, citizen.getPhone());
+            statement.setDate(4, citizen.getDateOfBirth() == null ? null : Date.valueOf(citizen.getDateOfBirth()));
+            statement.setString(5, citizen.getGender());
+            statement.setInt(6, citizen.getCitizenId());
+            statement.executeUpdate();
+        }
+        return citizen;
+    }
+
+    public boolean deleteById(int citizenId) throws SQLException {
+        String sql = "DELETE FROM CITIZEN WHERE CitizenID = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, citizenId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
     private Citizen map(ResultSet resultSet) throws SQLException {
         Citizen citizen = new Citizen();
         citizen.setCitizenId(resultSet.getInt("CitizenID"));

@@ -12,8 +12,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>22</maven.compiler.target>
+        <maven.compiler.source>22</maven.compiler.source>
         <junit.version>5.13.2</junit.version>
     </properties>
 
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.1.0</version>
+            <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -54,6 +54,77 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>check-db</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>Util.DatabaseChecker</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>seed-admins</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>Util.AdminSeeder</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>setup-db</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>Util.DatabaseSetup</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/tomcat/conf"/>
+                                <copy file="${project.basedir}/src/main/resources/tomcat-users.xml" 
+                                      todir="${project.build.directory}/tomcat/conf" 
+                                      failonerror="false"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <port>7777</port>
+                    <path>/SarkarSatthi</path>
+                    <ignorePackaging>true</ignorePackaging>
+                    <update>true</update>
+                    <reload>true</reload>
+                </configuration>
             </plugin>
         </plugins>
     </build>

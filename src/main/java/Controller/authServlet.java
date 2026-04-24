@@ -1,16 +1,5 @@
 package Controller;
 
-import DAO.AdminUserDAO;
-import DAO.CitizenDAO;
-import Model.AdminUser;
-import Model.Citizen;
-import Util.DatabaseConnection;
-import Util.PasswordUtil;
-
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -18,8 +7,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import DAO.AdminUserDAO;
+import DAO.CitizenDAO;
+import Model.AdminUser;
+import Model.Citizen;
+import Util.DatabaseConnection;
+import Util.PasswordUtil;
+
 @WebServlet(name = "authServlet", urlPatterns = "/api/auth/*")
-public class AuthServlet extends BaseApiServlet {
+public class authServlet extends BaseApiServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
