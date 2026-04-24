@@ -48,18 +48,20 @@
                 <a href="index.jsp" class="text-2xl font-bold tracking-tight text-brand-900">Sarkar<span class="text-brand-500">Sathi</span></a>
 
                 <div class="hidden items-center gap-10 text-[15px] font-medium text-slate-600 lg:flex">
-                    <a href="#" class="transition hover:text-brand-900">Services</a>
-                    <a href="#" class="transition hover:text-brand-900">About Us</a>
-                    <a href="#" class="transition hover:text-brand-900">Announcements</a>
-                    <a href="#" class="transition hover:text-brand-900">Agriculture</a>
+                    <a href="<%= request.getContextPath() %>/announcements" class="transition hover:text-brand-900">Announcements</a>
+                    <a href="<%= request.getContextPath() %>/agriculture" class="transition hover:text-brand-900">Agriculture</a>
+                    <a href="<%= request.getContextPath() %>/budget" class="transition hover:text-brand-900">Budget</a>
+                    <a href="<%= request.getContextPath() %>/crop-advisory" class="transition hover:text-brand-900">Crop Advisory</a>
+                    <a href="<%= request.getContextPath() %>/track" class="transition hover:text-brand-900">Track</a>
                 </div>
 
                 <div class="flex items-center gap-6">
                     <% if (loggedIn) { %>
-                        <span class="hidden text-[15px] font-semibold text-brand-900 sm:inline-block">Welcome, <%= displayName %></span>
+                        <a href="<%= request.getContextPath() %>/citizen/dashboard" class="hidden text-[15px] font-semibold text-brand-900 sm:inline-block">Welcome, <%= displayName %></a>
+                        <a href="<%= request.getContextPath() %>/logout" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Logout</a>
                     <% } else { %>
-                        <a href="login.jsp" class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block">Login</a>
-                        <a href="register.jsp" class="inline-flex items-center rounded-xl bg-brand-900 px-6 py-2.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-800">Register</a>
+                        <a href="<%= request.getContextPath() %>/login" class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block">Login</a>
+                        <a href="<%= request.getContextPath() %>/register" class="inline-flex items-center rounded-xl bg-brand-900 px-6 py-2.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-800">Register</a>
                     <% } %>
                 </div>
             </nav>
@@ -89,12 +91,19 @@
                         </p>
 
                         <div class="mt-10 flex flex-col gap-4 sm:flex-row">
-                            <a href="register.jsp" class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-900 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-900/20 transition hover:bg-brand-800">
+                            <% if (loggedIn) { %>
+                            <a href="<%= request.getContextPath() %>/citizen/dashboard" class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-900 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-900/20 transition hover:bg-brand-800">
+                                Go to Dashboard
+                                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            </a>
+                            <% } else { %>
+                            <a href="<%= request.getContextPath() %>/register" class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-900 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-900/20 transition hover:bg-brand-800">
                                 Get Started
                                 <i data-lucide="arrow-right" class="h-4 w-4"></i>
                             </a>
-                            <a href="#" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-8 py-4 text-base font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
-                                Explore Services
+                            <% } %>
+                            <a href="<%= request.getContextPath() %>/track" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-8 py-4 text-base font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                                Track Application
                             </a>
                         </div>
                     </div>
@@ -129,7 +138,7 @@
                             <span class="inline-flex rounded-md bg-red-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-red-800">Latest</span>
                             <p class="text-[15px] font-medium text-slate-700">Land ownership re-verification starts from next Sunday. Please bring original deeds.</p>
                         </div>
-                        <a href="#" class="shrink-0 text-sm font-bold text-brand-900 transition hover:text-brand-800">
+                        <a href="<%= request.getContextPath() %>/announcements" class="shrink-0 text-sm font-bold text-brand-900 transition hover:text-brand-800">
                             View All Announcements &rsaquo;
                         </a>
                     </div>
@@ -189,7 +198,7 @@
                             </div>
                             <h3 class="mt-8 text-xl font-bold text-slate-900">Property Tax</h3>
                             <p class="mt-3 flex-1 text-sm leading-relaxed text-slate-500">Calculate, file, and pay your municipal property taxes securely online. View your payment history and download receipts.</p>
-                            <a href="#" class="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-900 transition hover:text-brand-800">
+                            <a href="<%= request.getContextPath() %>/citizen/payments" class="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-900 transition hover:text-brand-800">
                                 Pay Now
                                 <i data-lucide="arrow-right" class="h-4 w-4"></i>
                             </a>
@@ -204,7 +213,7 @@
                             </div>
                             <h3 class="mt-8 text-xl font-bold">Vital Registration</h3>
                             <p class="mt-3 flex-1 text-sm leading-relaxed text-white/80">Register births, deaths, marriages, and other vital events. Request certified copies of certificates digitally.</p>
-                            <a href="#" class="mt-8 inline-flex items-center gap-2 text-sm font-bold text-white transition hover:text-white/80">
+                            <a href="<%= request.getContextPath() %>/citizen/apply" class="mt-8 inline-flex items-center gap-2 text-sm font-bold text-white transition hover:text-white/80">
                                 Register Event
                                 <i data-lucide="arrow-right" class="h-4 w-4"></i>
                             </a>
@@ -216,7 +225,7 @@
                             </div>
                             <h3 class="mt-8 text-xl font-bold text-slate-900">Building Permits</h3>
                             <p class="mt-3 flex-1 text-sm leading-relaxed text-slate-500">Submit building plans, track approval status, and request inspections through our streamlined permit portal.</p>
-                            <a href="#" class="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-900 transition hover:text-brand-800">
+                            <a href="<%= request.getContextPath() %>/citizen/apply" class="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-900 transition hover:text-brand-800">
                                 Apply for Permit
                                 <i data-lucide="arrow-right" class="h-4 w-4"></i>
                             </a>
