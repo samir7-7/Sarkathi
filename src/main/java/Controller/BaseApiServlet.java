@@ -3,6 +3,7 @@ package Controller;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -99,5 +100,47 @@ public abstract class BaseApiServlet extends HttpServlet {
 
     protected String jsonArray(List<String> items) {
         return "[" + String.join(",", items) + "]";
+    }
+
+    protected String getSessionRole(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Object role = session == null ? null : session.getAttribute("role");
+        return role == null ? null : role.toString();
+    }
+
+    protected Integer getSessionCitizenId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Object citizenId = session == null ? null : session.getAttribute("citizenId");
+        return citizenId instanceof Integer ? (Integer) citizenId : null;
+    }
+
+    protected Integer getSessionAdminId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Object adminId = session == null ? null : session.getAttribute("adminId");
+        return adminId instanceof Integer ? (Integer) adminId : null;
+    }
+
+    protected boolean isAdmin(HttpServletRequest request) {
+        return "admin".equals(getSessionRole(request));
+    }
+
+    protected boolean isCitizen(HttpServletRequest request) {
+        return "citizen".equals(getSessionRole(request));
+    }
+
+    protected void requireAdmin(HttpServletRequest request) {
+        if (!isAdmin(request)) {
+            throw new SecurityException("Admin access is required");
+        }
+    }
+
+    protected void requireCitizenOwnership(HttpServletRequest request, int citizenId) {
+        if (isAdmin(request)) {
+            return;
+        }
+        Integer sessionCitizenId = getSessionCitizenId(request);
+        if (!isCitizen(request) || sessionCitizenId == null || sessionCitizenId != citizenId) {
+            throw new SecurityException("You are not allowed to access this citizen record");
+        }
     }
 }
