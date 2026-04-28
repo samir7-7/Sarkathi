@@ -1,5 +1,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<% Integer citizenId=(Integer)request.getAttribute("citizenId");boolean loggedIn=citizenId!=null; %>
+<%
+Integer citizenId=(Integer)request.getAttribute("citizenId");
+String citizenName=(String)request.getAttribute("citizenName");
+if(citizenName==null)citizenName="Citizen";
+String initials="";
+for(String p:citizenName.split(" ")){if(!p.isEmpty())initials+=p.charAt(0);}
+if(initials.length()>2)initials=initials.substring(0,2);
+initials=initials.toUpperCase();
+boolean loggedIn=citizenId!=null;
+%>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Track Application - SarkarSathi</title>
@@ -13,12 +22,17 @@
 <% if(loggedIn){ %>
 <aside class="fixed inset-y-0 left-0 z-30 flex w-[220px] flex-col border-r border-slate-200 bg-white">
     <div class="px-5 pt-5 pb-2"><a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a></div>
+    <div class="mx-5 mt-3 flex items-center gap-3 rounded-xl bg-brand-50 px-4 py-3">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-900 text-white text-xs font-bold"><%= initials %></div>
+        <div><p class="text-sm font-semibold text-brand-900 truncate"><%= citizenName %></p><p class="text-[11px] text-slate-500">Citizen</p></div>
+    </div>
     <nav class="mt-6 flex-1 space-y-1 px-3">
         <a href="<%= request.getContextPath() %>/citizen/dashboard" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i>Dashboard</a>
         <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="file-plus" class="h-[18px] w-[18px]"></i>Apply for Service</a>
         <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link active flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm"><i data-lucide="search" class="h-[18px] w-[18px]"></i>Track Application</a>
         <a href="<%= request.getContextPath() %>/citizen/payments" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="credit-card" class="h-[18px] w-[18px]"></i>Payments & Tax</a>
         <a href="<%= request.getContextPath() %>/citizen/certificates" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="award" class="h-[18px] w-[18px]"></i>Certificates</a>
+        <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="folder" class="h-[18px] w-[18px]"></i>My Documents</a>
     </nav>
     <div class="mt-auto border-t border-slate-100 px-3 pb-4 pt-3"><a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600"><i data-lucide="log-out" class="h-[18px] w-[18px]"></i>Logout</a></div>
 </aside>
@@ -30,16 +44,20 @@
         <a href="<%= request.getContextPath() %>/login" class="inline-flex items-center rounded-xl bg-brand-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-800">Login</a>
     </nav></header>
     <% } else { %>
-    <header class="sticky top-0 z-20 flex items-center border-b border-slate-200 bg-white/80 backdrop-blur-md px-8 py-3.5">
+    <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-md px-8 py-3.5">
         <div><h1 class="text-lg font-bold text-slate-900">Track Application</h1><p class="text-xs text-slate-500">Check the status of your applications</p></div>
+        <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-brand-50 hover:text-brand-900">
+            <i data-lucide="bell" class="h-4 w-4"></i>
+            <span id="top-notif-badge" class="absolute -right-1 -top-1 hidden min-w-[18px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-[10px] font-bold text-white"></span>
+        </a>
     </header>
     <% } %>
     <main class="flex-1 px-8 py-8 overflow-y-auto">
-        <div class="max-w-3xl mx-auto fade-in">
+        <div class="w-full fade-in">
             <!-- Search Box -->
-            <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm mb-8">
+            <div class="mb-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-900 mb-4">Search by Tracking ID</h2>
-                <div class="flex gap-3">
+                <div class="flex flex-col gap-3 md:flex-row">
                     <input id="tracking-input" type="text" placeholder="Enter Tracking ID (e.g., UDAS-A1B2C3D4)" class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
                     <button onclick="searchTracking()" class="rounded-xl bg-brand-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-800">Search</button>
                 </div>
@@ -74,6 +92,9 @@
 <script>
 lucide.createIcons();
 const CTX='<%= request.getContextPath() %>';
+<% if(loggedIn){ %>
+fetch(CTX+'/api/notifications?citizenId=<%= citizenId %>').then(r=>r.json()).then(data=>{const unread=data.unreadCount||0;if(unread>0){const b=document.getElementById('top-notif-badge');b.textContent=unread;b.classList.remove('hidden');}}).catch(()=>{});
+<% } %>
 const STATUS={submitted:{bg:'bg-blue-50',text:'text-blue-700',label:'Submitted'},review:{bg:'bg-amber-50',text:'text-amber-700',label:'Under Review'},approved:{bg:'bg-green-50',text:'text-green-700',label:'Approved'},rejected:{bg:'bg-red-50',text:'text-red-600',label:'Rejected'}};
 function badge(s){const st=STATUS[s]||{bg:'bg-slate-100',text:'text-slate-600',label:s};return '<span class="inline-flex rounded-full '+st.bg+' px-3 py-1 text-xs font-semibold '+st.text+'">'+st.label+'</span>';}
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}
