@@ -44,7 +44,6 @@
             <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="file-plus" class="h-[18px] w-[18px]"></i>Apply for Service</a>
             <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="search" class="h-[18px] w-[18px]"></i>Track Application</a>
             <a href="<%= request.getContextPath() %>/citizen/payments" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="credit-card" class="h-[18px] w-[18px]"></i>Payments & Tax</a>
-            <a href="<%= request.getContextPath() %>/citizen/notifications" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="bell" class="h-[18px] w-[18px]"></i>Notifications <span id="notif-badge" class="ml-auto hidden rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white"></span></a>
             <a href="<%= request.getContextPath() %>/citizen/certificates" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="award" class="h-[18px] w-[18px]"></i>Certificates</a>
             <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="folder" class="h-[18px] w-[18px]"></i>My Documents</a>
         </nav>
@@ -58,6 +57,10 @@
         <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-md px-8 py-3.5">
             <div><h1 class="text-lg font-bold text-slate-900">Welcome back, <%= citizenName %></h1><p class="text-xs text-slate-500"><%= citizenEmail %></p></div>
             <div class="flex items-center gap-3">
+                <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-brand-50 hover:text-brand-900">
+                    <i data-lucide="bell" class="h-4 w-4"></i>
+                    <span id="top-notif-badge" class="absolute -right-1 -top-1 hidden min-w-[18px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-[10px] font-bold text-white"></span>
+                </a>
                 <a href="<%= request.getContextPath() %>/citizen/apply" class="inline-flex items-center gap-2 rounded-xl bg-brand-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-800"><i data-lucide="plus" class="h-4 w-4"></i>New Application</a>
             </div>
         </header>
@@ -168,7 +171,7 @@
     // Load notifications
     fetch(CTX+'/api/notifications?citizenId='+CID).then(r=>r.json()).then(data=>{
         const notifs=data.notifications||[];const unread=data.unreadCount||0;
-        if(unread>0){const b=document.getElementById('notif-badge');b.textContent=unread;b.classList.remove('hidden');}
+        if(unread>0){const b=document.getElementById('top-notif-badge');b.textContent=unread;b.classList.remove('hidden');}
         const container=document.getElementById('notif-list');
         if(notifs.length===0){container.innerHTML='<p class="text-sm text-slate-400 py-4 text-center">No notifications</p>';return;}
         container.innerHTML='';
