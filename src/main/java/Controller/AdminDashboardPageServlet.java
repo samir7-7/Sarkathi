@@ -20,6 +20,7 @@ public class AdminDashboardPageServlet extends HttpServlet {
             return;
         }
 
+        request.setAttribute("adminId", session.getAttribute("adminId"));
         request.setAttribute("adminName", session.getAttribute("fullName"));
         request.setAttribute("adminEmail", session.getAttribute("email"));
         request.setAttribute("adminRole", session.getAttribute("adminRole"));
