@@ -1,5 +1,11 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<% Integer adminId=(Integer)request.getAttribute("adminId"); %>
+<%
+Integer adminId=(Integer)request.getAttribute("adminId");
+String adminName=(String)request.getAttribute("adminName");
+String adminRole=(String)request.getAttribute("adminRole");
+if(adminName==null)adminName="Admin";
+if(adminRole==null)adminRole="admin";
+%>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Manage Agriculture Notices - SarkarSathi Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -10,9 +16,20 @@
 </head><body class="bg-[#fafafc] text-slate-800">
 <div class="flex min-h-screen">
 <aside class="fixed inset-y-0 left-0 z-30 flex w-[220px] flex-col border-r border-slate-200 bg-white">
-    <div class="px-5 pt-5 pb-2"><a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a></div>
-    <p class="px-5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Admin Panel</p>
-    <nav class="flex-1 space-y-1 px-3">
+    <div class="flex items-center gap-1.5 px-5 pt-5 pb-2">
+        <a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a>
+        <span class="text-xl font-bold text-brand-500">Admin</span>
+    </div>
+    <div class="mx-5 mt-3 flex items-center gap-3 rounded-xl bg-brand-50 px-4 py-3">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-900 text-white">
+            <i data-lucide="landmark" class="h-4 w-4"></i>
+        </div>
+        <div>
+            <p class="text-sm font-semibold text-brand-900"><%= adminName %></p>
+            <p class="text-[11px] text-slate-500"><%= adminRole.substring(0,1).toUpperCase()+adminRole.substring(1) %></p>
+        </div>
+    </div>
+    <nav class="mt-6 flex-1 space-y-1 px-3">
         <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i>Dashboard</a>
         <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="clipboard-list" class="h-[18px] w-[18px]"></i>Applications</a>
         <a href="<%= request.getContextPath() %>/admin/announcements" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="megaphone" class="h-[18px] w-[18px]"></i>Announcements</a>
@@ -45,10 +62,11 @@
 </div>
 </div>
 <script>
-lucide.createIcons();const CTX='<%= request.getContextPath() %>';const AID=<%= adminId %>;
+lucide.createIcons();const CTX='<%= request.getContextPath() %>';const AID=<%= adminId == null ? "null" : adminId %>;
 const catColors={subsidy:'bg-green-50 text-green-700',training:'bg-purple-50 text-purple-700',scheme:'bg-blue-50 text-blue-700'};
 function showForm(){document.getElementById('create-form').classList.remove('hidden');}
 function hideForm(){document.getElementById('create-form').classList.add('hidden');}
+function requireAdminSession(){if(AID!==null)return true;alert('Your admin session has expired. Please log in again.');window.location.href=CTX+'/login?userType=admin';return false;}
 
 function loadItems(){
     fetch(CTX+'/api/agriculture-notices').then(r=>r.json()).then(items=>{
@@ -70,6 +88,7 @@ function loadItems(){
 }
 
 async function createItem(){
+    if(!requireAdminSession())return;
     const params=new URLSearchParams();params.append('adminId',AID);
     params.append('title',document.getElementById('f-title').value);
     params.append('content',document.getElementById('f-content').value);
@@ -79,6 +98,7 @@ async function createItem(){
 }
 
 async function deleteItem(id){
+    if(!requireAdminSession())return;
     if(!confirm('Delete this notice?'))return;
     await fetch(CTX+'/api/agriculture-notices',{method:'DELETE',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'noticeId='+id});
     loadItems();

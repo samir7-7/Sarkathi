@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
+    Integer adminId = (Integer) request.getAttribute("adminId");
     String adminName = (String) request.getAttribute("adminName");
     String adminEmail = (String) request.getAttribute("adminEmail");
     String adminRole = (String) request.getAttribute("adminRole");
@@ -165,30 +166,30 @@
 
         <!-- Navigation -->
         <nav class="mt-6 flex-1 space-y-1 px-3">
-          <a href="#" id="nav-applications" class="nav-link active flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm">
+          <a href="<%= request.getContextPath() %>/admin/dashboard" id="nav-dashboard" class="nav-link active flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm">
+            <i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i>
+            Dashboard
+          </a>
+          <a href="<%= request.getContextPath() %>/admin/applications" id="nav-applications" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
             <i data-lucide="file-text" class="h-[18px] w-[18px]"></i>
             Applications
           </a>
-          <a href="#" id="nav-services" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-            <i data-lucide="building-2" class="h-[18px] w-[18px]"></i>
-            Services
+          <a href="<%= request.getContextPath() %>/admin/announcements" id="nav-announcements" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
+            <i data-lucide="megaphone" class="h-[18px] w-[18px]"></i>
+            Announcements
           </a>
-          <a href="#" id="nav-users" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-            <i data-lucide="users" class="h-[18px] w-[18px]"></i>
-            Users
+          <a href="<%= request.getContextPath() %>/admin/notices" id="nav-notices" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
+            <i data-lucide="sprout" class="h-[18px] w-[18px]"></i>
+            Agri Notices
           </a>
-          <a href="#" id="nav-reports" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-            <i data-lucide="bar-chart-3" class="h-[18px] w-[18px]"></i>
-            Reports
+          <a href="<%= request.getContextPath() %>/admin/budgets" id="nav-budgets" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
+            <i data-lucide="indian-rupee" class="h-[18px] w-[18px]"></i>
+            Budgets
           </a>
         </nav>
 
         <!-- Bottom Section -->
         <div class="mt-auto border-t border-slate-100 px-3 pb-4 pt-3 space-y-2">
-          <a href="#" id="nav-settings" class="nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-            <i data-lucide="settings" class="h-[18px] w-[18px]"></i>
-            Settings
-          </a>
           <!-- System Alert -->
           <div class="alert-pulse mt-2 flex items-center gap-3 rounded-xl bg-slate-800 px-4 py-3 text-white">
             <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-500/20">
@@ -342,7 +343,7 @@
             <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm fade-in fade-in-delay-3">
               <h2 class="text-lg font-bold text-slate-900">Quick Actions</h2>
               <div class="mt-5 space-y-2">
-                <a href="#" id="action-review" class="quick-action flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3.5">
+                <a href="<%= request.getContextPath() %>/admin/applications" id="action-review" class="quick-action flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3.5">
                   <div class="flex items-center gap-3">
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                       <i data-lucide="clipboard-check" class="h-4 w-4"></i>
@@ -351,7 +352,7 @@
                   </div>
                   <i data-lucide="arrow-right" class="h-4 w-4 text-slate-400"></i>
                 </a>
-                <a href="#" id="action-notices" class="quick-action flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3.5">
+                <a href="<%= request.getContextPath() %>/admin/notices" id="action-notices" class="quick-action flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3.5">
                   <div class="flex items-center gap-3">
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
                       <i data-lucide="megaphone" class="h-4 w-4"></i>
@@ -360,7 +361,7 @@
                   </div>
                   <i data-lucide="arrow-right" class="h-4 w-4 text-slate-400"></i>
                 </a>
-                <a href="#" id="action-announcements" class="quick-action flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3.5">
+                <a href="<%= request.getContextPath() %>/admin/announcements" id="action-announcements" class="quick-action flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3.5">
                   <div class="flex items-center gap-3">
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                       <i data-lucide="radio" class="h-4 w-4"></i>
@@ -376,7 +377,7 @@
             <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm fade-in fade-in-delay-4">
               <div class="flex items-center justify-between">
                 <h2 class="text-lg font-bold text-slate-900">Priority Reviews</h2>
-                <a href="#" class="text-sm font-semibold text-brand-500 transition hover:text-brand-900">View All</a>
+                <a href="<%= request.getContextPath() %>/admin/applications" class="text-sm font-semibold text-brand-500 transition hover:text-brand-900">View All</a>
               </div>
 
               <div class="mt-5 space-y-1" id="priority-reviews">
@@ -510,13 +511,8 @@
       lucide.createIcons();
 
       // ── Sidebar navigation — active state toggling ─────────────────────
-      document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-          this.classList.add('active');
-        });
-      });
+      const CTX = '<%= request.getContextPath() %>';
+      const ADMIN_ID = <%= adminId == null ? "null" : adminId %>;
 
       // ── Number formatting helper ──────────────────────────────────────
       function formatNumber(n) {
@@ -546,7 +542,7 @@
       }
 
       // ── Fetch dashboard stats from API ────────────────────────────────
-      fetch('<%= request.getContextPath() %>/api/dashboard')
+      fetch(CTX + '/api/dashboard')
         .then(res => res.json())
         .then(data => {
           document.getElementById('stat-total').textContent     = formatNumber(data.totalApplications);
@@ -567,7 +563,7 @@
         });
 
       // ── Fetch recent applications from API ────────────────────────────
-      fetch('<%= request.getContextPath() %>/api/applications')
+      fetch(CTX + '/api/applications')
         .then(res => res.json())
         .then(applications => {
           if (!Array.isArray(applications) || applications.length === 0) return;
@@ -587,6 +583,31 @@
               '<td class="whitespace-nowrap px-6 py-4">' + statusBadge(app.status) + '</td>';
             tbody.appendChild(tr);
           });
+
+          const priorityReviews = document.getElementById('priority-reviews');
+          const reviewQueue = applications
+            .filter(app => app.status === 'submitted' || app.status === 'review')
+            .slice(-3)
+            .reverse();
+
+          if (reviewQueue.length > 0) {
+            priorityReviews.innerHTML = '';
+            reviewQueue.forEach(app => {
+              const priorityDot = app.status === 'submitted' ? 'bg-red-500' : 'bg-amber-500';
+              const reviewItem = document.createElement('div');
+              reviewItem.className = 'review-item flex items-center justify-between rounded-xl px-4 py-3.5';
+              reviewItem.innerHTML =
+                '<div class="flex items-center gap-4">' +
+                  '<span class="h-2.5 w-2.5 rounded-full ' + priorityDot + '"></span>' +
+                  '<div>' +
+                    '<p class="text-sm font-semibold text-slate-800">' + (app.serviceName || ('Service #' + app.serviceTypeId)) + '</p>' +
+                    '<p class="mt-0.5 text-xs text-slate-400">ID: ' + app.trackingId + ' - ' + formatDate(app.submittedAt) + '</p>' +
+                  '</div>' +
+                '</div>' +
+                '<a href="' + CTX + '/admin/applications" class="rounded-lg bg-brand-900 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-brand-800">Review</a>';
+              priorityReviews.appendChild(reviewItem);
+            });
+          }
         })
         .catch(() => {
           // Keep the static fallback rows as-is
