@@ -21,6 +21,7 @@
         <style>
             body{font-family:'Outfit',sans-serif}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}
         </style>
+            <%@ include file="includes/lucide-icons.jsp" %>
     </head>
     <body class="bg-[#fafafc] text-slate-800">
         <div class="flex min-h-screen">
@@ -43,24 +44,30 @@
                 </div>
                 <nav class="mt-6 flex-1 space-y-1 px-3">
                     <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-link active flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm">
-                        Dashboard
+                        <i data-lucide="layout-dashboard" class="h-4 w-4 shrink-0"></i>
+                            <span>Dashboard</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Applications
+                        <i data-lucide="clipboard-list" class="h-4 w-4 shrink-0"></i>
+                            <span>Applications</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/admin/announcements" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Announcements
+                        <i data-lucide="megaphone" class="h-4 w-4 shrink-0"></i>
+                            <span>Announcements</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/admin/notices" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Agri Notices
+                        <i data-lucide="sprout" class="h-4 w-4 shrink-0"></i>
+                            <span>Agri Notices</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/admin/budgets" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Budgets
+                        <i data-lucide="banknote" class="h-4 w-4 shrink-0"></i>
+                            <span>Budgets</span>
                     </a>
                 </nav>
                 <div class="mt-auto border-t border-slate-100 px-3 pb-4 pt-3">
                     <a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600">
-                        Logout
+                        <i data-lucide="log-out" class="h-4 w-4 shrink-0"></i>
+                            <span>Logout</span>
                     </a>
                 </div>
             </aside>

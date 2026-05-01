@@ -21,6 +21,7 @@
         <style>
             body{font-family:'Outfit',sans-serif}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}
         </style>
+            <%@ include file="includes/lucide-icons.jsp" %>
     </head>
     <body class="bg-[#fafafc] text-slate-800">
         <div class="flex min-h-screen">
@@ -45,27 +46,34 @@
                 </div>
                 <nav class="mt-6 flex-1 space-y-1 px-3">
                     <a href="<%= request.getContextPath() %>/citizen/dashboard" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Dashboard
+                        <i data-lucide="layout-dashboard" class="h-4 w-4 shrink-0"></i>
+                            <span>Dashboard</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Apply for Service
+                        <i data-lucide="file-plus-2" class="h-4 w-4 shrink-0"></i>
+                            <span>Apply for Service</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Track Application
+                        <i data-lucide="search-check" class="h-4 w-4 shrink-0"></i>
+                            <span>Track Application</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/citizen/payments" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Payments & Tax
+                        <i data-lucide="credit-card" class="h-4 w-4 shrink-0"></i>
+                            <span>Payments & Tax</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/citizen/certificates" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        Certificates
+                        <i data-lucide="badge-check" class="h-4 w-4 shrink-0"></i>
+                            <span>Certificates</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
-                        My Documents
+                        <i data-lucide="folder-open" class="h-4 w-4 shrink-0"></i>
+                            <span>My Documents</span>
                     </a>
                 </nav>
                 <div class="mt-auto border-t border-slate-100 px-3 pb-4 pt-3">
                     <a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600">
-                        Logout
+                        <i data-lucide="log-out" class="h-4 w-4 shrink-0"></i>
+                            <span>Logout</span>
                     </a>
                 </div>
             </aside>

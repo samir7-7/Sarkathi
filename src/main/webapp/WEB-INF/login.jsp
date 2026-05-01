@@ -53,6 +53,7 @@
             }
             .fade-in { animation: fadeInUp 0.5s ease-out forwards; }
         </style>
+            <%@ include file="includes/lucide-icons.jsp" %>
     </head>
     <body class="min-h-screen bg-slate-100 text-slate-900">
         <% String error = (String) request.getAttribute("error"); if (error == null) { error = request.getParameter("error"); } String userType = (String) request.getAttribute("userType"); if (userType == null || userType.isBlank()) { userType = request.getParameter("userType"); } if (userType == null || userType.isBlank()) { userType = "citizen"; } String email = (String) request.getAttribute("email"); if (email == null) { email = request.getParameter("email"); } if (email == null) { email = ""; } %>

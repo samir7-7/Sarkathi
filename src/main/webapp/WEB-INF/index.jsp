@@ -32,12 +32,11 @@
             }
             }
         </script>
-        <script src="https://unpkg.com/lucide@latest">
-        </script>
         <%@ include file="includes/responsive-scripts.jsp" %>
         <style>
             body { font-family: 'Outfit', sans-serif; }
         </style>
+            <%@ include file="includes/lucide-icons.jsp" %>
     </head>
     <body class="bg-[#fafafc] text-slate-800">
         <% String displayName = (String) session.getAttribute("displayName"); %>
@@ -56,7 +55,8 @@
                     </a>
                     <div class="hidden items-center gap-10 text-[15px] font-medium text-slate-600 lg:flex">
                         <a href="<%= request.getContextPath() %>/announcements" class="transition hover:text-brand-900">
-                            Announcements
+                            <i data-lucide="megaphone" class="h-4 w-4 shrink-0"></i>
+                            <span>Announcements</span>
                         </a>
                         <a href="<%= request.getContextPath() %>/agriculture" class="transition hover:text-brand-900">
                             Agriculture
@@ -78,7 +78,8 @@
                                 <%= displayName %>
                             </a>
                             <a href="<%= request.getContextPath() %>/logout" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 sm:px-5">
-                                Logout
+                                <i data-lucide="log-out" class="h-4 w-4 shrink-0"></i>
+                            <span>Logout</span>
                             </a>
                         <% } else { %>
                             <a href="<%= request.getContextPath() %>/login" class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block">
@@ -97,7 +98,8 @@
                 <!-- Mobile Menu -->
                 <div id="mobile-menu" class="hidden border-t border-slate-100 py-6 space-y-4 lg:hidden">
                     <a href="<%= request.getContextPath() %>/announcements" class="block text-base font-medium text-slate-600 hover:text-brand-900">
-                        Announcements
+                        <i data-lucide="megaphone" class="h-4 w-4 shrink-0"></i>
+                            <span>Announcements</span>
                     </a>
                     <a href="<%= request.getContextPath() %>/agriculture" class="block text-base font-medium text-slate-600 hover:text-brand-900">
                         Agriculture
@@ -157,7 +159,8 @@
                                     </a>
                                 <% } %>
                                 <a href="<%= request.getContextPath() %>/track" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-8 py-4 text-base font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
-                                    Track Application
+                                    <i data-lucide="search-check" class="h-4 w-4 shrink-0"></i>
+                            <span>Track Application</span>
                                 </a>
                             </div>
                         </div>
@@ -427,8 +430,5 @@
                 </div>
             </footer>
         </div>
-        <script>
-            lucide.createIcons();
-        </script>
     </body>
 </html>
