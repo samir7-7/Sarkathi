@@ -25,16 +25,7 @@ public class NotificationDAO extends BaseDAO {
                 VALUES (?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setInt(1, notification.getCitizenId());
-            if (notification.getApplicationId() > 0) {
-                statement.setInt(2, notification.getApplicationId());
-            } else {
-                statement.setNull(2, java.sql.Types.INTEGER);
-            }
-            statement.setString(3, notification.getMessage());
-            statement.setBoolean(4, notification.isRead());
-            statement.setTimestamp(5, Timestamp.valueOf(
-                    notification.getCreatedAt() != null ? notification.getCreatedAt() : LocalDateTime.now()));
+            bindNotificationFields(statement, notification, 1);
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -42,7 +33,57 @@ public class NotificationDAO extends BaseDAO {
                 }
             }
             return notification;
+        } catch (SQLException e) {
+            if (!isMissingNotificationIdDefault(e)) {
+                throw e;
+            }
+            return createWithExplicitId(notification);
         }
+    }
+
+    private Notification createWithExplicitId(Notification notification) throws SQLException {
+        String sql = """
+                INSERT INTO NOTIFICATION (NotificationID, CitizenID, ApplicationID, Message, IsRead, CreatedAt)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
+        int nextId = nextNotificationId();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, nextId);
+            bindNotificationFields(statement, notification, 2);
+            statement.executeUpdate();
+            notification.setNotificationId(nextId);
+            return notification;
+        }
+    }
+
+    private int nextNotificationId() throws SQLException {
+        String sql = "SELECT COALESCE(MAX(NotificationID), 0) + 1 FROM NOTIFICATION";
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            resultSet.next();
+            return resultSet.getInt(1);
+        }
+    }
+
+    private void bindNotificationFields(PreparedStatement statement, Notification notification, int startIndex)
+            throws SQLException {
+        statement.setInt(startIndex, notification.getCitizenId());
+        if (notification.getApplicationId() > 0) {
+            statement.setInt(startIndex + 1, notification.getApplicationId());
+        } else {
+            statement.setNull(startIndex + 1, java.sql.Types.INTEGER);
+        }
+        statement.setString(startIndex + 2, notification.getMessage());
+        statement.setBoolean(startIndex + 3, notification.isRead());
+        statement.setTimestamp(startIndex + 4, Timestamp.valueOf(
+                notification.getCreatedAt() != null ? notification.getCreatedAt() : LocalDateTime.now()));
+    }
+
+    private boolean isMissingNotificationIdDefault(SQLException e) {
+        return e.getErrorCode() == 1364
+                || (e.getMessage() != null
+                && e.getMessage().contains("NotificationID")
+                && e.getMessage().contains("doesn't have a default value"));
     }
 
     public List<Notification> findByCitizenId(int citizenId) throws SQLException {
