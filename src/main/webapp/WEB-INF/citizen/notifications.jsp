@@ -1,16 +1,16 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="Model.CitizenDocumentVault" %>
+<%@ page import="Model.Notification" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
 <%! private String esc(Object value){if(value==null)return "";return value.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");} %>
-<% Integer citizenId=(Integer)request.getAttribute("citizenId"); String citizenName=(String)request.getAttribute("citizenName"); Integer unread=(Integer)request.getAttribute("unreadCount"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); List<CitizenDocumentVault> documents=(List<CitizenDocumentVault>)request.getAttribute("documents"); DateTimeFormatter fmt=DateTimeFormatter.ofPattern("MMM d, yyyy"); if(citizenName==null)citizenName="Citizen"; if(unread==null)unread=0; if(documents==null)documents=List.of(); String initials=citizenName.isBlank()?"C":citizenName.substring(0,1).toUpperCase(); %>
+<% Integer citizenId=(Integer)request.getAttribute("citizenId");String citizenName=(String)request.getAttribute("citizenName");List<Notification> notifications=(List<Notification>)request.getAttribute("notifications");Integer unread=(Integer)request.getAttribute("unreadCount");DateTimeFormatter fmt=DateTimeFormatter.ofPattern("MMM d, yyyy HH:mm");if(citizenName==null)citizenName="Citizen";if(notifications==null)notifications=List.of();if(unread==null)unread=0;String initials=citizenName.isBlank()?"C":citizenName.substring(0,1).toUpperCase(); %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title>
-            Documents - SarkarSathi
+            Notifications - SarkarSathi
         </title>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com">
@@ -21,7 +21,7 @@
         <style>
             body{font-family:'Outfit',sans-serif}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}
         </style>
-            <%@ include file="includes/lucide-icons.jsp" %>
+            <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
     <body class="bg-[#fafafc] text-slate-800">
         <div class="flex min-h-screen">
@@ -65,7 +65,7 @@
                         <i data-lucide="badge-check" class="h-4 w-4 shrink-0"></i>
                             <span>Certificates</span>
                     </a>
-                    <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link active flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm">
+                    <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
                         <i data-lucide="folder-open" class="h-4 w-4 shrink-0"></i>
                             <span>My Documents</span>
                     </a>
@@ -81,65 +81,59 @@
                 <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 px-8 py-3.5">
                     <div>
                         <h1 class="text-lg font-bold text-slate-900">
-                            Document Vault
+                            Notification Center
                         </h1>
                         <p class="text-xs text-slate-500">
-                            Your uploaded documents for reuse across applications
+                            Stay updated on your application status
                         </p>
                     </div>
-                    <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600">
-                        <i data-lucide="bell" class="h-5 w-5"></i>
-                        <% if(unread>0){ %>
-                            <span class="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
-                                <%= unread %>
-                            </span>
-                        <% } %>
-                    </a>
+                    <form method="post" action="<%= request.getContextPath() %>/api/notifications">
+                        <input type="hidden" name="redirectTo" value="/citizen/notifications">
+                        <input type="hidden" name="action" value="markAll">
+                        <input type="hidden" name="citizenId" value="<%= citizenId %>">
+                        <button class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-brand-900" type="submit">
+                            Mark All as Read (
+                            <%= unread %>
+                            )
+                        </button>
+                    </form>
                 </header>
                 <main class="flex-1 px-8 py-8 overflow-y-auto">
-                    <% if(pageError!=null || formError!=null){ %>
-                        <div class="mb-6 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                            <%= esc(pageError!=null?pageError:formError) %>
-                        </div>
-                    <% } %>
-                    <section class="mb-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                        <h2 class="text-base font-bold text-slate-900 mb-4">
-                            Upload Reusable Document
-                        </h2>
-                        <form method="post" action="<%= request.getContextPath() %>/api/upload" enctype="multipart/form-data" class="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
-                            <input type="hidden" name="redirectTo" value="/citizen/documents">
-                            <input type="hidden" name="citizenId" value="<%= citizenId %>">
-                            <input type="hidden" name="saveToVault" value="true">
-                            <input name="documentType" required placeholder="Document type" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-                            <input name="file" type="file" required accept=".pdf,.jpg,.jpeg,.png" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-                            <button class="rounded-xl bg-brand-900 px-5 py-3 text-sm font-semibold text-white" type="submit">
-                                Upload
-                            </button>
-                        </form>
-                    </section>
-                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        <% if(documents.isEmpty()){ %>
-                            <div class="col-span-3 rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+                    <div class="space-y-3">
+                        <% if(notifications.isEmpty()){ %>
+                            <div class="rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm">
                                 <p class="text-slate-500">
-                                    No documents uploaded yet
+                                    No notifications yet
                                 </p>
                             </div>
-                        <% } else { for(CitizenDocumentVault d: documents){ String path=d.getFilePath()==null?"#":(d.getFilePath().startsWith("/")?request.getContextPath()+d.getFilePath():request.getContextPath()+"/"+d.getFilePath()); %>
-                        <article class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                            <h3 class="font-bold text-slate-900">
-                                <%= esc(d.getDocumentType()) %>
-                            </h3>
-                            <p class="mt-2 text-xs text-slate-400">
-                                <%= d.getUploadedAt()==null?"":esc(d.getUploadedAt().format(fmt)) %>
-                            </p>
-                            <a href="<%= esc(path) %>" target="_blank" rel="noopener" class="mt-4 inline-flex rounded-lg bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-900">
-                                Open Document
-                            </a>
-                        </article>
-                    <% }} %>
-                </div>
-            </main>
+                        <% } else { for(Notification n: notifications){ %>
+                            <article class="rounded-2xl border <%= n.isRead()?"border-slate-100 bg-white":"border-blue-100 bg-blue-50/40" %> p-5 shadow-sm">
+                                <div class="flex justify-between gap-4">
+                                    <div>
+                                        <p class="text-sm text-slate-700">
+                                            <%= esc(n.getMessage()) %>
+                                        </p>
+                                        <p class="mt-2 text-xs text-slate-400">
+                                            <%= n.getCreatedAt()==null?"":esc(n.getCreatedAt().format(fmt)) %>
+                                        </p>
+                                    </div>
+                                    <% if(!n.isRead()){ %>
+                                        <form method="post" action="<%= request.getContextPath() %>/api/notifications">
+                                            <input type="hidden" name="redirectTo" value="/citizen/notifications">
+                                            <input type="hidden" name="action" value="markRead">
+                                            <input type="hidden" name="citizenId" value="<%= citizenId %>">
+                                            <input type="hidden" name="notificationId" value="<%= n.getNotificationId() %>">
+                                            <button class="rounded-lg bg-brand-900 px-3 py-2 text-xs font-semibold text-white" type="submit">
+                                                Mark Read
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </article>
+                        <% }} %>
+                    </div>
+                </main>
+            </div>
         </div>
-    </div>
-</body>
+    </body>
 </html>

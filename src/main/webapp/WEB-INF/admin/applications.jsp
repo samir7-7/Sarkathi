@@ -25,7 +25,7 @@
         <style>
             body{font-family:'Outfit',sans-serif}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}
         </style>
-            <%@ include file="includes/lucide-icons.jsp" %>
+            <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
     <body class="bg-[#fafafc] text-slate-800">
         <div class="flex min-h-screen">

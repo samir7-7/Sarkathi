@@ -21,7 +21,7 @@
         <style>
             body{font-family:'Outfit',sans-serif}
         </style>
-            <%@ include file="includes/lucide-icons.jsp" %>
+            <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
     <body class="bg-[#fafafc] text-slate-800">
         <header class="border-b border-slate-200 bg-white px-6 lg:px-12">

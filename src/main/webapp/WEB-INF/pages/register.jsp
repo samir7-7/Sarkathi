@@ -9,7 +9,7 @@
         </title>
         <script src="https://cdn.tailwindcss.com">
         </script>
-            <%@ include file="includes/lucide-icons.jsp" %>
+            <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
     <body class="min-h-screen bg-slate-100 text-slate-900">
         <% String error = (String) request.getAttribute("error"); if (error == null) { error = request.getParameter("error"); } String fullName = (String) request.getAttribute("fullName"); if (fullName == null) fullName = ""; String email = (String) request.getAttribute("email"); if (email == null) email = ""; String phone = (String) request.getAttribute("phone"); if (phone == null) phone = ""; String dateOfBirth = (String) request.getAttribute("dateOfBirth"); if (dateOfBirth == null) dateOfBirth = ""; String gender = (String) request.getAttribute("gender"); if (gender == null || gender.isBlank()) gender = "M"; %>

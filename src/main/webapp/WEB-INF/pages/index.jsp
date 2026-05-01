@@ -32,11 +32,11 @@
             }
             }
         </script>
-        <%@ include file="includes/responsive-scripts.jsp" %>
+        <%@ include file="../includes/responsive-scripts.jsp" %>
         <style>
             body { font-family: 'Outfit', sans-serif; }
         </style>
-            <%@ include file="includes/lucide-icons.jsp" %>
+            <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
     <body class="bg-[#fafafc] text-slate-800">
         <% String displayName = (String) session.getAttribute("displayName"); %>
