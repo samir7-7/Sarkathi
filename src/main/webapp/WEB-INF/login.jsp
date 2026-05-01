@@ -269,9 +269,7 @@
             adminRadio.addEventListener('change', updateRole);
             // Preserve selection after error
             updateRole();
-            var userType = '
-            <%= userType %>
-            ';
+            var userType = '<%= userType %>';
             if (userType === 'admin') {
             adminRadio.checked = true;
             updateRole();
