@@ -93,11 +93,13 @@ public class AuthenticationFilter implements Filter {
 
     private boolean isPublic(String path) {
         return PUBLIC_PATHS.contains(path)
+                || path.startsWith("/api/auth/")
                 || path.startsWith("/style/")
                 || path.startsWith("/assets/")
                 || path.startsWith("/css/")
                 || path.startsWith("/js/")
-                || path.startsWith("/images/");
+                || path.startsWith("/images/")
+                || "/favicon.ico".equals(path);
     }
 
     private String requiredRole(String path) {
