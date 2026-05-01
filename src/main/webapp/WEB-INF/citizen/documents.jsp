@@ -1,9 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="Model.ApplicationDocument" %>
 <%@ page import="Model.CitizenDocumentVault" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
 <%! private String esc(Object value){if(value==null)return "";return value.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");} %>
-<% Integer citizenId=(Integer)request.getAttribute("citizenId"); String citizenName=(String)request.getAttribute("citizenName"); Integer unread=(Integer)request.getAttribute("unreadCount"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); List<CitizenDocumentVault> documents=(List<CitizenDocumentVault>)request.getAttribute("documents"); DateTimeFormatter fmt=DateTimeFormatter.ofPattern("MMM d, yyyy"); if(citizenName==null)citizenName="Citizen"; if(unread==null)unread=0; if(documents==null)documents=List.of(); String initials=citizenName.isBlank()?"C":citizenName.substring(0,1).toUpperCase(); %>
+<% Integer citizenId=(Integer)request.getAttribute("citizenId"); String citizenName=(String)request.getAttribute("citizenName"); Integer unread=(Integer)request.getAttribute("unreadCount"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); List<CitizenDocumentVault> documents=(List<CitizenDocumentVault>)request.getAttribute("documents"); List<ApplicationDocument> applicationDocuments=(List<ApplicationDocument>)request.getAttribute("applicationDocuments"); DateTimeFormatter fmt=DateTimeFormatter.ofPattern("MMM d, yyyy"); if(citizenName==null)citizenName="Citizen"; if(unread==null)unread=0; if(documents==null)documents=List.of(); if(applicationDocuments==null)applicationDocuments=List.of(); String initials=citizenName.isBlank()?"C":citizenName.substring(0,1).toUpperCase(); %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -117,9 +118,13 @@
                             </button>
                         </form>
                     </section>
-                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <section>
+                        <h2 class="mb-4 text-base font-bold text-slate-900">
+                            Reusable Documents
+                        </h2>
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         <% if(documents.isEmpty()){ %>
-                            <div class="col-span-3 rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+                            <div class="col-span-full rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm">
                                 <p class="text-slate-500">
                                     No documents uploaded yet
                                 </p>
@@ -137,7 +142,43 @@
                             </a>
                         </article>
                     <% }} %>
-                </div>
+                        </div>
+                    </section>
+                    <section class="mt-8">
+                        <h2 class="mb-4 text-base font-bold text-slate-900">
+                            Application Documents
+                        </h2>
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <% if(applicationDocuments.isEmpty()){ %>
+                                <div class="col-span-full rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+                                    <p class="text-slate-500">
+                                        No application documents uploaded yet
+                                    </p>
+                                </div>
+                            <% } else { for(ApplicationDocument d: applicationDocuments){ String path=d.getFilePath()==null?"#":(d.getFilePath().startsWith("/")?request.getContextPath()+d.getFilePath():request.getContextPath()+"/"+d.getFilePath()); %>
+                                <article class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="font-bold text-slate-900">
+                                                <%= esc(d.getDocumentType()) %>
+                                            </h3>
+                                            <p class="mt-2 text-xs text-slate-400">
+                                                <%= d.getUploadedAt()==null?"":esc(d.getUploadedAt().format(fmt)) %>
+                                            </p>
+                                        </div>
+                                        <% if(d.isReusable()){ %>
+                                            <span class="rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-900">
+                                                Reused
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                    <a href="<%= esc(path) %>" target="_blank" rel="noopener" class="mt-4 inline-flex rounded-lg bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-900">
+                                        Open Document
+                                    </a>
+                                </article>
+                            <% }} %>
+                        </div>
+                    </section>
             </main>
         </div>
     </div>

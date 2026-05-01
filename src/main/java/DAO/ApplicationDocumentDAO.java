@@ -55,6 +55,25 @@ public class ApplicationDocumentDAO extends BaseDAO {
         return documents;
     }
 
+    public List<ApplicationDocument> findByCitizenId(int citizenId) throws SQLException {
+        String sql = """
+                SELECT ad.* FROM APPLICATION_DOCUMENT ad
+                JOIN APPLICATION a ON ad.ApplicationID = a.ApplicationID
+                WHERE a.CitizenID = ?
+                ORDER BY ad.UploadedAt DESC
+                """;
+        List<ApplicationDocument> documents = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, citizenId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    documents.add(map(resultSet));
+                }
+            }
+        }
+        return documents;
+    }
+
     private ApplicationDocument map(ResultSet resultSet) throws SQLException {
         ApplicationDocument document = new ApplicationDocument();
         document.setDocId(resultSet.getInt("DocID"));

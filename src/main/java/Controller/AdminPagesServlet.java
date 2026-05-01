@@ -6,11 +6,13 @@ import DAO.ApplicationDAO;
 import DAO.ApplicationDocumentDAO;
 import DAO.BudgetAllocationDAO;
 import DAO.CitizenDAO;
+import DAO.CitizenDocumentVaultDAO;
 import DAO.ServiceTypeDAO;
 import DAO.WardDAO;
 import Model.Application;
 import Model.ApplicationDocument;
 import Model.Citizen;
+import Model.CitizenDocumentVault;
 import Model.ServiceType;
 import Model.Ward;
 import Util.DatabaseConnection;
@@ -84,12 +86,22 @@ public class AdminPagesServlet extends HttpServlet {
         request.setAttribute("servicesById", mapServices(new ServiceTypeDAO(conn).findAll(false)));
         request.setAttribute("wardsById", mapWards(new WardDAO(conn).findAll()));
         ApplicationDocumentDAO documentDAO = new ApplicationDocumentDAO(conn);
+        CitizenDocumentVaultDAO vaultDAO = new CitizenDocumentVaultDAO(conn);
         Map<Integer, List<ApplicationDocument>> documentsByApplicationId = new HashMap<>();
+        Map<Integer, List<CitizenDocumentVault>> vaultDocumentsByCitizenId = new HashMap<>();
         for (Application application : applications) {
             documentsByApplicationId.put(application.getApplicationId(),
                     documentDAO.findByApplicationId(application.getApplicationId()));
+            vaultDocumentsByCitizenId.computeIfAbsent(application.getCitizenId(), citizenId -> {
+                try {
+                    return vaultDAO.findByCitizenId(citizenId);
+                } catch (SQLException e) {
+                    return List.of();
+                }
+            });
         }
         request.setAttribute("documentsByApplicationId", documentsByApplicationId);
+        request.setAttribute("vaultDocumentsByCitizenId", vaultDocumentsByCitizenId);
     }
 
     private Map<Integer, Citizen> mapCitizens(List<Citizen> citizens) {

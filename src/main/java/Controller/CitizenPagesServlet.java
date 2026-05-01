@@ -1,6 +1,7 @@
 package Controller;
 
 import DAO.ApplicationDAO;
+import DAO.ApplicationDocumentDAO;
 import DAO.CitizenDocumentVaultDAO;
 import DAO.IssuedCertificateDAO;
 import DAO.NotificationDAO;
@@ -67,6 +68,7 @@ public class CitizenPagesServlet extends HttpServlet {
                 request.setAttribute("certificates", new IssuedCertificateDAO(conn).findByCitizenId(citizenId));
             } else if ("/citizen/documents".equals(path)) {
                 request.setAttribute("documents", new CitizenDocumentVaultDAO(conn).findByCitizenId(citizenId));
+                request.setAttribute("applicationDocuments", new ApplicationDocumentDAO(conn).findByCitizenId(citizenId));
             }
         } catch (SQLException e) {
             request.setAttribute("pageError", "Unable to load page data.");
@@ -74,6 +76,7 @@ public class CitizenPagesServlet extends HttpServlet {
             request.setAttribute("serviceTypes", List.of());
             request.setAttribute("wards", List.of());
             request.setAttribute("documents", List.of());
+            request.setAttribute("applicationDocuments", List.of());
             request.setAttribute("taxRecords", List.of());
             request.setAttribute("notifications", List.of());
             request.setAttribute("certificates", List.of());

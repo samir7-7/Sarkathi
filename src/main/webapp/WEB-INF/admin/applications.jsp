@@ -2,12 +2,13 @@
 <%@ page import="Model.Application" %>
 <%@ page import="Model.ApplicationDocument" %>
 <%@ page import="Model.Citizen" %>
+<%@ page import="Model.CitizenDocumentVault" %>
 <%@ page import="Model.ServiceType" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%! private String esc(Object value) { if (value == null) return ""; return value.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;"); } private String badgeClass(String status) { if ("approved".equals(status)) return "bg-green-50 text-green-700"; if ("rejected".equals(status)) return "bg-red-50 text-red-600"; if ("review".equals(status)) return "bg-amber-50 text-amber-700"; return "bg-blue-50 text-blue-700"; } private String label(String status) { if ("review".equals(status)) return "Under Review"; if (status == null || status.isBlank()) return "Submitted"; return status.substring(0,1).toUpperCase()+status.substring(1); } %>
-<% Integer adminId=(Integer)request.getAttribute("adminId"); String adminName=(String)request.getAttribute("adminName"); String adminRole=(String)request.getAttribute("adminRole"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); String filter=request.getParameter("status"); List<Application> applications=(List<Application>)request.getAttribute("applications"); Map<Integer,Citizen> citizensById=(Map<Integer,Citizen>)request.getAttribute("citizensById"); Map<Integer,ServiceType> servicesById=(Map<Integer,ServiceType>)request.getAttribute("servicesById"); Map<Integer,List<ApplicationDocument>> docsByApp=(Map<Integer,List<ApplicationDocument>>)request.getAttribute("documentsByApplicationId"); DateTimeFormatter dateFormatter=DateTimeFormatter.ofPattern("MMM d, yyyy"); if(adminName==null)adminName="Admin"; if(adminRole==null)adminRole="admin"; if(applications==null)applications=List.of(); %>
+<% Integer adminId=(Integer)request.getAttribute("adminId"); String adminName=(String)request.getAttribute("adminName"); String adminRole=(String)request.getAttribute("adminRole"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); String filter=request.getParameter("status"); List<Application> applications=(List<Application>)request.getAttribute("applications"); Map<Integer,Citizen> citizensById=(Map<Integer,Citizen>)request.getAttribute("citizensById"); Map<Integer,ServiceType> servicesById=(Map<Integer,ServiceType>)request.getAttribute("servicesById"); Map<Integer,List<ApplicationDocument>> docsByApp=(Map<Integer,List<ApplicationDocument>>)request.getAttribute("documentsByApplicationId"); Map<Integer,List<CitizenDocumentVault>> vaultDocsByCitizen=(Map<Integer,List<CitizenDocumentVault>>)request.getAttribute("vaultDocumentsByCitizenId"); DateTimeFormatter dateFormatter=DateTimeFormatter.ofPattern("MMM d, yyyy"); if(adminName==null)adminName="Admin"; if(adminRole==null)adminRole="admin"; if(applications==null)applications=List.of(); %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -110,7 +111,7 @@
                         </div>
                     <% } %>
                     <div class="space-y-5">
-                        <% boolean any=false; for(Application app: applications){ if(filter!=null && !filter.isBlank() && !filter.equals(app.getStatus())) continue; any=true; Citizen citizen=citizensById==null?null:citizensById.get(app.getCitizenId()); ServiceType service=servicesById==null?null:servicesById.get(app.getServiceTypeId()); List<ApplicationDocument> docs=docsByApp==null?List.of():docsByApp.getOrDefault(app.getApplicationId(), List.of()); %>
+                        <% boolean any=false; for(Application app: applications){ if(filter!=null && !filter.isBlank() && !filter.equals(app.getStatus())) continue; any=true; Citizen citizen=citizensById==null?null:citizensById.get(app.getCitizenId()); ServiceType service=servicesById==null?null:servicesById.get(app.getServiceTypeId()); List<ApplicationDocument> docs=docsByApp==null?List.of():docsByApp.getOrDefault(app.getApplicationId(), List.of()); List<CitizenDocumentVault> vaultDocs=vaultDocsByCitizen==null?List.of():vaultDocsByCitizen.getOrDefault(app.getCitizenId(), List.of()); %>
                         <article class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
                             <div class="flex items-start justify-between gap-5">
                                 <div class="flex-1">
@@ -151,11 +152,11 @@
                                     </div>
                                     <div class="mt-4">
                                         <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                            Uploaded Documents
+                                            Application Documents
                                         </p>
                                         <% if(docs.isEmpty()){ %>
                                             <p class="text-sm text-slate-400">
-                                                No documents uploaded.
+                                                No documents attached to this application.
                                             </p>
                                         <% } else { %>
                                             <div class="flex flex-wrap gap-2">
@@ -167,6 +168,24 @@
                                         </div>
                                     <% } %>
                                 </div>
+                                    <div class="mt-4">
+                                        <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                            Citizen Vault Documents
+                                        </p>
+                                        <% if(vaultDocs.isEmpty()){ %>
+                                            <p class="text-sm text-slate-400">
+                                                No reusable documents in this citizen's vault.
+                                            </p>
+                                        <% } else { %>
+                                            <div class="flex flex-wrap gap-2">
+                                                <% for(CitizenDocumentVault d: vaultDocs){ String path=d.getFilePath()==null?"#":(d.getFilePath().startsWith("/")?request.getContextPath()+d.getFilePath():request.getContextPath()+"/"+d.getFilePath()); %>
+                                                    <a class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-brand-900 hover:bg-brand-50" href="<%= esc(path) %>" target="_blank" rel="noopener">
+                                                        <%= esc(d.getDocumentType()) %>
+                                                    </a>
+                                                <% } %>
+                                            </div>
+                                        <% } %>
+                                    </div>
                             </div>
                             <div class="w-72 shrink-0">
                                 <form method="post" action="<%= request.getContextPath() %>/api/admin/applications" class="space-y-3">
