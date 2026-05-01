@@ -37,6 +37,7 @@
 
                 <div class="relative flex h-full w-full flex-col justify-between px-12 py-16 text-white">
                     <div class="max-w-xl pt-8">
+                        <a href="<%= request.getContextPath() %>" class="text-3xl font-bold tracking-tight text-white mb-8 block">Sarkar<span class="text-blue-100">Sathi</span></a>
                         <h1 class="text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
                             Join<br>
                             SarkarSathi:<br>

@@ -89,6 +89,7 @@
 
                 <div class="relative flex h-full w-full flex-col justify-between px-12 py-16 text-white">
                     <div class="max-w-xl pt-12">
+                        <a href="<%= request.getContextPath() %>" class="text-3xl font-bold tracking-tight text-white mb-8 block">Sarkar<span class="text-blue-200">Sathi</span></a>
                         <h1 class="text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
                             Empowering<br>
                             Citizens, Building<br>
@@ -114,7 +115,7 @@
             <section class="flex items-center justify-center bg-[#f7f7fb] px-6 py-12 lg:px-12">
                 <div class="w-full max-w-md fade-in">
                     <div>
-                        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-[#154a91] text-white shadow-lg shadow-blue-950/20">
+                        <a href="<%= request.getContextPath() %>" class="flex h-16 w-16 items-center justify-center rounded-full bg-[#154a91] text-white shadow-lg shadow-blue-950/20">
                             <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M3 21h18"></path>
                                 <path d="M5 21v-4"></path>
@@ -124,7 +125,7 @@
                                 <path d="M12 17v-4"></path>
                                 <path d="M3 13L12 4l9 9"></path>
                             </svg>
-                        </div>
+                        </a>
                         <h2 class="mt-8 text-4xl font-bold tracking-tight text-[#0b3d86]">SarkarSathi</h2>
                         <p class="mt-4 text-base text-slate-700">
                             Access your municipal services with ease. Please login to your account.

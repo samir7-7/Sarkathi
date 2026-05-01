@@ -30,6 +30,7 @@
         }
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <%@ include file="includes/responsive-scripts.jsp" %>
     <style>
         body { font-family: 'Outfit', sans-serif; }
     </style>
@@ -45,7 +46,7 @@
 
         <header class="px-6 pt-6 lg:px-12">
             <nav class="mx-auto flex max-w-7xl items-center justify-between py-2">
-                <a href="index.jsp" class="text-2xl font-bold tracking-tight text-brand-900">Sarkar<span class="text-brand-500">Sathi</span></a>
+                <a href="<%= request.getContextPath() %>" class="text-2xl font-bold tracking-tight text-brand-900">Sarkar<span class="text-brand-500">Sathi</span></a>
 
                 <div class="hidden items-center gap-10 text-[15px] font-medium text-slate-600 lg:flex">
                     <a href="<%= request.getContextPath() %>/announcements" class="transition hover:text-brand-900">Announcements</a>
@@ -55,16 +56,31 @@
                     <a href="<%= request.getContextPath() %>/track" class="transition hover:text-brand-900">Track</a>
                 </div>
 
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4 sm:gap-6">
                     <% if (loggedIn) { %>
                         <a href="<%= request.getContextPath() %>/citizen/dashboard" class="hidden text-[15px] font-semibold text-brand-900 sm:inline-block">Welcome, <%= displayName %></a>
-                        <a href="<%= request.getContextPath() %>/logout" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Logout</a>
+                        <a href="<%= request.getContextPath() %>/logout" class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 sm:px-5">Logout</a>
                     <% } else { %>
                         <a href="<%= request.getContextPath() %>/login" class="hidden text-[15px] font-semibold text-brand-900 transition hover:text-brand-500 sm:inline-block">Login</a>
-                        <a href="<%= request.getContextPath() %>/register" class="inline-flex items-center rounded-xl bg-brand-900 px-6 py-2.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-800">Register</a>
+                        <a href="<%= request.getContextPath() %>/register" class="inline-flex items-center rounded-xl bg-brand-900 px-5 py-2.5 text-[15px] font-semibold text-white shadow-sm transition hover:bg-brand-800 sm:px-6">Register</a>
                     <% } %>
+                    <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 text-slate-600 transition hover:bg-slate-100 hover:text-brand-900 lg:hidden">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
                 </div>
             </nav>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden border-t border-slate-100 py-6 space-y-4 lg:hidden">
+                <a href="<%= request.getContextPath() %>/announcements" class="block text-base font-medium text-slate-600 hover:text-brand-900">Announcements</a>
+                <a href="<%= request.getContextPath() %>/agriculture" class="block text-base font-medium text-slate-600 hover:text-brand-900">Agriculture</a>
+                <a href="<%= request.getContextPath() %>/budget" class="block text-base font-medium text-slate-600 hover:text-brand-900">Budget</a>
+                <a href="<%= request.getContextPath() %>/crop-advisory" class="block text-base font-medium text-slate-600 hover:text-brand-900">Crop Advisory</a>
+                <a href="<%= request.getContextPath() %>/track" class="block text-base font-medium text-slate-600 hover:text-brand-900">Track</a>
+                <% if (!loggedIn) { %>
+                    <a href="<%= request.getContextPath() %>/login" class="block text-base font-medium text-slate-600 hover:text-brand-900">Login</a>
+                <% } %>
+            </div>
         </header>
 
         <main>
