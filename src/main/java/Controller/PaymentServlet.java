@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -43,6 +45,7 @@ public class PaymentServlet extends BaseApiServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
         try (Connection connection = DatabaseConnection.getConnection()) {
             Payment payment = new Payment();
             String applicationId = getOptionalParameter(request, "applicationId");
@@ -75,7 +78,7 @@ public class PaymentServlet extends BaseApiServlet {
                 TaxRecord taxRecord = handleTaxPayment(request, taxRecordDAO, savedPayment);
                 connection.commit();
 
-                writeJson(response, HttpServletResponse.SC_CREATED,
+                redirectOrWriteJson(request, response, redirectTo, HttpServletResponse.SC_CREATED,
                         "{"
                                 + "\"success\":true,"
                                 + "\"payment\":" + toPaymentJson(savedPayment) + ","
@@ -89,12 +92,39 @@ public class PaymentServlet extends BaseApiServlet {
                 connection.setAutoCommit(previousAutoCommit);
             }
         } catch (IllegalArgumentException e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         } catch (SecurityException e) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
         } catch (SQLException e) {
-            writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                     int statusCode, String json) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, null));
+            return;
+        }
+        writeJson(response, statusCode, json);
+    }
+
+    private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                      String message, int statusCode) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, message));
+            return;
+        }
+        writeError(response, statusCode, message);
+    }
+
+    private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
+        String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/citizen/payments";
+        String url = request.getContextPath() + target;
+        if (error == null || error.isBlank()) {
+            return url;
+        }
+        return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
     private TaxRecord handleTaxPayment(HttpServletRequest request, TaxRecordDAO taxRecordDAO, Payment savedPayment)

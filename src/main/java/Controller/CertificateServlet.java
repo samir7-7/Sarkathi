@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -80,6 +81,7 @@ public class CertificateServlet extends BaseApiServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
         try {
             requireAdmin(request);
             int applicationId = Integer.parseInt(getRequiredParameter(request, "applicationId"));
@@ -92,17 +94,17 @@ public class CertificateServlet extends BaseApiServlet {
             try (Connection conn = DatabaseConnection.getConnection()) {
                 CertificateData data = loadCertificateData(conn, applicationId);
                 if (data == null) {
-                    writeError(response, HttpServletResponse.SC_NOT_FOUND, "Application not found");
+                    redirectOrWriteError(request, response, redirectTo, "Application not found", HttpServletResponse.SC_NOT_FOUND);
                     return;
                 }
                 if (!"approved".equals(data.status)) {
-                    writeError(response, HttpServletResponse.SC_BAD_REQUEST, "Application must be approved first");
+                    redirectOrWriteError(request, response, redirectTo, "Application must be approved first", HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
 
                 IssuedCertificateDAO certDAO = new IssuedCertificateDAO(conn);
                 if (certDAO.findByApplicationId(applicationId).isPresent()) {
-                    writeError(response, HttpServletResponse.SC_CONFLICT, "Certificate already issued");
+                    redirectOrWriteError(request, response, redirectTo, "Certificate already issued", HttpServletResponse.SC_CONFLICT);
                     return;
                 }
 
@@ -114,14 +116,41 @@ public class CertificateServlet extends BaseApiServlet {
                 cert.setIssuedByAdminId(adminId);
                 certDAO.create(cert);
 
-                writeJson(response, HttpServletResponse.SC_CREATED,
+                redirectOrWriteJson(request, response, redirectTo, HttpServletResponse.SC_CREATED,
                         "{\"success\":true,\"certificate\":" + toCertJson(cert) + "}");
             }
         } catch (SecurityException e) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
         } catch (Exception e) {
-            writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                     int statusCode, String json) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, null));
+            return;
+        }
+        writeJson(response, statusCode, json);
+    }
+
+    private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                      String message, int statusCode) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, message));
+            return;
+        }
+        writeError(response, statusCode, message);
+    }
+
+    private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
+        String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/admin/applications";
+        String url = request.getContextPath() + target;
+        if (error == null || error.isBlank()) {
+            return url;
+        }
+        return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
     private void renderCertificate(HttpServletRequest request, HttpServletResponse response, Connection conn, int appId)

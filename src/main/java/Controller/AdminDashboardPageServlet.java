@@ -1,6 +1,11 @@
 package Controller;
 
+import DAO.ApplicationDAO;
+import Util.DatabaseConnection;
+
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -24,6 +29,23 @@ public class AdminDashboardPageServlet extends HttpServlet {
         request.setAttribute("adminName", session.getAttribute("fullName"));
         request.setAttribute("adminEmail", session.getAttribute("email"));
         request.setAttribute("adminRole", session.getAttribute("adminRole"));
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            ApplicationDAO applicationDAO = new ApplicationDAO(conn);
+            request.setAttribute("totalApplications", applicationDAO.countAll());
+            request.setAttribute("submittedApplications", applicationDAO.countByStatus("submitted"));
+            request.setAttribute("reviewApplications", applicationDAO.countByStatus("review"));
+            request.setAttribute("approvedApplications", applicationDAO.countByStatus("approved"));
+            request.setAttribute("rejectedApplications", applicationDAO.countByStatus("rejected"));
+            request.setAttribute("recentApplications", applicationDAO.findAll());
+        } catch (SQLException e) {
+            request.setAttribute("pageError", "Unable to load dashboard data.");
+            request.setAttribute("totalApplications", 0L);
+            request.setAttribute("submittedApplications", 0L);
+            request.setAttribute("reviewApplications", 0L);
+            request.setAttribute("approvedApplications", 0L);
+            request.setAttribute("rejectedApplications", 0L);
+            request.setAttribute("recentApplications", java.util.List.of());
+        }
         request.getRequestDispatcher("/WEB-INF/admin-dashboard.jsp").forward(request, response);
     }
 }

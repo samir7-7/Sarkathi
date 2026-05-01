@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,8 +35,17 @@ public class BudgetAllocationServlet extends BaseApiServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
         try {
             requireAdmin(request);
+            if ("delete".equalsIgnoreCase(getOptionalParameter(request, "action"))) {
+                boolean ok = deleteBudget(request);
+                redirectOrWriteJson(request, response, redirectTo,
+                        ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND,
+                        "{\"success\":" + ok + "}");
+                return;
+            }
+
             BudgetAllocation b = new BudgetAllocation();
             b.setWardId(Integer.parseInt(getRequiredParameter(request, "wardId")));
             b.setDepartment(getRequiredParameter(request, "department"));
@@ -47,12 +58,13 @@ public class BudgetAllocationServlet extends BaseApiServlet {
             b.setDescription(getOptionalParameter(request, "description"));
             try (Connection conn = DatabaseConnection.getConnection()) {
                 new BudgetAllocationDAO(conn).create(b);
-                writeJson(response, HttpServletResponse.SC_CREATED, "{\"success\":true,\"budget\":" + toJson(b) + "}");
+                redirectOrWriteJson(request, response, redirectTo, HttpServletResponse.SC_CREATED,
+                        "{\"success\":true,\"budget\":" + toJson(b) + "}");
             }
         } catch (SecurityException e) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
         } catch (Exception e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
@@ -60,16 +72,47 @@ public class BudgetAllocationServlet extends BaseApiServlet {
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             requireAdmin(request);
-            int id = Integer.parseInt(getRequiredParameter(request, "budgetId"));
-            try (Connection conn = DatabaseConnection.getConnection()) {
-                boolean ok = new BudgetAllocationDAO(conn).delete(id);
-                writeJson(response, ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND, "{\"success\":" + ok + "}");
-            }
+            boolean ok = deleteBudget(request);
+            writeJson(response, ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND, "{\"success\":" + ok + "}");
         } catch (SecurityException e) {
             writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
+    }
+
+    private boolean deleteBudget(HttpServletRequest request) throws SQLException {
+        int id = Integer.parseInt(getRequiredParameter(request, "budgetId"));
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            return new BudgetAllocationDAO(conn).delete(id);
+        }
+    }
+
+    private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                     int statusCode, String json) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, null));
+            return;
+        }
+        writeJson(response, statusCode, json);
+    }
+
+    private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                      String message, int statusCode) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, message));
+            return;
+        }
+        writeError(response, statusCode, message);
+    }
+
+    private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
+        String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/admin/budgets";
+        String url = request.getContextPath() + target;
+        if (error == null || error.isBlank()) {
+            return url;
+        }
+        return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
     private String toJson(BudgetAllocation b) {

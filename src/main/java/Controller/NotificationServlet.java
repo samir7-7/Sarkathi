@@ -46,6 +46,11 @@ public class NotificationServlet extends BaseApiServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
+            String action = getOptionalParameter(request, "action");
+            if ("markRead".equalsIgnoreCase(action) || "markAll".equalsIgnoreCase(action)) {
+                handleMarkRead(request, response);
+                return;
+            }
             requireAdmin(request);
             Notification n = new Notification();
             n.setCitizenId(Integer.parseInt(getRequiredParameter(request, "citizenId")));
@@ -60,6 +65,28 @@ public class NotificationServlet extends BaseApiServlet {
             }
         } catch (SecurityException e) {
             writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+        } catch (Exception e) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    private void handleMarkRead(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            NotificationDAO dao = new NotificationDAO(conn);
+            String citizenIdParam = getRequiredParameter(request, "citizenId");
+            int citizenId = Integer.parseInt(citizenIdParam);
+            requireCitizenOwnership(request, citizenId);
+            if ("markAll".equalsIgnoreCase(getOptionalParameter(request, "action"))) {
+                dao.markAllAsRead(citizenId);
+            } else {
+                dao.markAsRead(Integer.parseInt(getRequiredParameter(request, "notificationId")));
+            }
+            if (redirectTo != null && !redirectTo.isBlank()) {
+                response.sendRedirect(request.getContextPath() + redirectTo);
+            } else {
+                writeJson(response, HttpServletResponse.SC_OK, "{\"success\":true}");
+            }
         } catch (Exception e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }

@@ -19,6 +19,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -81,6 +83,7 @@ public class ApplicationServlet extends BaseApiServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
         try (Connection connection = DatabaseConnection.getConnection()) {
             int citizenId = Integer.parseInt(getRequiredParameter(request, "citizenId"));
             requireCitizenOwnership(request, citizenId);
@@ -125,22 +128,49 @@ public class ApplicationServlet extends BaseApiServlet {
             Map<Integer, ServiceType> serviceTypes = mapServices(serviceTypeDAO.findAll(false));
             Map<Integer, Ward> wards = mapWards(wardDAO.findAll());
 
-            writeJson(response, HttpServletResponse.SC_CREATED,
+            redirectOrWriteJson(request, response, redirectTo, HttpServletResponse.SC_CREATED,
                     "{\"success\":true,\"application\":"
                             + toApplicationJson(savedApplication, documentDAO, citizens, serviceTypes, wards) + "}");
         } catch (IllegalArgumentException e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         } catch (SecurityException e) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
         } catch (SQLException e) {
-            writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                     int statusCode, String json) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, null));
+            return;
+        }
+        writeJson(response, statusCode, json);
+    }
+
+    private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
+                                      String message, int statusCode) throws IOException {
+        if (redirectTo != null && !redirectTo.isBlank()) {
+            response.sendRedirect(formRedirectUrl(request, redirectTo, message));
+            return;
+        }
+        writeError(response, statusCode, message);
+    }
+
+    private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
+        String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/citizen/tracking";
+        String url = request.getContextPath() + target;
+        if (error == null || error.isBlank()) {
+            return url;
+        }
+        return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
     private void attachReusedDocuments(HttpServletRequest request, Application application,
                                        ApplicationDocumentDAO documentDAO,
                                        CitizenDocumentVaultDAO vaultDAO) throws SQLException {
-        List<Integer> reuseIds = parseCsvIds(getOptionalParameter(request, "reuseDocumentIds"));
+        List<Integer> reuseIds = parseReuseDocumentIds(request);
         if (reuseIds.isEmpty()) {
             return;
         }
@@ -155,6 +185,18 @@ public class ApplicationServlet extends BaseApiServlet {
             applicationDocument.setReusable(true);
             documentDAO.create(applicationDocument);
         }
+    }
+
+    private List<Integer> parseReuseDocumentIds(HttpServletRequest request) {
+        List<Integer> ids = new ArrayList<>();
+        String[] values = request.getParameterValues("reuseDocumentIds");
+        if (values != null) {
+            for (String value : values) {
+                ids.addAll(parseCsvIds(value));
+            }
+            return ids;
+        }
+        return parseCsvIds(getOptionalParameter(request, "reuseDocumentIds"));
     }
 
     private List<Integer> parseCsvIds(String csv) {
