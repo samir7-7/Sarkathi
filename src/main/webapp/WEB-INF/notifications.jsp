@@ -14,11 +14,12 @@ initials=initials.toUpperCase();
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Outfit','sans-serif']},colors:{brand:{50:'#f0f5fc',100:'#e1eafa',500:'#3b82f6',800:'#154a91',900:'#0b3d86'}}}}}</script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<style>body{font-family:'Outfit',sans-serif}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}</style>
+<%@ include file="includes/responsive-scripts.jsp" %>
+<style>body{font-family:'Outfit',sans-serif}@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.fade-in{animation:fadeInUp .4s ease-out forwards}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}</style>
 </head><body class="bg-[#fafafc] text-slate-800">
-<div class="flex min-h-screen">
-<aside class="fixed inset-y-0 left-0 z-30 flex w-[220px] flex-col border-r border-slate-200 bg-white">
-    <div class="px-5 pt-5 pb-2"><a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a></div>
+<div class="flex min-h-screen flex-col lg:flex-row">
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-30 flex w-[220px] -translate-x-full flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:static lg:flex lg:translate-x-0">
+    <div class="flex items-center justify-between px-5 pt-5 pb-2"><a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a><button onclick="toggleSidebar()" class="p-2 text-slate-600 lg:hidden focus:outline-none"><i data-lucide="x" class="h-6 w-6"></i></button></div>
     <div class="mx-5 mt-3 flex items-center gap-3 rounded-xl bg-brand-50 px-4 py-3">
         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-900 text-white text-xs font-bold"><%= initials %></div>
         <div><p class="text-sm font-semibold text-brand-900 truncate"><%= citizenName %></p><p class="text-[11px] text-slate-500">Citizen</p></div>
@@ -33,9 +34,9 @@ initials=initials.toUpperCase();
     </nav>
     <div class="mt-auto border-t border-slate-100 px-3 pb-4 pt-3"><a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600"><i data-lucide="log-out" class="h-[18px] w-[18px]"></i>Logout</a></div>
 </aside>
-<div class="ml-[220px] flex-1 flex flex-col min-h-screen">
-    <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-md px-8 py-3.5">
-        <div><h1 class="text-lg font-bold text-slate-900">Notification Center</h1><p class="text-xs text-slate-500">Stay updated on your application status</p></div>
+<div class="flex-1 flex flex-col min-h-screen">
+    <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 py-3.5 lg:px-8"><div class="flex items-center gap-4"><button onclick="toggleSidebar()" class="p-2 text-slate-600 lg:hidden focus:outline-none"><i data-lucide="menu" class="h-6 w-6"></i></button>
+        <div><h1 class="text-lg font-bold text-slate-900">Notification Center</h1><p class="text-xs text-slate-500 hidden sm:block">Stay updated on your application status</p></div>
         <div class="flex items-center gap-3">
             <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-brand-200 bg-brand-50 text-brand-900">
                 <i data-lucide="bell" class="h-4 w-4"></i>
@@ -44,11 +45,11 @@ initials=initials.toUpperCase();
             <button onclick="markAllRead()" class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-brand-900 hover:bg-brand-50 transition">Mark All as Read</button>
         </div>
     </header>
-    <main class="flex-1 px-8 py-8 overflow-y-auto">
+    <main class="flex-1 px-4 py-6 md:px-8 md:py-8 overflow-y-auto"><div class="w-full fade-in">
         <div class="w-full">
             <div id="notif-container" class="space-y-3"><p class="text-center py-8 text-slate-400">Loading notifications...</p></div>
         </div>
-    </main>
+    </div></main>
 </div>
 </div>
 <script>
