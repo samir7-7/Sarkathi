@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.AdminUserDAOInterface;
 
 import Model.AdminUser;
 
@@ -8,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class AdminUserDAO {
+public class AdminUserDAO implements AdminUserDAOInterface {
     private final Connection connection;
 
     public AdminUserDAO(Connection connection) {

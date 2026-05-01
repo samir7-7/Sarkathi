@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.ApplicationDAOInterface;
 
 import Model.Application;
 
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ApplicationDAO extends BaseDAO {
+public class ApplicationDAO extends BaseDAO implements ApplicationDAOInterface {
     private final Connection connection;
 
     public ApplicationDAO(Connection connection) {

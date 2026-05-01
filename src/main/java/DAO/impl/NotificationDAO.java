@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.NotificationDAOInterface;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +14,7 @@ import java.util.List;
 
 import Model.Notification;
 
-public class NotificationDAO extends BaseDAO {
+public class NotificationDAO extends BaseDAO implements NotificationDAOInterface {
     private final Connection connection;
 
     public NotificationDAO(Connection connection) {

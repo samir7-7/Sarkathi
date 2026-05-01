@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.IssuedCertificateDAOInterface;
 
 import Model.IssuedCertificate;
 
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class IssuedCertificateDAO extends BaseDAO {
+public class IssuedCertificateDAO extends BaseDAO implements IssuedCertificateDAOInterface {
     private final Connection connection;
 
     public IssuedCertificateDAO(Connection connection) {

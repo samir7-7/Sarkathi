@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.ServiceTypeDAOInterface;
 
 import Model.ServiceType;
 
@@ -9,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceTypeDAO {
+public class ServiceTypeDAO implements ServiceTypeDAOInterface {
     private final Connection connection;
 
     public ServiceTypeDAO(Connection connection) {

@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.ApplicationDocumentDAOInterface;
 
 import Model.ApplicationDocument;
 
@@ -12,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApplicationDocumentDAO extends BaseDAO {
+public class ApplicationDocumentDAO extends BaseDAO implements ApplicationDocumentDAOInterface {
     private final Connection connection;
 
     public ApplicationDocumentDAO(Connection connection) {

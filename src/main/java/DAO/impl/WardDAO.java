@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.WardDAOInterface;
 
 import Model.Ward;
 
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class WardDAO {
+public class WardDAO implements WardDAOInterface {
     private final Connection connection;
 
     public WardDAO(Connection connection) {

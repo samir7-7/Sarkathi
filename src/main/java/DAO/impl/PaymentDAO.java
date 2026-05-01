@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.PaymentDAOInterface;
 
 import Model.Payment;
 
@@ -11,7 +13,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PaymentDAO extends BaseDAO {
+public class PaymentDAO extends BaseDAO implements PaymentDAOInterface {
     private final Connection connection;
 
     public PaymentDAO(Connection connection) {

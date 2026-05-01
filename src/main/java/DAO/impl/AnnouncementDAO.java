@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.AnnouncementDAOInterface;
 
 import Model.Announcement;
 
@@ -13,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnnouncementDAO extends BaseDAO {
+public class AnnouncementDAO extends BaseDAO implements AnnouncementDAOInterface {
     private final Connection connection;
 
     public AnnouncementDAO(Connection connection) {

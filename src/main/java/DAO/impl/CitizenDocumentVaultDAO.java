@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.CitizenDocumentVaultDAOInterface;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +15,7 @@ import java.util.StringJoiner;
 
 import Model.CitizenDocumentVault;
 
-public class CitizenDocumentVaultDAO extends BaseDAO {
+public class CitizenDocumentVaultDAO extends BaseDAO implements CitizenDocumentVaultDAOInterface {
     private final Connection connection;
 
     public CitizenDocumentVaultDAO(Connection connection) {

@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.AgricultureNoticeDAOInterface;
 
 import Model.AgricultureNotice;
 
@@ -12,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AgricultureNoticeDAO extends BaseDAO {
+public class AgricultureNoticeDAO extends BaseDAO implements AgricultureNoticeDAOInterface {
     private final Connection connection;
 
     public AgricultureNoticeDAO(Connection connection) {

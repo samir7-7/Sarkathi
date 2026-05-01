@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.BudgetAllocationDAOInterface;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +12,7 @@ import java.util.List;
 
 import Model.BudgetAllocation;
 
-public class BudgetAllocationDAO extends BaseDAO {
+public class BudgetAllocationDAO extends BaseDAO implements BudgetAllocationDAOInterface {
     private final Connection connection;
 
     public BudgetAllocationDAO(Connection connection) {

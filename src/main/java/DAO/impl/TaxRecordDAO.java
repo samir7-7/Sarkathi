@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.TaxRecordDAOInterface;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +13,7 @@ import java.util.List;
 
 import Model.TaxRecord;
 
-public class TaxRecordDAO extends BaseDAO {
+public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
     private final Connection connection;
 
     public TaxRecordDAO(Connection connection) { this.connection = connection; }

@@ -1,4 +1,6 @@
-package DAO;
+package DAO.impl;
+
+import DAO.interfaces.CitizenDAOInterface;
 
 import Model.Citizen;
 
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CitizenDAO extends BaseDAO {
+public class CitizenDAO extends BaseDAO implements CitizenDAOInterface {
     private final Connection connection;
 
     public CitizenDAO(Connection connection) {
