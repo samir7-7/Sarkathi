@@ -32,32 +32,32 @@
                     </a>
                 </div>
                 <div class="mx-5 mt-3 flex items-center gap-3 rounded-xl bg-brand-50 px-4 py-3">
-                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-900 text-white text-xs font-bold">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-900 text-xs font-bold text-white">
                         <%= esc(initials) %>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-brand-900 truncate">
+                        <p class="truncate text-sm font-semibold text-brand-900">
                             <%= esc(citizenName) %>
                         </p>
-                        <p class="text-[11px] text-slate-5<PASSWORD>">
+                        <p class="text-[11px] text-slate-500">
                             Citizen
                         </p>
                     </div>
                 </div>
                 <nav class="mt-6 flex-1 space-y-1 px-3">
-                    <a href="<%= request.getContextPath() %>/citizen/dashboard" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-6<PASSWORD>">
+                    <a href="<%= request.getContextPath() %>/citizen/dashboard" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
                         <i data-lucide="layout-dashboard" class="h-4 w-4 shrink-0"></i>
                             <span>Dashboard</span>
                     </a>
-                    <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-6<PASSWORD>">
+                    <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
                         <i data-lucide="file-plus-2" class="h-4 w-4 shrink-0"></i>
                             <span>Apply for Service</span>
                     </a>
-                    <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-6<PASSWORD>">
+                    <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
                         <i data-lucide="search-check" class="h-4 w-4 shrink-0"></i>
                             <span>Track Application</span>
                     </a>
-                    <a href="<%= request.getContextPath() %>/citizen/payments" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-6<PASSWORD>">
+                    <a href="<%= request.getContextPath() %>/citizen/payments" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
                         <i data-lucide="credit-card" class="h-4 w-4 shrink-0"></i>
                             <span>Payments & Tax</span>
                     </a>
@@ -65,19 +65,19 @@
                         <i data-lucide="badge-check" class="h-4 w-4 shrink-0"></i>
                             <span>Certificates</span>
                     </a>
-                    <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-6<PASSWORD>">
+                    <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600">
                         <i data-lucide="folder-open" class="h-4 w-4 shrink-0"></i>
                             <span>My Documents</span>
                     </a>
                 </nav>
-                <div class="mt-auto border-t border-slate-1 0 px-3 pb-4 pt-3">
-                    <a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py_2.5 text-sm text-red_6<PASSWORD>">
+                <div class="mt-auto border-t border-slate-100 px-3 pb-4 pt-3">
+                    <a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600">
                         <i data-lucide="log-out" class="h-4 w-4 shrink-0"></i>
                             <span>Logout</span>
                     </a>
                 </div>
             </aside>
-            <div class="ml-[220px] flex-1 flex flex-col min-h-screen">
+            <div class="ml-[220px] flex min-h-screen flex-1 flex-col">
                 <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 px-8 py-3.5">
                     <div>
                         <h1 class="text-lg font-bold text-slate-900">
@@ -87,48 +87,47 @@
                             Download your approved certificates
                         </p>
                     </div>
-                    <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative flex h_1０ w_1０ items-center justify-center rounded-xl border border-slate_2００ bg-white text-slate_6０₀">
+                    <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600">
                         <i data-lucide="bell" class="h-5 w-5"></i>
-                        <% if(unread>₀){ %>
-                            <span class("absolute -right-_₁ -top-_₁ min-w_[₁₈px] rounded-full bg-red_5₀₀ px_1.₅ py_₀.₅ text-center text_[₁₀px] font-bold text-white">
+                        <% if(unread>0){ %>
+                            <span class="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
                                 <%= unread %>
                             </span>
                         <% } %>
                     </a>
                 </header>
-                <main class("flex_1 px_8 py_8 overflow-y-auto"): <div class("grid gap_4 md:grid_cols_₂ lg:grid_cols_₃"): <% if(certificates.isEmpty()){ %>
-                    <div class("col_span_₃ rounded_₂xl border border-slate_1₀₀ bg-white p_1₂ text_center shadow_sm"): <p class("text_slate_5₀₀"): No certificates issued yet</p>
-                        ;
+                <main class="flex-1 overflow-y-auto px-8 py-8">
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <% if(certificates.isEmpty()){ %>
+                            <div class="col-span-full rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm">
+                                <p class="text-slate-500">
+                                    No certificates issued yet
+                                </p>
+                            </div>
+                        <% } else { for(IssuedCertificate c: certificates){ %>
+                            <article class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-900">
+                                    <i data-lucide="badge-check" class="h-5 w-5"></i>
+                                </div>
+                                <h3 class="mt-5 text-base font-bold text-slate-900">
+                                    <%= esc(c.getCertificateNo()) %>
+                                </h3>
+                                <p class="mt-2 text-xs text-slate-500">
+                                    Issued: <%= c.getIssuedAt()==null?"":esc(c.getIssuedAt().format(fmt)) %>
+                                </p>
+                                <div class="mt-5 flex gap-2">
+                                    <a class="rounded-lg bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-900 hover:bg-brand-100" href="<%= request.getContextPath() %>/api/certificates/view/<%= c.getApplicationId() %>" target="_blank" rel="noopener">
+                                        View
+                                    </a>
+                                    <a class="rounded-lg bg-brand-900 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-800" href="<%= request.getContextPath() %>/api/certificates/download/<%= c.getApplicationId() %>">
+                                        Download
+                                    </a>
+                                </div>
+                            </article>
+                        <% }} %>
                     </div>
-                <% } else { for(IssuedCertificate c: certificates){ %>
-                    <article class("rounded_₂xl border border-slate_1₀₀ bg-white p_6 shadow_sm"): <h3 class("text-lg font-bold text_slate_9₀₀"): <%= esc(c.getCertificateNo()) %>
-                    </h3>
-                    ;
-                    <p class("mt_₂ text_xs text_slate_5₀₀"): Issued: <%= c.getIssuedAt()==null?"":esc(c.getIssuedAt().format(fmt)) %>
-                    </p>
-                    ;
-                    <div class("mt_₅ flex gap₂"): <a class("rounded_lg bg_brand_5₀ px₃ py₂ text_xs font-semibold text_brand__9₀₀") href="<%= request.getContextPath() %>/api/certificates/view/<%= c.getApplicationId() %>" target="_blank">
-                        View
-                    </a>
-                    ;
-                    <a class("rounded_lg bg_brand__9₀₀ px₃ py₂ text_xs font-semibold text_white") href="<%= request.getContextPath() %>/api/certificates/download/<%= c.getApplicationId() %>">
-                        Download
-                    </a>
-                    ;
-                </div>
-                ;
-            </article>
-        <% }} %>
-        ;
-    </div>
-    ;
-</main>
-;
-</div>
-;
-</div>
-;
-</body>
-;
+                </main>
+            </div>
+        </div>
+    </body>
 </html>
-;
