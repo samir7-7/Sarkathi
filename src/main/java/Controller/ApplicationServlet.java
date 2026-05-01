@@ -1,11 +1,11 @@
 package Controller;
 
-import DAO.ApplicationDAO;
-import DAO.ApplicationDocumentDAO;
-import DAO.CitizenDAO;
-import DAO.CitizenDocumentVaultDAO;
-import DAO.ServiceTypeDAO;
-import DAO.WardDAO;
+import DAO.impl.ApplicationDAO;
+import DAO.impl.ApplicationDocumentDAO;
+import DAO.impl.CitizenDAO;
+import DAO.impl.CitizenDocumentVaultDAO;
+import DAO.impl.ServiceTypeDAO;
+import DAO.impl.WardDAO;
 import Model.Application;
 import Model.ApplicationDocument;
 import Model.Citizen;

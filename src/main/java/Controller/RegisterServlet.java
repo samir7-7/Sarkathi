@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.CitizenDAO;
+import DAO.impl.CitizenDAO;
 import Model.Citizen;
 import Util.DatabaseConnection;
 import Util.PasswordUtil;

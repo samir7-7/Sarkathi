@@ -1,7 +1,9 @@
 package Controller;
 
-import DAO.ApplicationDAO;
-import DAO.NotificationDAO;
+import DAO.impl.ApplicationDAO;
+import DAO.interfaces.ApplicationDAOInterface;
+import DAO.impl.NotificationDAO;
+import DAO.interfaces.NotificationDAOInterface;
 import Model.Application;
 import Model.Notification;
 import Util.DatabaseConnection;
@@ -55,7 +57,7 @@ public class AdminApplicationServlet extends BaseApiServlet {
             }
 
             try (Connection connection = DatabaseConnection.getConnection()) {
-                ApplicationDAO applicationDAO = new ApplicationDAO(connection);
+                ApplicationDAOInterface applicationDAO = new ApplicationDAO(connection);
                 boolean updated;
                 Application application = null;
 
@@ -80,7 +82,8 @@ public class AdminApplicationServlet extends BaseApiServlet {
                             + (remarks == null || remarks.isBlank() ? "" : " - " + remarks));
                     notification.setRead(false);
                     notification.setCreatedAt(LocalDateTime.now());
-                    new NotificationDAO(connection).create(notification);
+                    NotificationDAOInterface notificationDAO = new NotificationDAO(connection);
+                    notificationDAO.create(notification);
                 }
 
                 redirectOrWriteJson(request, response, redirectTo,

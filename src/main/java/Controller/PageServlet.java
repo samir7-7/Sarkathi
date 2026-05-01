@@ -1,9 +1,9 @@
 package Controller;
 
-import DAO.AgricultureNoticeDAO;
-import DAO.AnnouncementDAO;
-import DAO.ApplicationDAO;
-import DAO.BudgetAllocationDAO;
+import DAO.impl.AgricultureNoticeDAO;
+import DAO.impl.AnnouncementDAO;
+import DAO.impl.ApplicationDAO;
+import DAO.impl.BudgetAllocationDAO;
 import Model.Application;
 import Util.DatabaseConnection;
 

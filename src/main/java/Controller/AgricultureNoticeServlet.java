@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.AgricultureNoticeDAO;
+import DAO.impl.AgricultureNoticeDAO;
 import Model.AgricultureNotice;
 import Util.DatabaseConnection;
 

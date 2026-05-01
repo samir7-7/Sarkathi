@@ -1,7 +1,7 @@
 package Controller;
 
-import DAO.CitizenDAO;
-import DAO.CitizenDocumentVaultDAO;
+import DAO.impl.CitizenDAO;
+import DAO.impl.CitizenDocumentVaultDAO;
 import Model.Citizen;
 import Model.CitizenDocumentVault;
 import Util.DatabaseConnection;

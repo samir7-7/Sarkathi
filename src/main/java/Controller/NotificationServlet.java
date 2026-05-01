@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.NotificationDAO;
+import DAO.impl.NotificationDAO;
 import Model.Notification;
 import Util.DatabaseConnection;
 

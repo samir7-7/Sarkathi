@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.ApplicationDAO;
+import DAO.impl.ApplicationDAO;
 import Util.DatabaseConnection;
 
 import java.io.IOException;

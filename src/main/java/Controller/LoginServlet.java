@@ -1,7 +1,7 @@
 package Controller;
 
-import DAO.AdminUserDAO;
-import DAO.CitizenDAO;
+import DAO.impl.AdminUserDAO;
+import DAO.impl.CitizenDAO;
 import Model.AdminUser;
 import Model.Citizen;
 import Util.DatabaseConnection;

@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.IssuedCertificateDAO;
+import DAO.impl.IssuedCertificateDAO;
 import Model.IssuedCertificate;
 import Util.DatabaseConnection;
 

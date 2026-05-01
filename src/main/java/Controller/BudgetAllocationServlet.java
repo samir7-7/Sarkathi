@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.BudgetAllocationDAO;
+import DAO.impl.BudgetAllocationDAO;
 import Model.BudgetAllocation;
 import Util.DatabaseConnection;
 

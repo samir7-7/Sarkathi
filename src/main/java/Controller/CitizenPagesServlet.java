@@ -1,13 +1,18 @@
 package Controller;
 
-import DAO.ApplicationDAO;
-import DAO.ApplicationDocumentDAO;
-import DAO.CitizenDocumentVaultDAO;
-import DAO.IssuedCertificateDAO;
-import DAO.NotificationDAO;
-import DAO.ServiceTypeDAO;
-import DAO.TaxRecordDAO;
-import DAO.WardDAO;
+import DAO.impl.ApplicationDAO;
+import DAO.impl.ApplicationDocumentDAO;
+import DAO.interfaces.ApplicationDocumentDAOInterface;
+import DAO.interfaces.ApplicationDAOInterface;
+import DAO.impl.CitizenDocumentVaultDAO;
+import DAO.interfaces.CitizenDocumentVaultDAOInterface;
+import DAO.impl.IssuedCertificateDAO;
+import DAO.interfaces.IssuedCertificateDAOInterface;
+import DAO.impl.NotificationDAO;
+import DAO.interfaces.NotificationDAOInterface;
+import DAO.impl.ServiceTypeDAO;
+import DAO.impl.TaxRecordDAO;
+import DAO.impl.WardDAO;
 import Model.Application;
 import Model.Notification;
 import Util.DatabaseConnection;
@@ -47,10 +52,11 @@ public class CitizenPagesServlet extends HttpServlet {
         try (Connection conn = DatabaseConnection.getConnection()) {
             loadSharedCitizenData(request, conn, citizenId);
             if ("/citizen/dashboard".equals(path) || "/citizen/tracking".equals(path)) {
-                request.setAttribute("applications", new ApplicationDAO(conn).findByCitizenId(citizenId));
+                ApplicationDAOInterface applicationDAO = new ApplicationDAO(conn);
+                request.setAttribute("applications", applicationDAO.findByCitizenId(citizenId));
                 String trackingId = request.getParameter("trackingId");
                 if (trackingId != null && !trackingId.isBlank()) {
-                    Application application = new ApplicationDAO(conn).findByTrackingId(trackingId.trim()).orElse(null);
+                    Application application = applicationDAO.findByTrackingId(trackingId.trim()).orElse(null);
                     if (application != null && application.getCitizenId() == citizenId) {
                         request.setAttribute("trackingResult", application);
                     }
@@ -67,8 +73,10 @@ public class CitizenPagesServlet extends HttpServlet {
             } else if ("/citizen/certificates".equals(path)) {
                 request.setAttribute("certificates", new IssuedCertificateDAO(conn).findByCitizenId(citizenId));
             } else if ("/citizen/documents".equals(path)) {
-                request.setAttribute("documents", new CitizenDocumentVaultDAO(conn).findByCitizenId(citizenId));
-                request.setAttribute("applicationDocuments", new ApplicationDocumentDAO(conn).findByCitizenId(citizenId));
+                CitizenDocumentVaultDAOInterface vaultDAO = new CitizenDocumentVaultDAO(conn);
+                ApplicationDocumentDAOInterface applicationDocumentDAO = new ApplicationDocumentDAO(conn);
+                request.setAttribute("documents", vaultDAO.findByCitizenId(citizenId));
+                request.setAttribute("applicationDocuments", applicationDocumentDAO.findByCitizenId(citizenId));
             }
         } catch (SQLException e) {
             request.setAttribute("pageError", "Unable to load page data.");
@@ -98,9 +106,10 @@ public class CitizenPagesServlet extends HttpServlet {
     }
 
     private void loadSharedCitizenData(HttpServletRequest request, Connection conn, int citizenId) throws SQLException {
-        NotificationDAO notificationDAO = new NotificationDAO(conn);
+        NotificationDAOInterface notificationDAO = new NotificationDAO(conn);
         List<Notification> notifications = notificationDAO.findByCitizenId(citizenId);
-        List<Application> applications = new ApplicationDAO(conn).findByCitizenId(citizenId);
+        ApplicationDAOInterface applicationDAO = new ApplicationDAO(conn);
+        List<Application> applications = applicationDAO.findByCitizenId(citizenId);
         request.setAttribute("sharedNotifications", notifications);
         request.setAttribute("unreadCount", notificationDAO.countUnreadByCitizenId(citizenId));
         request.setAttribute("applicationCount", applications.size());
@@ -108,6 +117,7 @@ public class CitizenPagesServlet extends HttpServlet {
                 applications.stream().filter(a -> "approved".equals(a.getStatus())).count());
         request.setAttribute("pendingApplicationCount",
                 applications.stream().filter(a -> "submitted".equals(a.getStatus()) || "review".equals(a.getStatus())).count());
-        request.setAttribute("certificateCount", new IssuedCertificateDAO(conn).findByCitizenId(citizenId).size());
+        IssuedCertificateDAOInterface certificateDAO = new IssuedCertificateDAO(conn);
+        request.setAttribute("certificateCount", certificateDAO.findByCitizenId(citizenId).size());
     }
 }

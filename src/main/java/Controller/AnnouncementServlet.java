@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.AnnouncementDAO;
+import DAO.impl.AnnouncementDAO;
 import Model.Announcement;
 import Util.DatabaseConnection;
 

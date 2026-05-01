@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.ServiceTypeDAO;
+import DAO.impl.ServiceTypeDAO;
 import Util.DatabaseConnection;
 
 import jakarta.servlet.annotation.WebServlet;

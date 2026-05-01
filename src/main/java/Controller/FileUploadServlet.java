@@ -1,8 +1,8 @@
 package Controller;
 
-import DAO.ApplicationDAO;
-import DAO.ApplicationDocumentDAO;
-import DAO.CitizenDocumentVaultDAO;
+import DAO.impl.ApplicationDAO;
+import DAO.impl.ApplicationDocumentDAO;
+import DAO.impl.CitizenDocumentVaultDAO;
 import Model.Application;
 import Model.ApplicationDocument;
 import Model.CitizenDocumentVault;

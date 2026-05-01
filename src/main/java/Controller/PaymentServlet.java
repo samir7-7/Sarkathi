@@ -1,7 +1,7 @@
 package Controller;
 
-import DAO.PaymentDAO;
-import DAO.TaxRecordDAO;
+import DAO.impl.PaymentDAO;
+import DAO.impl.TaxRecordDAO;
 import Model.Payment;
 import Model.TaxRecord;
 import Util.DatabaseConnection;

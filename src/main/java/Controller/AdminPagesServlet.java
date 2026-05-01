@@ -1,14 +1,23 @@
 package Controller;
 
-import DAO.AgricultureNoticeDAO;
-import DAO.AnnouncementDAO;
-import DAO.ApplicationDAO;
-import DAO.ApplicationDocumentDAO;
-import DAO.BudgetAllocationDAO;
-import DAO.CitizenDAO;
-import DAO.CitizenDocumentVaultDAO;
-import DAO.ServiceTypeDAO;
-import DAO.WardDAO;
+import DAO.impl.AgricultureNoticeDAO;
+import DAO.interfaces.AgricultureNoticeDAOInterface;
+import DAO.impl.AnnouncementDAO;
+import DAO.interfaces.AnnouncementDAOInterface;
+import DAO.impl.ApplicationDAO;
+import DAO.impl.ApplicationDocumentDAO;
+import DAO.interfaces.ApplicationDocumentDAOInterface;
+import DAO.interfaces.ApplicationDAOInterface;
+import DAO.impl.BudgetAllocationDAO;
+import DAO.interfaces.BudgetAllocationDAOInterface;
+import DAO.impl.CitizenDAO;
+import DAO.interfaces.CitizenDAOInterface;
+import DAO.impl.CitizenDocumentVaultDAO;
+import DAO.interfaces.CitizenDocumentVaultDAOInterface;
+import DAO.impl.ServiceTypeDAO;
+import DAO.interfaces.ServiceTypeDAOInterface;
+import DAO.impl.WardDAO;
+import DAO.interfaces.WardDAOInterface;
 import Model.Application;
 import Model.ApplicationDocument;
 import Model.Citizen;
@@ -52,11 +61,14 @@ public class AdminPagesServlet extends HttpServlet {
         String path = request.getServletPath();
         try (Connection conn = DatabaseConnection.getConnection()) {
             if ("/admin/notices".equals(path)) {
-                request.setAttribute("notices", new AgricultureNoticeDAO(conn).findAll());
+                AgricultureNoticeDAOInterface noticeDAO = new AgricultureNoticeDAO(conn);
+                request.setAttribute("notices", noticeDAO.findAll());
             } else if ("/admin/announcements".equals(path)) {
-                request.setAttribute("announcements", new AnnouncementDAO(conn).findAll());
+                AnnouncementDAOInterface announcementDAO = new AnnouncementDAO(conn);
+                request.setAttribute("announcements", announcementDAO.findAll());
             } else if ("/admin/budgets".equals(path)) {
-                request.setAttribute("budgets", new BudgetAllocationDAO(conn).findAll());
+                BudgetAllocationDAOInterface budgetDAO = new BudgetAllocationDAO(conn);
+                request.setAttribute("budgets", budgetDAO.findAll());
             } else if ("/admin/applications".equals(path)) {
                 loadApplications(request, conn);
             }
@@ -80,13 +92,17 @@ public class AdminPagesServlet extends HttpServlet {
     }
 
     private void loadApplications(HttpServletRequest request, Connection conn) throws SQLException {
-        List<Application> applications = new ApplicationDAO(conn).findAll();
+        ApplicationDAOInterface applicationDAO = new ApplicationDAO(conn);
+        CitizenDAOInterface citizenDAO = new CitizenDAO(conn);
+        ServiceTypeDAOInterface serviceTypeDAO = new ServiceTypeDAO(conn);
+        WardDAOInterface wardDAO = new WardDAO(conn);
+        List<Application> applications = applicationDAO.findAll();
         request.setAttribute("applications", applications);
-        request.setAttribute("citizensById", mapCitizens(new CitizenDAO(conn).findAll()));
-        request.setAttribute("servicesById", mapServices(new ServiceTypeDAO(conn).findAll(false)));
-        request.setAttribute("wardsById", mapWards(new WardDAO(conn).findAll()));
-        ApplicationDocumentDAO documentDAO = new ApplicationDocumentDAO(conn);
-        CitizenDocumentVaultDAO vaultDAO = new CitizenDocumentVaultDAO(conn);
+        request.setAttribute("citizensById", mapCitizens(citizenDAO.findAll()));
+        request.setAttribute("servicesById", mapServices(serviceTypeDAO.findAll(false)));
+        request.setAttribute("wardsById", mapWards(wardDAO.findAll()));
+        ApplicationDocumentDAOInterface documentDAO = new ApplicationDocumentDAO(conn);
+        CitizenDocumentVaultDAOInterface vaultDAO = new CitizenDocumentVaultDAO(conn);
         Map<Integer, List<ApplicationDocument>> documentsByApplicationId = new HashMap<>();
         Map<Integer, List<CitizenDocumentVault>> vaultDocumentsByCitizenId = new HashMap<>();
         for (Application application : applications) {

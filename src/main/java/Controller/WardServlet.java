@@ -1,6 +1,6 @@
 package Controller;
 
-import DAO.WardDAO;
+import DAO.impl.WardDAO;
 import Util.DatabaseConnection;
 
 import jakarta.servlet.annotation.WebServlet;
