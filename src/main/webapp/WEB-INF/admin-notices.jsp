@@ -1,108 +1,133 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%
-Integer adminId=(Integer)request.getAttribute("adminId");
-String adminName=(String)request.getAttribute("adminName");
-String adminRole=(String)request.getAttribute("adminRole");
-if(adminName==null)adminName="Admin";
-if(adminRole==null)adminRole="admin";
+<%@ page import="Model.AgricultureNotice" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.util.List" %>
+<%!
+private String esc(Object value) {
+    if (value == null) {
+        return "";
+    }
+    return value.toString()
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;");
+}
+
+private String categoryClass(String category) {
+    if ("subsidy".equals(category)) {
+        return "tag subsidy";
+    }
+    if ("training".equals(category)) {
+        return "tag training";
+    }
+    if ("scheme".equals(category)) {
+        return "tag scheme";
+    }
+    return "tag";
+}
 %>
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Manage Agriculture Notices - SarkarSathi Admin</title>
+<%
+Integer adminId = (Integer) request.getAttribute("adminId");
+String adminName = (String) request.getAttribute("adminName");
+String adminRole = (String) request.getAttribute("adminRole");
+String loadError = (String) request.getAttribute("noticeError");
+String formError = request.getParameter("error");
+List<AgricultureNotice> notices = (List<AgricultureNotice>) request.getAttribute("notices");
+DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy");
+if (adminName == null) adminName = "Admin";
+if (adminRole == null) adminRole = "admin";
+if (notices == null) notices = List.of();
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Manage Agriculture Notices - SarkarSathi Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Outfit','sans-serif']},colors:{brand:{50:'#f0f5fc',500:'#3b82f6',900:'#0b3d86'}}}}}</script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<style>body{font-family:'Outfit',sans-serif}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}</style>
-</head><body class="bg-[#fafafc] text-slate-800">
-<div class="flex min-h-screen">
-<aside class="fixed inset-y-0 left-0 z-30 flex w-[220px] flex-col border-r border-slate-200 bg-white">
-    <div class="flex items-center gap-1.5 px-5 pt-5 pb-2">
-        <a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a>
-        <span class="text-xl font-bold text-brand-500">Admin</span>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fafafc;color:#1e293b;font-family:'Outfit',Arial,sans-serif}.layout{display:flex;min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:220px;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column}.brand{padding:20px 20px 8px;font-size:21px;font-weight:800}.brand a{color:#0b3d86;text-decoration:none}.brand span{color:#3b82f6}.admin-card{margin:12px 20px;padding:14px;border-radius:14px;background:#f0f5fc}.admin-card strong{display:block;color:#0b3d86}.admin-card small{color:#64748b;text-transform:capitalize}.nav{margin-top:16px;padding:0 12px;display:grid;gap:4px}.nav a,.logout{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:10px;color:#475569;text-decoration:none;font-size:14px}.nav a:hover,.nav a.active,.logout:hover{background:#f0f5fc;color:#0b3d86;font-weight:700}.logout-wrap{margin-top:auto;border-top:1px solid #f1f5f9;padding:12px}.logout{color:#dc2626}.content{margin-left:220px;min-height:100vh;width:calc(100% - 220px)}header{position:sticky;top:0;z-index:2;background:rgba(255,255,255,.92);border-bottom:1px solid #e2e8f0;padding:18px 32px}h1{margin:0;font-size:21px;color:#0f172a}main{padding:32px}.panel,.notice,.empty{background:#fff;border:1px solid #f1f5f9;border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.04)}.panel{padding:24px;margin-bottom:28px}.panel h2{margin:0 0 18px;font-size:17px;color:#0f172a}.form-grid{display:grid;gap:16px}label{display:block;margin-bottom:6px;color:#334155;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;padding:12px 14px;color:#0f172a;font:inherit}textarea{resize:vertical}.actions{display:flex;justify-content:flex-end}.btn{border:0;border-radius:12px;background:#0b3d86;color:#fff;padding:12px 20px;font:inherit;font-size:14px;font-weight:800;cursor:pointer}.btn:hover{background:#082f69}.btn-danger{border:1px solid #fecaca;background:#fff;color:#dc2626;padding:8px 12px}.btn-danger:hover{background:#fef2f2}.notice-list{display:grid;gap:16px}.notice{padding:22px}.notice-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.notice-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}.notice h3{margin:0;color:#0f172a;font-size:17px}.notice p{margin:0;color:#475569;line-height:1.55}.date{margin-top:12px;color:#94a3b8;font-size:12px}.tag{display:inline-block;border-radius:999px;background:#f8fafc;color:#475569;padding:5px 10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.tag.subsidy{background:#ecfdf5;color:#047857}.tag.training{background:#f5f3ff;color:#6d28d9}.tag.scheme{background:#eff6ff;color:#1d4ed8}.empty{padding:40px;text-align:center;color:#64748b}.alert{border-radius:12px;margin-bottom:18px;padding:12px 14px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;font-size:14px}@media(max-width:760px){.sidebar{position:static;width:100%;min-height:auto}.layout{display:block}.content{margin-left:0;width:100%}main,header{padding:20px}.notice-head{display:block}.btn-danger{margin-top:14px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+    <div class="brand"><a href="<%= request.getContextPath() %>/">SarkarSathi</a> <span>Admin</span></div>
+    <div class="admin-card">
+        <strong><%= esc(adminName) %></strong>
+        <small><%= esc(adminRole) %></small>
     </div>
-    <div class="mx-5 mt-3 flex items-center gap-3 rounded-xl bg-brand-50 px-4 py-3">
-        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-900 text-white">
-            <i data-lucide="landmark" class="h-4 w-4"></i>
-        </div>
-        <div>
-            <p class="text-sm font-semibold text-brand-900"><%= adminName %></p>
-            <p class="text-[11px] text-slate-500"><%= adminRole.substring(0,1).toUpperCase()+adminRole.substring(1) %></p>
-        </div>
-    </div>
-    <nav class="mt-6 flex-1 space-y-1 px-3">
-        <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i>Dashboard</a>
-        <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="clipboard-list" class="h-[18px] w-[18px]"></i>Applications</a>
-        <a href="<%= request.getContextPath() %>/admin/announcements" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="megaphone" class="h-[18px] w-[18px]"></i>Announcements</a>
-        <a href="<%= request.getContextPath() %>/admin/notices" class="sidebar-link active flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm"><i data-lucide="sprout" class="h-[18px] w-[18px]"></i>Agri Notices</a>
-        <a href="<%= request.getContextPath() %>/admin/budgets" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600"><i data-lucide="indian-rupee" class="h-[18px] w-[18px]"></i>Budgets</a>
+    <nav class="nav">
+        <a href="<%= request.getContextPath() %>/admin/dashboard">Dashboard</a>
+        <a href="<%= request.getContextPath() %>/admin/applications">Applications</a>
+        <a href="<%= request.getContextPath() %>/admin/announcements">Announcements</a>
+        <a href="<%= request.getContextPath() %>/admin/notices" class="active">Agri Notices</a>
+        <a href="<%= request.getContextPath() %>/admin/budgets">Budgets</a>
     </nav>
-    <div class="mt-auto border-t border-slate-100 px-3 pb-4 pt-3"><a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-600"><i data-lucide="log-out" class="h-[18px] w-[18px]"></i>Logout</a></div>
+    <div class="logout-wrap"><a class="logout" href="<%= request.getContextPath() %>/logout">Logout</a></div>
 </aside>
-<div class="ml-[220px] flex-1 flex flex-col min-h-screen">
-    <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-md px-8 py-3.5">
-        <div><h1 class="text-lg font-bold text-slate-900">Manage Agriculture Notices</h1></div>
-        <button onclick="showForm()" class="inline-flex items-center gap-2 rounded-xl bg-brand-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-800"><i data-lucide="plus" class="h-4 w-4"></i>New Notice</button>
-    </header>
-    <main class="flex-1 px-8 py-8 overflow-y-auto">
-        <div id="create-form" class="hidden mb-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h3 class="text-base font-bold text-slate-900 mb-4">Create Agriculture Notice</h3>
-            <div class="space-y-4">
-                <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-800">Title</label><input id="f-title" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-500"></div>
-                <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-800">Content</label><textarea id="f-content" rows="4" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-500"></textarea></div>
-                <div><label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-800">Category</label>
-                    <select id="f-category" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-500">
-                        <option value="subsidy">Subsidy</option><option value="training">Training</option><option value="scheme">Scheme</option>
-                    </select></div>
-                <div class="flex gap-3"><button onclick="hideForm()" class="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-                <button onclick="createItem()" class="flex-1 rounded-xl bg-brand-900 py-3 text-sm font-semibold text-white hover:bg-brand-800">Publish</button></div>
-            </div>
-        </div>
-        <div id="list" class="space-y-4"><p class="text-center py-8 text-slate-400">Loading...</p></div>
+<div class="content">
+    <header><h1>Manage Agriculture Notices</h1></header>
+    <main>
+        <% if (loadError != null || formError != null) { %>
+            <div class="alert"><%= esc(loadError != null ? loadError : formError) %></div>
+        <% } %>
+        <section class="panel">
+            <h2>Create Agriculture Notice</h2>
+            <form class="form-grid" method="post" action="<%= request.getContextPath() %>/api/agriculture-notices">
+                <input type="hidden" name="redirectTo" value="/admin/notices">
+                <input type="hidden" name="adminId" value="<%= adminId == null ? "" : adminId %>">
+                <div>
+                    <label for="title">Title</label>
+                    <input id="title" name="title" type="text" required>
+                </div>
+                <div>
+                    <label for="content">Content</label>
+                    <textarea id="content" name="content" rows="4" required></textarea>
+                </div>
+                <div>
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="subsidy">Subsidy</option>
+                        <option value="training">Training</option>
+                        <option value="scheme">Scheme</option>
+                    </select>
+                </div>
+                <div class="actions"><button class="btn" type="submit">Publish Notice</button></div>
+            </form>
+        </section>
+        <% if (notices.isEmpty()) { %>
+            <div class="empty">No notices</div>
+        <% } else { %>
+            <section class="notice-list">
+            <% for (AgricultureNotice notice : notices) { %>
+                <article class="notice">
+                    <div class="notice-head">
+                        <div>
+                            <div class="notice-title">
+                                <h3><%= esc(notice.getTitle()) %></h3>
+                                <span class="<%= categoryClass(notice.getCategory()) %>"><%= esc(notice.getCategory()) %></span>
+                            </div>
+                            <p><%= esc(notice.getContent()) %></p>
+                            <% if (notice.getPublishedAt() != null) { %>
+                                <div class="date"><%= esc(notice.getPublishedAt().format(dateFormatter)) %></div>
+                            <% } %>
+                        </div>
+                        <form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices">
+                            <input type="hidden" name="redirectTo" value="/admin/notices">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="noticeId" value="<%= notice.getNoticeId() %>">
+                            <button class="btn btn-danger" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </article>
+            <% } %>
+            </section>
+        <% } %>
     </main>
 </div>
 </div>
-<script>
-lucide.createIcons();const CTX='<%= request.getContextPath() %>';const AID=<%= adminId == null ? "null" : adminId %>;
-const catColors={subsidy:'bg-green-50 text-green-700',training:'bg-purple-50 text-purple-700',scheme:'bg-blue-50 text-blue-700'};
-function showForm(){document.getElementById('create-form').classList.remove('hidden');}
-function hideForm(){document.getElementById('create-form').classList.add('hidden');}
-function requireAdminSession(){if(AID!==null)return true;alert('Your admin session has expired. Please log in again.');window.location.href=CTX+'/login?userType=admin';return false;}
-
-function loadItems(){
-    fetch(CTX+'/api/agriculture-notices').then(r=>r.json()).then(items=>{
-        const el=document.getElementById('list');
-        if(!Array.isArray(items)||items.length===0){el.innerHTML='<div class="rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm"><p class="text-slate-500">No notices</p></div>';return;}
-        el.innerHTML='';
-        items.forEach(n=>{
-            const cc=catColors[n.category]||'bg-slate-50 text-slate-600';
-            el.innerHTML+='<div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">'
-                +'<div class="flex items-start justify-between"><div class="flex-1"><div class="flex items-center gap-3 mb-2"><h3 class="text-base font-bold text-slate-900">'+n.title+'</h3>'
-                +'<span class="rounded-full '+cc+' px-3 py-1 text-[11px] font-bold uppercase tracking-wider">'+n.category+'</span></div>'
-                +'<p class="text-sm text-slate-600">'+n.content+'</p>'
-                +'<p class="mt-2 text-xs text-slate-400">'+(n.publishedAt?new Date(n.publishedAt).toLocaleDateString():'')+'</p></div>'
-                +'<button onclick="deleteItem('+n.noticeId+')" class="ml-4 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"><i data-lucide="trash-2" class="h-3 w-3 inline"></i></button>'
-                +'</div></div>';
-        });
-        lucide.createIcons();
-    });
-}
-
-async function createItem(){
-    if(!requireAdminSession())return;
-    const params=new URLSearchParams();params.append('adminId',AID);
-    params.append('title',document.getElementById('f-title').value);
-    params.append('content',document.getElementById('f-content').value);
-    params.append('category',document.getElementById('f-category').value);
-    const res=await fetch(CTX+'/api/agriculture-notices',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params.toString()});
-    const data=await res.json();if(data.success){hideForm();loadItems();}else{alert(data.message||'Failed');}
-}
-
-async function deleteItem(id){
-    if(!requireAdminSession())return;
-    if(!confirm('Delete this notice?'))return;
-    await fetch(CTX+'/api/agriculture-notices',{method:'DELETE',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'noticeId='+id});
-    loadItems();
-}
-loadItems();
-</script>
-</body></html>
+</body>
+</html>
