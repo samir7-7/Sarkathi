@@ -81,14 +81,14 @@ public class CitizenPagesServlet extends HttpServlet {
         }
 
         String jsp = switch (path) {
-            case "/citizen/dashboard" -> "/WEB-INF/citizen-dashboard.jsp";
-            case "/citizen/apply" -> "/WEB-INF/apply.jsp";
-            case "/citizen/tracking" -> "/WEB-INF/tracking.jsp";
-            case "/citizen/payments" -> "/WEB-INF/payments.jsp";
-            case "/citizen/notifications" -> "/WEB-INF/notifications.jsp";
-            case "/citizen/certificates" -> "/WEB-INF/certificates.jsp";
-            case "/citizen/documents" -> "/WEB-INF/documents.jsp";
-            default -> "/WEB-INF/citizen-dashboard.jsp";
+            case "/citizen/dashboard" -> "/WEB-INF/citizen/dashboard.jsp";
+            case "/citizen/apply" -> "/WEB-INF/citizen/apply.jsp";
+            case "/citizen/tracking" -> "/WEB-INF/pages/tracking.jsp";
+            case "/citizen/payments" -> "/WEB-INF/citizen/payments.jsp";
+            case "/citizen/notifications" -> "/WEB-INF/citizen/notifications.jsp";
+            case "/citizen/certificates" -> "/WEB-INF/citizen/certificates.jsp";
+            case "/citizen/documents" -> "/WEB-INF/citizen/documents.jsp";
+            default -> "/WEB-INF/citizen/dashboard.jsp";
         };
 
         request.getRequestDispatcher(jsp).forward(request, response);

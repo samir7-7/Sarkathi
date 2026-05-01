@@ -67,11 +67,11 @@ public class AdminPagesServlet extends HttpServlet {
         }
 
         String jsp = switch (path) {
-            case "/admin/applications" -> "/WEB-INF/admin-applications.jsp";
-            case "/admin/notices" -> "/WEB-INF/admin-notices.jsp";
-            case "/admin/announcements" -> "/WEB-INF/admin-announcements.jsp";
-            case "/admin/budgets" -> "/WEB-INF/admin-budgets.jsp";
-            default -> "/WEB-INF/admin-dashboard.jsp";
+            case "/admin/applications" -> "/WEB-INF/admin/applications.jsp";
+            case "/admin/notices" -> "/WEB-INF/admin/notices.jsp";
+            case "/admin/announcements" -> "/WEB-INF/admin/announcements.jsp";
+            case "/admin/budgets" -> "/WEB-INF/admin/budgets.jsp";
+            default -> "/WEB-INF/admin/dashboard.jsp";
         };
 
         request.getRequestDispatcher(jsp).forward(request, response);

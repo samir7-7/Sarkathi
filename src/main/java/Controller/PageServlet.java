@@ -27,15 +27,15 @@ import jakarta.servlet.http.HttpServletResponse;
 })
 public class PageServlet extends HttpServlet {
     private static final Map<String, String> PAGE_MAPPINGS = Map.ofEntries(
-            Map.entry("/", "/WEB-INF/index.jsp"),
-            Map.entry("/index.jsp", "/WEB-INF/index.jsp"),
-            Map.entry("/login.jsp", "/WEB-INF/login.jsp"),
-            Map.entry("/register.jsp", "/WEB-INF/register.jsp"),
-            Map.entry("/announcements", "/WEB-INF/announcements.jsp"),
-            Map.entry("/agriculture", "/WEB-INF/agriculture.jsp"),
-            Map.entry("/budget", "/WEB-INF/budget.jsp"),
-            Map.entry("/crop-advisory", "/WEB-INF/crop-advisory.jsp"),
-            Map.entry("/track", "/WEB-INF/tracking.jsp")
+            Map.entry("/", "/WEB-INF/pages/index.jsp"),
+            Map.entry("/index.jsp", "/WEB-INF/pages/index.jsp"),
+            Map.entry("/login.jsp", "/WEB-INF/pages/login.jsp"),
+            Map.entry("/register.jsp", "/WEB-INF/pages/register.jsp"),
+            Map.entry("/announcements", "/WEB-INF/pages/announcements.jsp"),
+            Map.entry("/agriculture", "/WEB-INF/pages/agriculture.jsp"),
+            Map.entry("/budget", "/WEB-INF/pages/budget.jsp"),
+            Map.entry("/crop-advisory", "/WEB-INF/pages/crop-advisory.jsp"),
+            Map.entry("/track", "/WEB-INF/pages/tracking.jsp")
     );
 
     @Override

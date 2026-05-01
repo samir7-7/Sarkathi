@@ -33,7 +33,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         request.setAttribute("userType", userType.trim().toLowerCase());
-        request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/pages/login.jsp").forward(request, response);
     }
 
     @Override
@@ -119,6 +119,6 @@ public class LoginServlet extends HttpServlet {
         request.setAttribute("error", error);
         request.setAttribute("email", email);
         request.setAttribute("userType", userType == null || userType.isBlank() ? "citizen" : userType.trim().toLowerCase());
-        request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/pages/login.jsp").forward(request, response);
     }
 }

@@ -27,7 +27,7 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/pages/register.jsp").forward(request, response);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class RegisterServlet extends HttpServlet {
         request.setAttribute("phone", valueOrEmpty(request.getParameter("phone")));
         request.setAttribute("dateOfBirth", valueOrEmpty(request.getParameter("dateOfBirth")));
         request.setAttribute("gender", valueOrEmpty(request.getParameter("gender"), "M"));
-        request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/pages/register.jsp").forward(request, response);
     }
 
     private String valueOrEmpty(String value) {

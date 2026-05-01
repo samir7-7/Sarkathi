@@ -46,6 +46,6 @@ public class AdminDashboardPageServlet extends HttpServlet {
             request.setAttribute("rejectedApplications", 0L);
             request.setAttribute("recentApplications", java.util.List.of());
         }
-        request.getRequestDispatcher("/WEB-INF/admin-dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/admin/dashboard.jsp").forward(request, response);
     }
 }
