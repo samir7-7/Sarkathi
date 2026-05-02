@@ -54,7 +54,7 @@
                         Sarkar<span class="text-brand-500">Sathi</span>
                     </a>
                     <div class="hidden items-center gap-10 text-[15px] font-medium text-slate-600 lg:flex">
-                        <a href="<%= request.getContextPath() %>/announcements" class="transition hover:text-brand-900">
+                        <a href="<%= request.getContextPath() %>/announcements" class="transition hover:text-brand-900 flex items-center gap-1">
                             <i data-lucide="megaphone" class="h-4 w-4 shrink-0"></i>
                             <span>Announcements</span>
                         </a>
