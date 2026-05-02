@@ -11,159 +11,186 @@
         </script>
             <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
-    <body class="min-h-screen bg-slate-100 text-slate-900">
-        <% String error = (String) request.getAttribute("error"); if (error == null) { error = request.getParameter("error"); } String fullName = (String) request.getAttribute("fullName"); if (fullName == null) fullName = ""; String email = (String) request.getAttribute("email"); if (email == null) email = ""; String phone = (String) request.getAttribute("phone"); if (phone == null) phone = ""; String dateOfBirth = (String) request.getAttribute("dateOfBirth"); if (dateOfBirth == null) dateOfBirth = ""; String gender = (String) request.getAttribute("gender"); if (gender == null || gender.isBlank()) gender = "M"; %>
-        <div class="flex min-h-screen flex-col">
-            <main class="grid flex-1 lg:grid-cols-2">
-                <section class="relative hidden overflow-hidden lg:flex">
-                    <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?q=80&w=1600&auto=format&fit=crop" alt="Municipal building" class="absolute inset-0 h-full w-full object-cover" >
-                    <div class="absolute inset-0 bg-[#0f63a8]/78">
-                    </div>
-                    <div class="absolute inset-0 bg-gradient-to-b from-[#2c86ca]/30 via-[#0b5ea8]/35 to-[#083d76]/88">
-                    </div>
-                    <div class="relative flex h-full w-full flex-col justify-between px-12 py-16 text-white">
-                        <div class="max-w-xl pt-8">
-                            <a href="<%= request.getContextPath() %>" class="text-3xl font-bold tracking-tight text-white mb-8 block">
-                                Sarkar<span class="text-blue-100">Sathi</span>
-                            </a>
-                            <h1 class="text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
-                                Join
-                                <br>
-                                SarkarSathi:
-                                <br>
-                                Empowering
-                                <br>
-                                Your Civic
-                                <br>
-                                Journey
-                            </h1>
-                            <p class="mt-8 max-w-lg text-lg leading-relaxed text-blue-100/90">
-                                A modern bridge between citizens and municipal excellence. Secure, fast, and accessible for everyone.
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-4 pb-8">
-                            <div class="flex -space-x-2">
-                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=120&auto=format&fit=crop" alt="Citizen" class="h-10 w-10 rounded-full border-2 border-white/90 object-cover">
-                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=120&auto=format&fit=crop" alt="Citizen" class="h-10 w-10 rounded-full border-2 border-white/90 object-cover">
-                                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=120&auto=format&fit=crop" alt="Citizen" class="h-10 w-10 rounded-full border-2 border-white/90 object-cover">
+    <body class="min-h-screen bg-slate-50 text-slate-900 antialiased overflow-x-hidden selection:bg-brand-100 selection:text-brand-900">
+        <% 
+            String error = (String) request.getAttribute("error"); 
+            if (error == null) { error = request.getParameter("error"); } 
+            String fullName = (String) request.getAttribute("fullName"); 
+            if (fullName == null) fullName = ""; 
+            String email = (String) request.getAttribute("email"); 
+            if (email == null) email = ""; 
+            String phone = (String) request.getAttribute("phone"); 
+            if (phone == null) phone = ""; 
+            String dateOfBirth = (String) request.getAttribute("dateOfBirth"); 
+            if (dateOfBirth == null) dateOfBirth = ""; 
+            String gender = (String) request.getAttribute("gender"); 
+            if (gender == null || gender.isBlank()) gender = "M"; 
+        %>
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <!-- Left Branding Section -->
+            <section class="relative hidden overflow-hidden lg:flex lg:w-1/2">
+                <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?q=80&w=1600&auto=format&fit=crop" alt="Municipal landscape" class="absolute inset-0 h-full w-full object-cover">
+                <div class="absolute inset-0 bg-[#0b3d86]/85"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-[#0b3d86]/70 via-[#3b82f6]/20 to-[#0b3d86]/90"></div>
+                
+                <div class="relative flex h-full w-full flex-col justify-between px-16 py-20 text-white">
+                    <div class="max-w-xl">
+                        <a href="<%= request.getContextPath() %>" class="flex items-center gap-2 text-3xl font-black tracking-tight text-white mb-16">
+                            Sarkar<span class="text-blue-300">Sathi</span>
+                        </a>
+                        <h1 class="text-6xl font-black leading-[1.05] tracking-tight mb-10">
+                            The Future of<br/>Citizen-City<br/>Interaction.
+                        </h1>
+                        <p class="text-xl leading-relaxed text-blue-100/90 font-medium max-w-md mb-12">
+                            Join over 10,000 residents already using SarkarSathi to access municipal services, track requests, and power their community.
+                        </p>
+                        
+                        <div class="flex items-center gap-6">
+                            <div class="flex -space-x-3">
+                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=120&auto=format&fit=crop" class="h-12 w-12 rounded-full border-2 border-white/20 object-cover">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=120&auto=format&fit=crop" class="h-12 w-12 rounded-full border-2 border-white/20 object-cover">
+                                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=120&auto=format&fit=crop" class="h-12 w-12 rounded-full border-2 border-white/20 object-cover">
                             </div>
-                            <p class="text-sm font-semibold tracking-wide text-white">
-                                +10k Citizens Joined This Week
-                            </p>
+                            <div class="h-8 w-1px bg-white/20"></div>
+                            <p class="text-sm font-black uppercase tracking-widest text-white/70">Social Contract Secured</p>
                         </div>
                     </div>
-                </section>
-                <section class="flex items-center justify-center bg-[#f7f7fb] px-6 py-10 lg:px-12">
-                    <div class="w-full max-w-lg">
-                        <div>
-                            <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                                Create Your Citizen Account
-                            </h2>
-                            <p class="mt-3 text-base text-slate-600">
-                                Complete the form below to access municipal services.
-                            </p>
-                        </div>
-                        <div class="mt-8">
-                            <% if (error != null && !error.isBlank()) { %>
-                                <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
-                                    <%= error %>
-                                </div>
-                            <% } %>
-                            <form action="${pageContext.request.contextPath}/register" method="post" class="space-y-5">
-                                <div>
-                                    <label for="fullName" class="mb-2 block text-sm font-medium text-slate-700">
-                                        Full Name
-                                    </label>
-                                    <input id="fullName" type="text" name="fullName" placeholder="John Doe" value="<%= fullName %>" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100" >
-                                </div>
-                                <div>
-                                    <label for="email" class="mb-2 block text-sm font-medium text-slate-700">
-                                        Email Address
-                                    </label>
-                                    <div class="relative">
-                                        <input id="email" type="email" name="email" placeholder="name@domain.com" value="<%= email %>" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100" >
-                                        <span class="pointer-events-none absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-[#1f7a2e] text-white">
-                                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                <polyline points="20 6 9 17 4 12">
-                                                </polyline>
-                                            </svg>
-                                        </span>
+                </div>
+            </section>
+
+            <!-- Right Registration Section -->
+            <section class="flex flex-1 flex-col items-center justify-center p-6 sm:p-12 lg:p-20 relative overflow-y-auto">
+                <!-- Mobile Branding -->
+                <div class="w-full max-w-md lg:hidden mb-12 text-center">
+                    <a href="<%= request.getContextPath() %>" class="text-3xl font-black tracking-tight text-brand-900">
+                        Sarkar<span class="text-blue-600">Sathi</span>
+                    </a>
+                </div>
+
+                <div class="w-full max-w-[480px] fade-in py-8">
+                    <div class="mb-10 text-center lg:text-left">
+                        <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">Enlistment Portal</h2>
+                        <p class="text-slate-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis">Begin your journey as an active municipal participant.</p>
+                    </div>
+
+                    <div class="rounded-[2.5rem] bg-white p-8 sm:p-10 shadow-2xl shadow-slate-200/60 border border-slate-100">
+                        <% if (error != null && !error.isBlank()) { %>
+                            <div class="mb-8 flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-4 text-sm font-bold text-red-700">
+                                <i data-lucide="alert-circle" class="h-5 w-5 text-red-600"></i>
+                                <%= error %>
+                            </div>
+                        <% } %>
+
+                        <form action="<%= request.getContextPath() %>/register" method="post" class="space-y-6">
+                            <div class="grid gap-6 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    <label for="fullName" class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Legal Full Name</label>
+                                    <div class="relative group">
+                                        <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-brand-500 transition-colors"></i>
+                                        <input id="fullName" type="text" name="fullName" value="<%= fullName %>" placeholder="Johnathan Doe" required class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-5 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
                                     </div>
                                 </div>
-                                <div>
-                                    <label for="phone" class="mb-2 block text-sm font-medium text-slate-700">
-                                        Phone Number
-                                    </label>
-                                    <input id="phone" type="tel" name="phone" placeholder="+977-9800000000" value="<%= phone %>" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100" >
-                                </div>
-                                <div>
-                                    <label for="password" class="mb-2 block text-sm font-medium text-slate-700">
-                                        Password
-                                    </label>
-                                    <div class="relative">
-                                        <input id="password" type="password" name="password" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-16 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100" >
-                                        <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500 transition hover:text-[#154a91]" data-target="password" aria-label="Show password" aria-pressed="false" >
-                                            Show
-                                        </button>
+
+                                <div class="sm:col-span-2">
+                                    <label for="email" class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Digital Identity (Email)</label>
+                                    <div class="relative group">
+                                        <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-brand-500 transition-colors"></i>
+                                        <input id="email" type="email" name="email" value="<%= email %>" placeholder="name@domain.com" required class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-12 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
+                                        <div class="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-brand-900 flex items-center justify-center">
+                                            <i data-lucide="check" class="h-2.5 w-2.5 text-white stroke-[4]"></i>
+                                        </div>
                                     </div>
-                                    <p class="mt-2 text-xs text-slate-500">
-                                        Must be at least 8 characters, with one uppercase and one symbol.
+                                </div>
+
+                                <div class="sm:col-span-1">
+                                    <label for="phone" class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Phone Line</label>
+                                    <input id="phone" type="tel" name="phone" value="<%= phone %>" placeholder="98XXXXXXXX" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
+                                </div>
+
+                                <div class="sm:col-span-1">
+                                    <label for="dateOfBirth" class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Birth Record</label>
+                                    <input id="dateOfBirth" type="date" name="dateOfBirth" value="<%= dateOfBirth %>" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Gender Identification</label>
+                                    <div class="role-toggle bg-slate-100 rounded-2xl p-1.5 flex gap-1 border border-slate-200/50">
+                                        <button type="button" class="gender-toggle flex-1 py-3 text-center text-xs font-black rounded-xl transition-all" data-value="M">MALE</button>
+                                        <button type="button" class="gender-toggle flex-1 py-3 text-center text-xs font-black rounded-xl transition-all" data-value="F">FEMALE</button>
+                                        <button type="button" class="gender-toggle flex-1 py-3 text-center text-xs font-black rounded-xl transition-all" data-value="O">OTHER</button>
+                                        <input type="hidden" name="gender" id="gender-input" value="<%= gender %>">
+                                    </div>
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label for="password" class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Security Key (Password)</label>
+                                    <div class="relative group">
+                                        <i data-lucide="shield-check" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-brand-500 transition-colors"></i>
+                                        <input id="password" type="password" name="password" required class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-16 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
+                                        <button type="button" class="password-toggle absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-900" data-target="password">Show</button>
+                                    </div>
+                                    <p class="mt-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none flex items-center gap-1.5 ml-1">
+                                        <i data-lucide="info" class="h-3 w-3"></i>
+                                        Complexity: Multi-character minimum
                                     </p>
                                 </div>
-                                <div class="grid gap-5 md:grid-cols-[1fr_1.1fr]">
-                                    <div>
-                                        <label for="dateOfBirth" class="mb-2 block text-sm font-medium text-slate-700">
-                                            Date of Birth
-                                        </label>
-                                        <div class="relative">
-                                            <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2">
-                                                    </rect>
-                                                    <line x1="16" y1="2" x2="16" y2="6">
-                                                    </line>
-                                                    <line x1="8" y1="2" x2="8" y2="6">
-                                                    </line>
-                                                    <line x1="3" y1="10" x2="21" y2="10">
-                                                    </line>
-                                                </svg>
-                                            </span>
-                                            <input id="dateOfBirth" type="date" name="dateOfBirth" value="<%= dateOfBirth %>" required class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-[#154a91] focus:ring-2 focus:ring-blue-100" >
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span class="mb-2 block text-sm font-medium text-slate-700">
-                                            Gender
-                                        </span>
-                                        <div class="grid grid-cols-3 rounded-xl bg-slate-100 p-1">
-                                            <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium transition" data-value="M">
-                                                Male
-                                            </button>
-                                            <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium transition" data-value="F">
-                                                Female
-                                            </button>
-                                            <button type="button" class="gender-toggle rounded-lg px-2 py-2 text-sm font-medium transition" data-value="O">
-                                                Other
-                                            </button>
-                                            <input type="hidden" name="gender" id="gender-input" value="<%= gender %>">
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-[#154a91] px-5 py-3 text-base font-semibold text-white shadow-md transition hover:bg-[#103b74] focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-1" >
-                                    Register
-                                </button>
-                            </form>
-                            <div class="mt-8 text-center text-sm text-slate-600">
-                                Already have an account?
-                                <a href="${pageContext.request.contextPath}/login" class="ml-1 font-semibold text-[#0b3d86] transition hover:text-[#154a91]">
-                                    Login
-                                </a>
                             </div>
+
+                            <button type="submit" class="w-full rounded-2xl bg-brand-900 py-5 text-sm font-black text-white shadow-xl shadow-brand-900/20 active:scale-[0.98] transition-all hover:bg-slate-900 flex items-center justify-center gap-3 mt-4">
+                                Complete Enlistment
+                                <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                            </button>
+                        </form>
+
+                        <div class="mt-10 pt-8 border-t border-slate-50 text-center">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Already enlisted?</p>
+                            <a href="<%= request.getContextPath() %>/login" class="inline-flex items-center gap-2 rounded-xl bg-brand-50 px-8 py-3.5 text-xs font-black text-brand-900 hover:bg-brand-100 transition-colors">
+                                Identity Verification (Login)
+                            </a>
                         </div>
                     </div>
-                </section>
-            </main>
+
+                    <div class="mt-12 flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 opacity-60">
+                        <i data-lucide="shield" class="h-3 w-3"></i>
+                        Administrative Sovereignty &bull; AES-256
+                    </div>
+                </div>
+            </section>
         </div>
+        <script>
+            const toggleButtons = document.querySelectorAll(".gender-toggle");
+            const genderInput = document.getElementById("gender-input");
+            
+            function setActiveGender(activeButton) {
+                toggleButtons.forEach((button) => {
+                    const isActive = button === activeButton;
+                    button.classList.toggle("bg-white", isActive);
+                    button.classList.toggle("text-brand-900", isActive);
+                    button.classList.toggle("shadow-sm", isActive);
+                    button.classList.toggle("text-slate-400", !isActive);
+                });
+                genderInput.value = activeButton.dataset.value;
+            }
+
+            toggleButtons.forEach((button) => {
+                button.addEventListener("click", () => setActiveGender(button));
+                if (button.dataset.value === "<%= gender %>") {
+                    setActiveGender(button);
+                }
+            });
+
+            document.querySelectorAll(".password-toggle").forEach((button) => {
+                button.addEventListener("click", () => {
+                    const input = document.getElementById(button.dataset.target);
+                    const isPass = input.type === "password";
+                    input.type = isPass ? "text" : "password";
+                    button.textContent = isPass ? "Hide" : "Show";
+                });
+            });
+
+            lucide.createIcons();
+        </script>
+    </body>
         <script>
             const toggleButtons = document.querySelectorAll(".gender-toggle");
             const genderInput = document.getElementById("gender-input");
