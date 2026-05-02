@@ -85,7 +85,7 @@
                     <span class="text-[10px] font-black uppercase tracking-tighter">Account</span>
                 </a>
             <% } else { %>
-                <a href="<%= request.getContextPath() %>/login" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand-900 transition-all">
+                <a href="<%= request.getContextPath() %>/login?userType=citizen" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brand-900 transition-all">
                     <i data-lucide="user-circle" class="h-5 w-5"></i>
                     <span class="text-[10px] font-black uppercase tracking-tighter">Login</span>
                 </a>
@@ -123,7 +123,7 @@
                                     </a>
                                 </div>
                             <% } else { %>
-                                <a href="<%= request.getContextPath() %>/login" class="text-xs font-black uppercase tracking-[0.2em] text-brand-900 hover:text-brand-500 transition-colors">Identity Verification</a>
+                                <a href="<%= request.getContextPath() %>/login?userType=citizen" class="text-xs font-black uppercase tracking-[0.2em] text-brand-900 hover:text-brand-500 transition-colors">Identity Verification</a>
                                 <a href="<%= request.getContextPath() %>/register" class="rounded-xl bg-brand-900 px-8 py-3.5 text-xs font-black uppercase tracking-[0.2em] text-white shadow-xl shadow-brand-900/20 hover:bg-slate-900 transition-all active:scale-95">Enroll Now</a>
                             <% } %>
                         </div>
@@ -179,7 +179,7 @@
                                             <i data-lucide="arrow-right" class="h-4 w-4"></i>
                                         </a>
                                     <% } else { %>
-                                        <a href="<%= request.getContextPath() %>/login" class="w-full sm:w-auto flex items-center justify-center gap-3 rounded-2xl bg-brand-900 px-10 py-5 text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-brand-900/30 transition-all hover:bg-slate-900 active:scale-95">
+                                        <a href="<%= request.getContextPath() %>/login?userType=citizen" class="w-full sm:w-auto flex items-center justify-center gap-3 rounded-2xl bg-brand-900 px-10 py-5 text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-brand-900/30 transition-all hover:bg-slate-900 active:scale-95">
                                             Identify Self
                                             <i data-lucide="fingerprint" class="h-4 w-4"></i>
                                         </a>
