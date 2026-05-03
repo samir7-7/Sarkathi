@@ -235,9 +235,9 @@
                         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16 px-4">
                             <div>
                                 <h2 class="text-sm font-black uppercase tracking-[0.4em] text-brand-500 mb-4">Core Operatives</h2>
-                                <h3 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter italic">Administrative Modules.</h3>
+                                <h3 class="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter">Administrative Modules.</h3>
                             </div>
-                            <p class="text-slate-400 font-bold uppercase tracking-widest text-xs hidden lg:block">System Version 4.0.2-RELEASE</p>
+                            
                         </div>
 
                         <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -336,10 +336,10 @@
                     </div>
                     
                     <div class="pt-12 flex flex-col sm:flex-row justify-between items-center gap-6">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">&copy; 2024 SARKARSATHI FOUNDATION &bull; ALL RIGHTS RESERVED</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">&copy; 2026 SARKARSATHI FOUNDATION &bull; ALL RIGHTS RESERVED</p>
                         <div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5">
                             <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Node: PRD-KTM-01</span>
+                            
                         </div>
                     </div>
                 </div>

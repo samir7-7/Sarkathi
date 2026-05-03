@@ -91,7 +91,7 @@
                     <span class="text-[10px] font-black uppercase tracking-tighter">Registry</span>
                 </a>
                 <div class="relative -top-3">
-                    <button onclick="toggleSidebar()" class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-900 text-white shadow-lg shadow-brand-900/30">
+                    <button onclick="toggleSidebar()" class="flex h-14 w-14 items-center justify-center rounded-[5px] bg-brand-900 text-white shadow-lg shadow-brand-900/30">
                         <i data-lucide="layers" class="h-6 w-6"></i>
                     </button>
                 </div>
@@ -110,7 +110,7 @@
                 <div class="flex h-full flex-col p-6">
                     <div class="flex items-center justify-between">
                         <a href="<%= request.getContextPath() %>/" class="text-2xl font-black text-brand-900 italic tracking-tighter">SarkarSathi</a>
-                        <button onclick="toggleSidebar()" class="lg:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+                        <button onclick="toggleSidebar()" class="lg:hidden h-10 w-10 flex items-center justify-center rounded-[5px] bg-slate-50 text-slate-400">
                             <i data-lucide="x" class="h-5 w-5"></i>
                         </button>
                     </div>
@@ -124,32 +124,32 @@
 
                     <nav class="flex-1 space-y-2">
                         <p class="px-4 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Operations</p>
-                        <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-link active group flex items-center gap-4 px-4 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest">
+                        <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-link active group flex items-center gap-4 px-4 py-4 rounded-[5px] text-[11px] font-black uppercase tracking-widest">
                             <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
                             <span>Admin Terminal</span>
                         </a>
-                        <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-2xl text-slate-500 font-bold uppercase tracking-widest text-[11px]">
+                        <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
                             <i data-lucide="clipboard-check" class="h-5 w-5"></i>
                             <span>Process Queue</span>
                         </a>
                         
                         <p class="px-4 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Management</p>
-                        <a href="<%= request.getContextPath() %>/admin/wards" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-2xl text-slate-500 font-bold uppercase tracking-widest text-[11px]">
+                        <a href="<%= request.getContextPath() %>/admin/wards" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
                             <i data-lucide="map-pinned" class="h-5 w-5"></i>
                             <span>Wards Node</span>
                         </a>
-                        <a href="<%= request.getContextPath() %>/admin/services" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-2xl text-slate-500 font-bold uppercase tracking-widest text-[11px]">
+                        <a href="<%= request.getContextPath() %>/admin/services" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
                             <i data-lucide="layers-3" class="h-5 w-5"></i>
                             <span>Service Engine</span>
                         </a>
-                        <a href="<%= request.getContextPath() %>/admin/budget" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-2xl text-slate-500 font-bold uppercase tracking-widest text-[11px]">
+                        <a href="<%= request.getContextPath() %>/admin/budget" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
                             <i data-lucide="pie-chart" class="h-5 w-5"></i>
                             <span>Fiscal Flow</span>
                         </a>
                     </nav>
 
                     <div class="pt-6 border-t border-slate-50">
-                        <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-4 px-4 py-4 rounded-2xl text-rose-500 font-black uppercase tracking-widest text-[11px] hover:bg-rose-50 transition-colors">
+                        <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-4 px-4 py-4 rounded-[5px] text-rose-500 font-black uppercase tracking-widest text-[11px] hover:bg-rose-50 transition-colors">
                             <i data-lucide="power" class="h-5 w-5"></i>
                             <span>Deactivate Node</span>
                         </a>
@@ -171,7 +171,7 @@
                                 <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Authenticated As</span>
                                 <span class="text-[11px] font-black text-brand-900 uppercase"><%= esc(adminEmail) %></span>
                             </div>
-                            <div class="h-12 w-12 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-900 animate-pulse">
+                            <div class="h-12 w-12 rounded-[5px] bg-brand-50 flex items-center justify-center text-brand-900 animate-pulse">
                                 <i data-lucide="radio" class="h-6 w-6"></i>
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                         <!-- Stats Grid -->
                         <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-8 mb-16">
                             <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50">
-                                <div class="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mb-6">
+                                <div class="h-12 w-12 rounded-[5px] bg-slate-50 text-slate-400 flex items-center justify-center mb-6">
                                     <i data-lucide="database" class="h-6 w-6"></i>
                                 </div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Database</p>
@@ -198,7 +198,7 @@
                             </div>
 
                             <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 scale-105 ring-4 ring-brand-500/5">
-                                <div class="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
+                                <div class="h-12 w-12 rounded-[5px] bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
                                     <i data-lucide="activity" class="h-6 w-6"></i>
                                 </div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-blue-400">Active Queue</p>
@@ -206,7 +206,7 @@
                             </div>
 
                             <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50">
-                                <div class="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
+                                <div class="h-12 w-12 rounded-[5px] bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
                                     <i data-lucide="eye" class="h-6 w-6"></i>
                                 </div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-amber-400">Reviewing</p>
@@ -214,7 +214,7 @@
                             </div>
 
                             <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50">
-                                <div class="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
+                                <div class="h-12 w-12 rounded-[5px] bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
                                     <i data-lucide="check-circle" class="h-6 w-6"></i>
                                 </div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Validated</p>
@@ -222,7 +222,7 @@
                             </div>
 
                             <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 col-span-2 lg:col-span-1">
-                                <div class="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-6">
+                                <div class="h-12 w-12 rounded-[5px] bg-rose-50 text-rose-600 flex items-center justify-center mb-6">
                                     <i data-lucide="x-circle" class="h-6 w-6"></i>
                                 </div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-rose-400">Terminated</p>
@@ -262,7 +262,7 @@
                                             <tr class="group hover:bg-slate-50 transition-colors cursor-pointer">
                                                 <td class="px-10 py-8">
                                                     <div class="flex items-center gap-4">
-                                                        <div class="h-10 w-10 rounded-xl bg-brand-50 text-brand-900 flex items-center justify-center font-black text-xs group-hover:bg-brand-900 group-hover:text-white transition-colors">#</div>
+                                                        <div class="h-10 w-10 rounded-[5px] bg-brand-50 text-brand-900 flex items-center justify-center font-black text-xs group-hover:bg-brand-900 group-hover:text-white transition-colors">#</div>
                                                         <span class="text-sm font-black text-slate-900 tracking-tight"><%= esc(a.getTrackingId()) %></span>
                                                     </div>
                                                 </td>
@@ -273,7 +273,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="px-10 py-8">
-                                                    <div class="px-4 py-2 rounded-xl border w-fit <%= badgeClass(a.getStatus()) %>">
+                                                    <div class="px-4 py-2 rounded-[5px] border w-fit <%= badgeClass(a.getStatus()) %>">
                                                         <span class="text-[10px] font-black uppercase tracking-widest"><%= esc(a.getStatus()) %></span>
                                                     </div>
                                                 </td>

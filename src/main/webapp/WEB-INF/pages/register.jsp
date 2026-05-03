@@ -69,7 +69,7 @@
 
                 <div class="w-full max-w-[480px] fade-in py-8">
                     <div class="mb-10 text-center lg:text-left">
-                        <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">Enlistment Portal</h2>
+                        <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">Register Portal</h2>
                         <p class="text-slate-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis">Begin your journey as an active municipal participant.</p>
                     </div>
 
@@ -87,7 +87,7 @@
                                     <label for="fullName" class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Legal Full Name</label>
                                     <div class="relative group">
                                         <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-brand-500 transition-colors"></i>
-                                        <input id="fullName" type="text" name="fullName" value="<%= fullName %>" placeholder="Johnathan Doe" required class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-5 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
+                                        <input id="fullName" type="text" name="fullName" value="<%= fullName %>" placeholder="Sujan Subedi" required class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-5 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
                                     </div>
                                 </div>
 
@@ -136,15 +136,15 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="w-full rounded-2xl bg-brand-900 py-5 text-sm font-black text-white shadow-xl shadow-brand-900/20 active:scale-[0.98] transition-all hover:bg-slate-900 flex items-center justify-center gap-3 mt-4">
-                                Complete Enlistment
+                            <button type="submit" class="w-full rounded-2xl bg-[#154A91] py-5 text-sm font-black text-white shadow-xl shadow-brand-900/20 active:scale-[0.98] transition-all hover:bg-slate-900 flex items-center justify-center gap-3 mt-4">
+                                Complete Signup
                                 <i data-lucide="chevron-right" class="h-4 w-4"></i>
                             </button>
                         </form>
 
                         <div class="mt-10 pt-8 border-t border-slate-50 text-center">
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Already enlisted?</p>
-                            <a href="<%= request.getContextPath() %>/login" class="inline-flex items-center gap-2 rounded-xl bg-brand-50 px-8 py-3.5 text-xs font-black text-brand-900 hover:bg-brand-100 transition-colors">
+                            <a href="<%= request.getContextPath() %>/login" class="inline-flex items-center gap-2 rounded-xl bg-brand-50 px-8 py-3.5 text-xs font-black text-[#0c8ce9] hover:bg-brand-100 transition-colors">
                                 Identity Verification (Login)
                             </a>
                         </div>
