@@ -4,15 +4,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>
-            SarkarSathi - Login
-        </title>
-        <script src="https://cdn.tailwindcss.com">
-        </script>
+        <title>SarkarSathi - Login</title>
+        <script src="https://cdn.tailwindcss.com"></script>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
             body { font-family: 'Outfit', sans-serif; }
-            /* Role toggle */
             .role-toggle {
             position: relative;
             display: flex;
@@ -39,36 +35,39 @@
             background: #154a91;
             box-shadow: 0 2px 12px rgba(21, 74, 145, 0.35);
             }
-            /* Shake animation for error */
             @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-6px); }
             40%, 80% { transform: translateX(6px); }
             }
             .shake { animation: shake 0.4s ease-in-out; }
-            /* Fade in */
             @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
             }
             .fade-in { animation: fadeInUp 0.5s ease-out forwards; }
+            .field-error {
+            margin: 0.5rem 0 0 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #dc2626;
+            }
         </style>
-            <%@ include file="../includes/lucide-icons.jsp" %>
+        <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
     <body class="min-h-screen bg-slate-50 text-slate-900 antialiased overflow-x-hidden selection:bg-brand-100 selection:text-brand-900">
-        <% 
-            String error = (String) request.getAttribute("error"); 
-            if (error == null) { error = request.getParameter("error"); } 
-            String userType = (String) request.getAttribute("userType"); 
-            if (userType == null || userType.isBlank()) { userType = request.getParameter("userType"); } 
-            if (userType == null || userType.isBlank()) { userType = "citizen"; } 
-            String email = (String) request.getAttribute("email"); 
-            if (email == null) { email = request.getParameter("email"); } 
-            if (email == null) { email = ""; } 
-            String registered = request.getParameter("registered"); 
+        <%
+            String error = (String) request.getAttribute("error");
+            if (error == null) { error = request.getParameter("error"); }
+            String userType = (String) request.getAttribute("userType");
+            if (userType == null || userType.isBlank()) { userType = request.getParameter("userType"); }
+            if (userType == null || userType.isBlank()) { userType = "citizen"; }
+            String email = (String) request.getAttribute("email");
+            if (email == null) { email = request.getParameter("email"); }
+            if (email == null) { email = ""; }
+            String registered = request.getParameter("registered");
         %>
         <div class="flex min-h-screen flex-col lg:flex-row">
-            <!-- Left Branding Section -->
             <section class="relative hidden overflow-hidden lg:flex lg:w-1/2">
                 <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600&auto=format&fit=crop" alt="City infrastructure" class="absolute inset-0 h-full w-full object-cover">
                 <div class="absolute inset-0 bg-[#0b3d86]/90"></div>
@@ -93,9 +92,7 @@
                 </div>
             </section>
 
-            <!-- Right Login Section -->
             <section class="flex flex-1 flex-col items-center justify-center p-6 sm:p-12 lg:p-20 relative">
-                <!-- Mobile Branding -->
                 <div class="w-full max-w-md lg:hidden mb-12 text-center">
                     <a href="<%= request.getContextPath() %>" class="text-3xl font-black tracking-tight text-brand-900">
                         Sarkar<span class="text-blue-600">Sathi</span>
@@ -126,31 +123,26 @@
                             </div>
                         <% } %>
 
-                        <!-- Action Selection Toggle -->
                         <div class="mb-8">
                             <label class="mb-2 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Access Tier</label>
                             <div class="role-toggle bg-slate-100 rounded-2xl p-1.5 flex gap-1 border border-slate-200/50">
                                 <input type="radio" name="roleToggle" id="role-citizen" value="citizen" <%= "citizen".equalsIgnoreCase(userType) ? "checked" : "" %> class="hidden peer/citizen">
-                                <label for="role-citizen" class="flex-1 py-3 text-center text-sm font-bold text-slate-500 rounded-xl cursor-pointer transition-all peer-checked/citizen:bg-white peer-checked/citizen:text-brand-900 peer-checked/citizen:shadow-sm">
-                                    Citizen
-                                </label>
-                                
+                                <label for="role-citizen" class="flex-1 py-3 text-center text-sm font-bold text-slate-500 rounded-xl cursor-pointer transition-all peer-checked/citizen:bg-white peer-checked/citizen:text-brand-900 peer-checked/citizen:shadow-sm">Citizen</label>
                                 <input type="radio" name="roleToggle" id="role-admin" value="admin" <%= "admin".equalsIgnoreCase(userType) ? "checked" : "" %> class="hidden peer/admin">
-                                <label for="role-admin" class="flex-1 py-3 text-center text-sm font-bold text-slate-500 rounded-xl cursor-pointer transition-all peer-checked/admin:bg-white peer-checked/admin:text-brand-900 peer-checked/admin:shadow-sm">
-                                    Admin
-                                </label>
+                                <label for="role-admin" class="flex-1 py-3 text-center text-sm font-bold text-slate-500 rounded-xl cursor-pointer transition-all peer-checked/admin:bg-white peer-checked/admin:text-brand-900 peer-checked/admin:shadow-sm">Admin</label>
                             </div>
                         </div>
 
-                        <form id="login-form" action="<%= request.getContextPath() %>/login" method="post" class="space-y-5">
+                        <form id="login-form" action="<%= request.getContextPath() %>/login" method="post" class="space-y-5" novalidate>
                             <input type="hidden" name="userType" id="userType" value="<%= userType %>">
-                            
+
                             <div>
                                 <label for="email" class="mb-1.5 block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 ml-1">Digital ID (Email)</label>
                                 <div class="relative group">
                                     <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-brand-500 transition-colors"></i>
-                                    <input id="email" type="email" name="email" value="<%= email %>" placeholder="user@domain.com" required class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-5 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
+                                    <input id="email" type="email" name="email" value="<%= email %>" placeholder="user@domain.com" required maxlength="254" autocomplete="email" class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-5 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20" aria-describedby="email-error">
                                 </div>
+                                <p id="email-error" class="field-error hidden"></p>
                             </div>
 
                             <div>
@@ -160,9 +152,10 @@
                                 </div>
                                 <div class="relative group">
                                     <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-brand-500 transition-colors"></i>
-                                    <input id="password" type="password" name="password" placeholder="••••••••••••" required class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-16 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20">
-                                    <button type="button" class="password-toggle absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-900" data-target="password">Show</button>
+                                    <input id="password" type="password" name="password" placeholder="************" required maxlength="72" autocomplete="current-password" class="w-full rounded-2xl border-0 bg-slate-50 pl-12 pr-16 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-brand-500 transition-all outline-none border border-transparent focus:border-brand-500/20" aria-describedby="password-error">
+                                    <button type="button" class="password-toggle absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-900" data-target="password" aria-label="Show password" aria-pressed="false">Show</button>
                                 </div>
+                                <p id="password-error" class="field-error hidden"></p>
                             </div>
 
                             <button type="submit" id="login-btn" class="w-full rounded-2xl bg-[#154A91] py-5 text-sm font-black text-white shadow-xl shadow-brand-900/20 active:scale-[0.98] transition-all hover:bg-slate-900 flex items-center justify-center gap-3">
@@ -188,41 +181,57 @@
             </section>
         </div>
         <script>
-            document.querySelectorAll(".password-toggle").forEach((button) => {
-                button.addEventListener("click", () => {
-                    const input = document.getElementById(button.dataset.target);
-                    const isPass = input.type === "password";
-                    input.type = isPass ? "text" : "password";
-                    button.textContent = isPass ? "Hide" : "Show";
-                });
-            });
+            const loginForm = document.getElementById("login-form");
+            const emailInput = document.getElementById("email");
+            const passwordInput = document.getElementById("password");
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            const citizenRadio = document.getElementById('role-citizen');
-            const adminRadio = document.getElementById('role-admin');
-            const userTypeInput = document.getElementById('userType');
-            const btnText = document.getElementById('btn-text');
-            const registerLink = document.getElementById('register-link');
-
-            function updateRole() {
-                if (adminRadio.checked) {
-                    userTypeInput.value = 'admin';
-                    btnText.textContent = 'Admin Verification';
-                    registerLink.style.display = 'none';
-                } else {
-                    userTypeInput.value = 'citizen';
-                    btnText.textContent = 'Authenticate Access';
-                    registerLink.style.display = 'block';
-                }
+            function setFieldError(input, message) {
+            const error = document.getElementById(input.id + "-error");
+            input.classList.toggle("ring-2", Boolean(message));
+            input.classList.toggle("ring-red-500", Boolean(message));
+            input.classList.toggle("bg-white", Boolean(message));
+            input.setAttribute("aria-invalid", String(Boolean(message)));
+            if (error) {
+            error.textContent = message;
+            error.classList.toggle("hidden", !message);
+            }
             }
 
-            citizenRadio.addEventListener('change', updateRole);
-            adminRadio.addEventListener('change', updateRole);
-            updateRole();
+            function validateLoginField(input) {
+            const value = input.value.trim();
+            if (input === emailInput) {
+            if (!value) {
+            setFieldError(input, "Email is required.");
+            return false;
+            }
+            if (!emailPattern.test(value)) {
+            setFieldError(input, "Enter a valid email address.");
+            return false;
+            }
+            }
+            if (input === passwordInput && !input.value.trim()) {
+            setFieldError(input, "Password is required.");
+            return false;
+            }
+            setFieldError(input, "");
+            return true;
+            }
 
-            lucide.createIcons();
-        </script>
-    </body>
-        <script>
+            [emailInput, passwordInput].forEach((input) => {
+            input.addEventListener("input", () => validateLoginField(input));
+            input.addEventListener("blur", () => validateLoginField(input));
+            });
+
+            loginForm.addEventListener("submit", (event) => {
+            const valid = [emailInput, passwordInput].every(validateLoginField);
+            if (!valid) {
+            event.preventDefault();
+            const firstInvalid = [emailInput, passwordInput].find((input) => input.getAttribute("aria-invalid") === "true");
+            if (firstInvalid) firstInvalid.focus();
+            }
+            });
+
             document.querySelectorAll(".password-toggle").forEach((button) => {
             button.addEventListener("click", () => {
             const input = document.getElementById(button.dataset.target);
@@ -233,32 +242,29 @@
             button.setAttribute("aria-pressed", String(showPassword));
             });
             });
-            // Role toggle logic
-            const citizenRadio = document.getElementById('role-citizen');
-            const adminRadio = document.getElementById('role-admin');
-            const userTypeInput = document.getElementById('userType');
-            const btnText = document.getElementById('btn-text');
-            const registerLink = document.getElementById('register-link');
+
+            const citizenRadio = document.getElementById("role-citizen");
+            const adminRadio = document.getElementById("role-admin");
+            const userTypeInput = document.getElementById("userType");
+            const btnText = document.getElementById("btn-text");
+            const registerLink = document.getElementById("register-link");
+
             function updateRole() {
             if (adminRadio.checked) {
-            userTypeInput.value = 'admin';
-            btnText.textContent = 'Login as Admin';
-            registerLink.style.display = 'none';
+            userTypeInput.value = "admin";
+            btnText.textContent = "Login as Admin";
+            registerLink.style.display = "none";
             } else {
-            userTypeInput.value = 'citizen';
-            btnText.textContent = 'Login to Dashboard';
-            registerLink.style.display = 'block';
+            userTypeInput.value = "citizen";
+            btnText.textContent = "Login to Dashboard";
+            registerLink.style.display = "block";
             }
             }
-            citizenRadio.addEventListener('change', updateRole);
-            adminRadio.addEventListener('change', updateRole);
-            // Preserve selection after error
+
+            citizenRadio.addEventListener("change", updateRole);
+            adminRadio.addEventListener("change", updateRole);
             updateRole();
-            var userType = '<%= userType %>';
-            if (userType === 'admin') {
-            adminRadio.checked = true;
-            updateRole();
-            }
+            lucide.createIcons();
         </script>
     </body>
 </html>

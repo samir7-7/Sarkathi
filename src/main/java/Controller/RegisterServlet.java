@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -29,8 +30,10 @@ import java.util.regex.Pattern;
  */
 @WebServlet(name = "registerServlet", urlPatterns = "/register")
 public class RegisterServlet extends HttpServlet {
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^[0-9]{7,15}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private static final Pattern FULL_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z\\s'.-]{1,98}[A-Za-z]$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^[0-9]{10}$");
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d).{8,72}$");
 
     /**
      * Renders the registration form.
@@ -65,6 +68,10 @@ public class RegisterServlet extends HttpServlet {
             citizen.setEmail(getRequiredParameter(request, "email"));
             citizen.setPhone(getRequiredParameter(request, "phone"));
             String password = getRequiredParameter(request, "password");
+            String confirmPassword = getRequiredParameter(request, "confirmPassword");
+            if (!password.equals(confirmPassword)) {
+                throw new IllegalArgumentException("Passwords do not match");
+            }
             citizen.setPasswordHash(PasswordUtil.hash(validatePassword(password)));
             citizen.setDateOfBirth(validateDateOfBirth(getRequiredParameter(request, "dateOfBirth")));
             citizen.setGender(validateGender(getRequiredParameter(request, "gender")));
@@ -120,7 +127,11 @@ public class RegisterServlet extends HttpServlet {
         if (fullName.length() < 3 || fullName.length() > 100) {
             throw new IllegalArgumentException("Full name must be between 3 and 100 characters");
         }
-        return fullName.replaceAll("\\s+", " ").trim();
+        String normalized = fullName.replaceAll("\\s+", " ").trim();
+        if (!FULL_NAME_PATTERN.matcher(normalized).matches()) {
+            throw new IllegalArgumentException("Full name can only contain letters, spaces, apostrophes, periods, or hyphens");
+        }
+        return normalized;
     }
 
     /**
@@ -149,7 +160,7 @@ public class RegisterServlet extends HttpServlet {
     private String validatePhone(String phone) {
         String normalized = phone.replaceAll("[^0-9]", "");
         if (!PHONE_PATTERN.matcher(normalized).matches()) {
-            throw new IllegalArgumentException("Phone number must contain 7 to 15 digits");
+            throw new IllegalArgumentException("Phone number must contain exactly 10 digits");
         }
         return normalized;
     }
@@ -164,8 +175,8 @@ public class RegisterServlet extends HttpServlet {
      * @throws IllegalArgumentException if shorter than 8 characters
      */
     private String validatePassword(String password) {
-        if (password.length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            throw new IllegalArgumentException("Password must be 8 to 72 characters and include letters and numbers");
         }
         return password;
     }
@@ -178,7 +189,12 @@ public class RegisterServlet extends HttpServlet {
      * @throws IllegalArgumentException if the resulting age is out of range
      */
     private LocalDate validateDateOfBirth(String value) {
-        LocalDate dateOfBirth = LocalDate.parse(value);
+        LocalDate dateOfBirth;
+        try {
+            dateOfBirth = LocalDate.parse(value);
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("Please enter a valid date of birth");
+        }
         int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
         if (age < 16 || age > 120) {
             throw new IllegalArgumentException("Citizen age must be between 16 and 120 years");
