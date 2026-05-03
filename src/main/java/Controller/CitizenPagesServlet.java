@@ -28,12 +28,34 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Page dispatcher for the citizen-facing area. Like {@link AdminPagesServlet}
+ * but for citizen views — dashboard, apply, tracking, payments,
+ * notifications, certificates, document vault — each path prefetches the
+ * data its JSP needs.
+ * <p>
+ * Every page also gets the "shared" citizen data (notification counter,
+ * application counters, certificate count) so the sidebar widgets work
+ * regardless of which page the citizen is on.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "citizenPagesServlet", urlPatterns = {
     "/citizen/dashboard", "/citizen/apply", "/citizen/tracking",
     "/citizen/payments", "/citizen/notifications", "/citizen/certificates",
     "/citizen/documents"
 })
 public class CitizenPagesServlet extends HttpServlet {
+    /**
+     * Routes the citizen to the right view and pre-loads its data. Tracking
+     * lookups are scoped to the logged-in citizen so people can't peek at
+     * other citizens' applications by guessing tracking IDs.
+     *
+     * @param request  the incoming request
+     * @param response the response (forward to JSP, or redirect to login)
+     * @throws ServletException if forwarding fails
+     * @throws IOException      if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -105,6 +127,17 @@ public class CitizenPagesServlet extends HttpServlet {
         request.getRequestDispatcher(jsp).forward(request, response);
     }
 
+    /**
+     * Populates request attributes that every citizen page leans on:
+     * notification list and unread count, application counters (total,
+     * approved, pending), and certificate count. These feed sidebar badges
+     * and dashboard widgets.
+     *
+     * @param request   the incoming request
+     * @param conn      open JDBC connection
+     * @param citizenId the logged-in citizen's primary key
+     * @throws SQLException if a lookup fails
+     */
     private void loadSharedCitizenData(HttpServletRequest request, Connection conn, int citizenId) throws SQLException {
         NotificationDAOInterface notificationDAO = new NotificationDAO(conn);
         List<Notification> notifications = notificationDAO.findByCitizenId(citizenId);

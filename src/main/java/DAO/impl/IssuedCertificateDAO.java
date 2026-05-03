@@ -15,13 +15,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JDBC implementation of {@link IssuedCertificateDAOInterface}.
+ *
+ * @author SarkarSathi
+ */
 public class IssuedCertificateDAO extends BaseDAO implements IssuedCertificateDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public IssuedCertificateDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * If no issue timestamp is supplied, the current time is used so the
+     * certificate at least has a defensible "issued at" stamp.
+     */
     public IssuedCertificate create(IssuedCertificate certificate) throws SQLException {
         String sql = """
                 INSERT INTO ISSUED_CERTIFICATE (ApplicationID, CertificateNo, IssuedAt, PDFFilePath, IssuedByAdminID)
@@ -44,6 +58,9 @@ public class IssuedCertificateDAO extends BaseDAO implements IssuedCertificateDA
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Optional<IssuedCertificate> findByApplicationId(int applicationId) throws SQLException {
         String sql = "SELECT * FROM ISSUED_CERTIFICATE WHERE ApplicationID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -54,6 +71,12 @@ public class IssuedCertificateDAO extends BaseDAO implements IssuedCertificateDA
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Joins through {@code APPLICATION} to find all certificates ever issued
+     * for any of the citizen's applications, newest first.
+     */
     public List<IssuedCertificate> findByCitizenId(int citizenId) throws SQLException {
         String sql = """
                 SELECT ic.* FROM ISSUED_CERTIFICATE ic
@@ -73,6 +96,13 @@ public class IssuedCertificateDAO extends BaseDAO implements IssuedCertificateDA
         return certificates;
     }
 
+    /**
+     * Maps the current row into an {@link IssuedCertificate}.
+     *
+     * @param resultSet result set positioned on an {@code ISSUED_CERTIFICATE} row
+     * @return the row as a certificate object
+     * @throws SQLException if a column read fails
+     */
     private IssuedCertificate map(ResultSet resultSet) throws SQLException {
         IssuedCertificate certificate = new IssuedCertificate();
         certificate.setCertificateId(resultSet.getInt("CertificateID"));

@@ -106,63 +106,18 @@
             </nav>
 
             <!-- Desktop Sidebar -->
-            <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 -translate-x-full border-r border-slate-100 bg-white transition-transform duration-300 lg:static lg:translate-x-0">
-                <div class="flex h-full flex-col p-6">
-                    <div class="flex items-center justify-between">
-                        <a href="<%= request.getContextPath() %>/" class="text-2xl font-black text-brand-900 italic tracking-tighter">SarkarSathi</a>
-                        <button onclick="toggleSidebar()" class="lg:hidden h-10 w-10 flex items-center justify-center rounded-[5px] bg-slate-50 text-slate-400">
-                            <i data-lucide="x" class="h-5 w-5"></i>
-                        </button>
-                    </div>
-
-                    <div class="mt-10 mb-6 px-4 py-8 rounded-[2rem] bg-slate-900 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 h-24 w-24 bg-white/5 rounded-bl-[3rem] -mr-8 -mt-8 rotate-12 group-hover:bg-white/10 transition-colors"></div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-300/80 mb-2">Authenticated System</p>
-                        <h4 class="text-lg font-black tracking-tight truncate"><%= esc(adminName) %></h4>
-                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1 italic"><%= esc(adminRole) %></p>
-                    </div>
-
-                    <nav class="flex-1 space-y-2">
-                        <p class="px-4 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Operations</p>
-                        <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-link active group flex items-center gap-4 px-4 py-4 rounded-[5px] text-[11px] font-black uppercase tracking-widest">
-                            <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                            <span>Admin Terminal</span>
-                        </a>
-                        <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
-                            <i data-lucide="clipboard-check" class="h-5 w-5"></i>
-                            <span>Process Queue</span>
-                        </a>
-                        
-                        <p class="px-4 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Management</p>
-                        <a href="<%= request.getContextPath() %>/admin/wards" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
-                            <i data-lucide="map-pinned" class="h-5 w-5"></i>
-                            <span>Wards Node</span>
-                        </a>
-                        <a href="<%= request.getContextPath() %>/admin/services" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
-                            <i data-lucide="layers-3" class="h-5 w-5"></i>
-                            <span>Service Engine</span>
-                        </a>
-                        <a href="<%= request.getContextPath() %>/admin/budget" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]">
-                            <i data-lucide="pie-chart" class="h-5 w-5"></i>
-                            <span>Fiscal Flow</span>
-                        </a>
-                    </nav>
-
-                    <div class="pt-6 border-t border-slate-50">
-                        <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-4 px-4 py-4 rounded-[5px] text-rose-500 font-black uppercase tracking-widest text-[11px] hover:bg-rose-50 transition-colors">
-                            <i data-lucide="power" class="h-5 w-5"></i>
-                            <span>Deactivate Node</span>
-                        </a>
-                    </div>
-                </div>
-            </aside>
+            <!-- Sidebar Overlay -->
+            <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
+            
+            <%@ include file="../includes/sidebar-admin.jsp" %>
 
             <div class="flex-1 flex flex-col min-h-screen w-full relative">
+
                 <!-- Header -->
                 <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-6 lg:px-12">
                     <div class="flex items-center justify-between max-w-7xl mx-auto">
                         <div>
-                            <h1 class="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">Control.</h1>
+                            <h1 class="text-2xl font-black text-slate-900 tracking-tighter uppercase  ">Control.</h1>
                             <p class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mt-1">SarkarSathi Governing Logic</p>
                         </div>
                         
@@ -189,7 +144,7 @@
 
                         <!-- Stats Grid -->
                         <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-8 mb-16">
-                            <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+                            <div class="bg-white p-8 rounded-[15px] border border-slate-100 shadow-xl shadow-slate-200/50">
                                 <div class="h-12 w-12 rounded-[5px] bg-slate-50 text-slate-400 flex items-center justify-center mb-6">
                                     <i data-lucide="database" class="h-6 w-6"></i>
                                 </div>
@@ -197,7 +152,7 @@
                                 <p class="text-3xl font-black text-slate-900 tracking-tighter mt-1"><%= total %></p>
                             </div>
 
-                            <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 scale-105 ring-4 ring-brand-500/5">
+                            <div class="bg-white p-8 rounded-[15px] border border-slate-100 shadow-xl shadow-slate-200/50 scale-105 ring-4 ring-brand-500/5">
                                 <div class="h-12 w-12 rounded-[5px] bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
                                     <i data-lucide="activity" class="h-6 w-6"></i>
                                 </div>
@@ -205,7 +160,7 @@
                                 <p class="text-3xl font-black text-blue-600 tracking-tighter mt-1"><%= submitted %></p>
                             </div>
 
-                            <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+                            <div class="bg-white p-8 rounded-[15px] border border-slate-100 shadow-xl shadow-slate-200/50">
                                 <div class="h-12 w-12 rounded-[5px] bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
                                     <i data-lucide="eye" class="h-6 w-6"></i>
                                 </div>
@@ -213,7 +168,7 @@
                                 <p class="text-3xl font-black text-amber-600 tracking-tighter mt-1"><%= review %></p>
                             </div>
 
-                            <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+                            <div class="bg-white p-8 rounded-[15px] border border-slate-100 shadow-xl shadow-slate-200/50">
                                 <div class="h-12 w-12 rounded-[5px] bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
                                     <i data-lucide="check-circle" class="h-6 w-6"></i>
                                 </div>
@@ -221,7 +176,7 @@
                                 <p class="text-3xl font-black text-emerald-600 tracking-tighter mt-1"><%= approved %></p>
                             </div>
 
-                            <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 col-span-2 lg:col-span-1">
+                            <div class="bg-white p-8 rounded-[15px] border border-slate-100 shadow-xl shadow-slate-200/50 col-span-2 lg:col-span-1">
                                 <div class="h-12 w-12 rounded-[5px] bg-rose-50 text-rose-600 flex items-center justify-center mb-6">
                                     <i data-lucide="x-circle" class="h-6 w-6"></i>
                                 </div>
@@ -231,10 +186,10 @@
                         </div>
 
                         <!-- Main Table -->
-                        <section class="bg-white rounded-[4rem] border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
+                        <section class="bg-white rounded-[25px] border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
                             <div class="p-10 lg:p-14 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                                 <div>
-                                    <h3 class="text-2xl font-black text-slate-900 tracking-tighter italic">Process Ledger.</h3>
+                                    <h3 class="text-2xl font-black text-slate-900 tracking-tighter  ">Process Ledger.</h3>
                                     <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Latest Recursive Applications</p>
                                 </div>
                                 <a href="<%= request.getContextPath() %>/admin/applications" class="bg-brand-900 text-white px-8 py-4 rounded-3xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-brand-900/20 active:scale-95 transition-all text-center">Open Full Registry</a>
@@ -255,7 +210,7 @@
                                             <tr>
                                                 <td colspan="4" class="px-10 py-24 text-center">
                                                     <i data-lucide="box-select" class="h-12 w-12 text-slate-200 mx-auto mb-6"></i>
-                                                    <p class="text-xs font-black uppercase tracking-widest text-slate-300 italic">No Registry Data Detected</p>
+                                                    <p class="text-xs font-black uppercase tracking-widest text-slate-300  ">No Registry Data Detected</p>
                                                 </td>
                                             </tr>
                                         <% } else { for(Application a:recent){ %>

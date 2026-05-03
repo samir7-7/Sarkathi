@@ -100,64 +100,13 @@
             </nav>
 
             <!-- Sidebar (Laptop: Simple, Mobile: Drawer) -->
-            <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 -translate-x-full border-r border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0">
-                <div class="flex h-full flex-col">
-                    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                        <a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a>
-                        <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400"><i data-lucide="x" class="h-5 w-5"></i></button>
-                    </div>
-
-                    <div class="p-6">
-                        <div class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 mb-8">
-                            <div class="h-10 w-10 flex items-center justify-center rounded-xl bg-brand-900 text-white font-bold uppercase text-xs">
-                                <%= citizenName.substring(0,1).toUpperCase() %>
-                            </div>
-                            <div class="overflow-hidden">
-                                <p class="text-sm font-bold text-slate-900 truncate uppercase tracking-tight text-ellipsis"><%= esc(citizenName) %></p>
-                                <p class="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Citizen Profile</p>
-                            </div>
-                        </div>
-
-                        <nav class="space-y-1">
-                            <p class="px-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 mt-4">CORE</p>
-                            <a href="<%= request.getContextPath() %>/citizen/dashboard" class="sidebar-link active flex items-center gap-3 rounded-xl px-4 py-3 text-sm">
-                                <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                                <span>Home Board</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="file-plus-2" class="h-5 w-5"></i>
-                                <span>Apply for Service</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="search-check" class="h-5 w-5"></i>
-                                <span>Track Status</span>
-                            </a>
-                            <p class="px-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 mt-8">RECORDS</p>
-                            <a href="<%= request.getContextPath() %>/citizen/payments" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="credit-card" class="h-5 w-5"></i>
-                                <span>Payments & Tax</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/certificates" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="award" class="h-5 w-5"></i>
-                                <span>My Certificates</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="folder-open" class="h-5 w-5"></i>
-                                <span>My Documents</span>
-                            </a>
-                        </nav>
-                    </div>
-
-                    <div class="mt-auto p-6 border-t border-slate-100 pb-20 lg:pb-6">
-                        <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors">
-                            <i data-lucide="log-out" class="h-5 w-5"></i>
-                            <span>Logout Session</span>
-                        </a>
-                    </div>
-                </div>
-            </aside>
+            <!-- Sidebar Overlay -->
+            <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
+            
+            <%@ include file="../includes/sidebar-citizen.jsp" %>
 
             <div class="flex-1 flex flex-col min-h-screen w-full relative">
+
                 <!-- Laptop Header: Simple -->
                 <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
                     <div>
@@ -241,7 +190,7 @@
                                     </thead>
                                     <tbody class="divide-y divide-slate-50">
                                         <% if(applications.isEmpty()){ %>
-                                            <tr><td colspan="3" class="px-6 py-12 text-center text-slate-400 italic">No activity recorded yet</td></tr>
+                                            <tr><td colspan="3" class="px-6 py-12 text-center text-slate-400 ">No activity recorded yet</td></tr>
                                         <% } else { for(Application a : applications.subList(0, Math.min(5, applications.size()))){ %>
                                             <tr class="hover:bg-slate-50/50 transition-colors">
                                                 <td class="px-6 py-5 font-bold text-slate-900">#<%= esc(a.getTrackingId()) %></td>
@@ -271,7 +220,7 @@
                                 </div>
                                 <div class="space-y-6">
                                     <% if(notifications.isEmpty()){ %>
-                                        <p class="text-center py-12 text-slate-400 text-xs italic font-medium">No new updates found</p>
+                                        <p class="text-center py-12 text-slate-400 text-xs  font-medium">No new updates found</p>
                                     <% } else { for(Notification n : notifications.subList(0, Math.min(3, notifications.size()))){ %>
                                         <div class="group border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                                             <p class="text-sm font-bold text-slate-900 group-hover:text-brand-500 transition-colors truncate"><%= esc(n.getTitle()) %></p>

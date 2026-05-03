@@ -21,9 +21,21 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Front-of-house dispatcher for every public page in the app. The servlet maps
+ * a small allow-list of paths to JSP views and, where the page needs data
+ * (announcements, budgets, agriculture notices, application tracking),
+ * pre-loads it onto the request before forwarding.
+ * <p>
+ * Crop recommendations are baked in as a static map — they don't change often
+ * enough to warrant a database round-trip on every page load.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "pageServlet", urlPatterns = {
-    "/", "/index.jsp", "/login.jsp", "/register.jsp",
-    "/announcements", "/agriculture", "/budget", "/crop-advisory", "/track"
+        "/", "/index.jsp", "/login.jsp", "/register.jsp",
+        "/announcements", "/agriculture", "/budget", "/crop-advisory", "/track",
+        "/about", "/contact"
 })
 public class PageServlet extends HttpServlet {
     private static final Map<String, String> PAGE_MAPPINGS = Map.ofEntries(
@@ -35,11 +47,25 @@ public class PageServlet extends HttpServlet {
             Map.entry("/agriculture", "/WEB-INF/pages/agriculture.jsp"),
             Map.entry("/budget", "/WEB-INF/pages/budget.jsp"),
             Map.entry("/crop-advisory", "/WEB-INF/pages/crop-advisory.jsp"),
-            Map.entry("/track", "/WEB-INF/pages/tracking.jsp")
-    );
+            Map.entry("/track", "/WEB-INF/pages/tracking.jsp"),
+            Map.entry("/about", "/WEB-INF/pages/about.jsp"),
+            Map.entry("/contact", "/WEB-INF/pages/contact.jsp"));
 
+    /**
+     * Resolves the requested path against {@link #PAGE_MAPPINGS}, fetches any
+     * data the destination JSP needs, and forwards. Unknown paths return 404.
+     * Database errors fall through to empty placeholder lists with a friendly
+     * page-level error message — we don't want a flaky DB to take down the
+     * marketing pages.
+     *
+     * @param request  the incoming request
+     * @param response the response
+     * @throws ServletException if forwarding fails
+     * @throws IOException      if writing fails
+     */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String servletPath = request.getServletPath();
         if (servletPath == null || servletPath.isEmpty() || "/".equals(servletPath)) {
             servletPath = "/";
@@ -77,27 +103,75 @@ public class PageServlet extends HttpServlet {
         dispatcher.forward(request, response);
     }
 
+    /**
+     * Returns the static crop-advisory matrix used by the crop-advisory page.
+     * Outer key is terrain ({@code flatland}, {@code hilly}, {@code mountain}),
+     * inner key is season, and the leaf is a list of {@code [crop, note,
+     * duration]} string triples.
+     * <p>
+     * Kept as code rather than database rows because the data is editorial and
+     * changes maybe once a year — a deploy is a fine "save" button for it.
+     *
+     * @return nested map of recommendations keyed by terrain then season
+     */
     private Map<String, Map<String, List<String[]>>> cropRecommendations() {
         Map<String, Map<String, List<String[]>>> recommendations = new LinkedHashMap<>();
         Map<String, List<String[]>> flatland = new LinkedHashMap<>();
-        flatland.put("spring", List.of(new String[]{"Rice (Paddy)", "Main staple crop, transplant in monsoon-ready fields", "120-150 days"}, new String[]{"Maize", "Versatile cereal for food and fodder", "90-120 days"}, new String[]{"Jute", "Cash crop for fiber production", "100-120 days"}));
-        flatland.put("summer", List.of(new String[]{"Rice (Paddy)", "Peak season for lowland rice cultivation", "120-150 days"}, new String[]{"Sugarcane", "Long-duration cash crop", "270-365 days"}, new String[]{"Vegetables (Cucumber, Bottle Gourd)", "Quick income from vegetable farming", "60-90 days"}));
-        flatland.put("autumn", List.of(new String[]{"Wheat", "Winter cereal, sow after rice harvest", "120-150 days"}, new String[]{"Mustard", "Oilseed crop for winter season", "90-120 days"}, new String[]{"Lentil (Masoor)", "Protein-rich pulse crop", "100-120 days"}));
-        flatland.put("winter", List.of(new String[]{"Wheat", "Continue winter wheat cultivation", "120-150 days"}, new String[]{"Potato", "High-value root vegetable", "90-120 days"}, new String[]{"Pea", "Cool-season legume", "60-90 days"}));
+        flatland.put("spring", List.of(
+                new String[] { "Rice (Paddy)", "Main staple crop, transplant in monsoon-ready fields", "120-150 days" },
+                new String[] { "Maize", "Versatile cereal for food and fodder", "90-120 days" },
+                new String[] { "Jute", "Cash crop for fiber production", "100-120 days" }));
+        flatland.put("summer",
+                List.of(new String[] { "Rice (Paddy)", "Peak season for lowland rice cultivation", "120-150 days" },
+                        new String[] { "Sugarcane", "Long-duration cash crop", "270-365 days" },
+                        new String[] { "Vegetables (Cucumber, Bottle Gourd)", "Quick income from vegetable farming",
+                                "60-90 days" }));
+        flatland.put("autumn",
+                List.of(new String[] { "Wheat", "Winter cereal, sow after rice harvest", "120-150 days" },
+                        new String[] { "Mustard", "Oilseed crop for winter season", "90-120 days" },
+                        new String[] { "Lentil (Masoor)", "Protein-rich pulse crop", "100-120 days" }));
+        flatland.put("winter",
+                List.of(new String[] { "Wheat", "Continue winter wheat cultivation", "120-150 days" },
+                        new String[] { "Potato", "High-value root vegetable", "90-120 days" },
+                        new String[] { "Pea", "Cool-season legume", "60-90 days" }));
         recommendations.put("flatland", flatland);
 
         Map<String, List<String[]>> hilly = new LinkedHashMap<>();
-        hilly.put("spring", List.of(new String[]{"Maize", "Primary cereal for hill regions", "90-120 days"}, new String[]{"Millet (Kodo/Kaguno)", "Drought-tolerant grain", "90-120 days"}, new String[]{"Ginger", "High-value spice crop", "240-270 days"}));
-        hilly.put("summer", List.of(new String[]{"Rice (Upland)", "Direct-seeded rice on terraces", "120-150 days"}, new String[]{"Cardamom", "Cash crop under shade trees", "Perennial"}, new String[]{"Turmeric", "Spice and medicinal crop", "210-270 days"}));
-        hilly.put("autumn", List.of(new String[]{"Wheat", "Winter cereal for mid-hills", "120-150 days"}, new String[]{"Barley", "Hardy cereal for higher elevations", "100-120 days"}, new String[]{"Rapeseed", "Oilseed for cool-season", "90-120 days"}));
-        hilly.put("winter", List.of(new String[]{"Potato", "Cool-climate root crop", "90-120 days"}, new String[]{"Cabbage", "Cold-hardy vegetable", "80-100 days"}, new String[]{"Garlic", "High-value allium crop", "120-150 days"}));
+        hilly.put("spring",
+                List.of(new String[] { "Maize", "Primary cereal for hill regions", "90-120 days" },
+                        new String[] { "Millet (Kodo/Kaguno)", "Drought-tolerant grain", "90-120 days" },
+                        new String[] { "Ginger", "High-value spice crop", "240-270 days" }));
+        hilly.put("summer",
+                List.of(new String[] { "Rice (Upland)", "Direct-seeded rice on terraces", "120-150 days" },
+                        new String[] { "Cardamom", "Cash crop under shade trees", "Perennial" },
+                        new String[] { "Turmeric", "Spice and medicinal crop", "210-270 days" }));
+        hilly.put("autumn",
+                List.of(new String[] { "Wheat", "Winter cereal for mid-hills", "120-150 days" },
+                        new String[] { "Barley", "Hardy cereal for higher elevations", "100-120 days" },
+                        new String[] { "Rapeseed", "Oilseed for cool-season", "90-120 days" }));
+        hilly.put("winter",
+                List.of(new String[] { "Potato", "Cool-climate root crop", "90-120 days" },
+                        new String[] { "Cabbage", "Cold-hardy vegetable", "80-100 days" },
+                        new String[] { "Garlic", "High-value allium crop", "120-150 days" }));
         recommendations.put("hilly", hilly);
 
         Map<String, List<String[]>> mountain = new LinkedHashMap<>();
-        mountain.put("spring", List.of(new String[]{"Buckwheat", "Short-season grain for high altitude", "60-90 days"}, new String[]{"Barley", "Cold-tolerant cereal", "100-120 days"}, new String[]{"Apple", "Temperate fruit for mountains", "Perennial"}));
-        mountain.put("summer", List.of(new String[]{"Potato", "High-altitude potato cultivation", "90-120 days"}, new String[]{"Amaranth", "Nutritious pseudo-cereal", "60-90 days"}, new String[]{"Beans", "Nitrogen-fixing legume", "60-90 days"}));
-        mountain.put("autumn", List.of(new String[]{"Buckwheat", "Second season buckwheat", "60-90 days"}, new String[]{"Radish", "Quick-growing root vegetable", "40-60 days"}, new String[]{"Turnip", "Cold-hardy root crop", "40-60 days"}));
-        mountain.put("winter", List.of(new String[]{"Limited Options", "Most mountain areas under snow cover", "N/A"}, new String[]{"Greenhouse Vegetables", "Tomato, capsicum under protection", "60-90 days"}, new String[]{"Mushroom", "Indoor cultivation possible year-round", "30-60 days"}));
+        mountain.put("spring",
+                List.of(new String[] { "Buckwheat", "Short-season grain for high altitude", "60-90 days" },
+                        new String[] { "Barley", "Cold-tolerant cereal", "100-120 days" },
+                        new String[] { "Apple", "Temperate fruit for mountains", "Perennial" }));
+        mountain.put("summer",
+                List.of(new String[] { "Potato", "High-altitude potato cultivation", "90-120 days" },
+                        new String[] { "Amaranth", "Nutritious pseudo-cereal", "60-90 days" },
+                        new String[] { "Beans", "Nitrogen-fixing legume", "60-90 days" }));
+        mountain.put("autumn",
+                List.of(new String[] { "Buckwheat", "Second season buckwheat", "60-90 days" },
+                        new String[] { "Radish", "Quick-growing root vegetable", "40-60 days" },
+                        new String[] { "Turnip", "Cold-hardy root crop", "40-60 days" }));
+        mountain.put("winter",
+                List.of(new String[] { "Limited Options", "Most mountain areas under snow cover", "N/A" },
+                        new String[] { "Greenhouse Vegetables", "Tomato, capsicum under protection", "60-90 days" },
+                        new String[] { "Mushroom", "Indoor cultivation possible year-round", "30-60 days" }));
         recommendations.put("mountain", mountain);
         return recommendations;
     }

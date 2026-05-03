@@ -22,9 +22,36 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Issuance and rendering of approval certificates. Once an application is
+ * approved, an admin can mint a certificate; citizens can then view a
+ * printable HTML version or download a hand-rolled PDF.
+ * <p>
+ * The PDF is generated inline from a tiny PDF object graph rather than
+ * pulling in a heavyweight library — good enough for the simple text-only
+ * certificates we issue, and avoids a multi-megabyte dependency. If the
+ * certificates ever need richer layout (logos, fonts, signatures) this is
+ * the obvious place to swap in a real PDF library.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "certificateServlet", urlPatterns = "/api/certificates/*")
 public class CertificateServlet extends BaseApiServlet {
 
+    /**
+     * Routes the GET to one of three modes based on the path:
+     * <ul>
+     *   <li>{@code /view/{appId}} — printable HTML certificate.</li>
+     *   <li>{@code /download/{appId}} — PDF download.</li>
+     *   <li>{@code /citizen/{citizenId}} — JSON list of the citizen's
+     *       certificates.</li>
+     * </ul>
+     * Citizens may only access certificates they own.
+     *
+     * @param request  the incoming request
+     * @param response HTML, PDF, or JSON depending on path
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
@@ -79,6 +106,15 @@ public class CertificateServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Issues a certificate for an approved application. Refuses to issue
+     * twice for the same application, and refuses to issue against an
+     * application that hasn't been approved yet.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope with the issued certificate
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
@@ -126,6 +162,16 @@ public class CertificateServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Form/JSON dual-mode success dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank)
+     * @param statusCode HTTP status when writing JSON
+     * @param json       JSON body when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                      int statusCode, String json) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -135,6 +181,16 @@ public class CertificateServlet extends BaseApiServlet {
         writeJson(response, statusCode, json);
     }
 
+    /**
+     * Form/JSON dual-mode error dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank)
+     * @param message    error message
+     * @param statusCode HTTP status when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                       String message, int statusCode) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -144,6 +200,15 @@ public class CertificateServlet extends BaseApiServlet {
         writeError(response, statusCode, message);
     }
 
+    /**
+     * Builds a safe redirect URL. Untrusted targets fall back to
+     * {@code /admin/applications}.
+     *
+     * @param request    the incoming request
+     * @param redirectTo requested target
+     * @param error      optional error to surface as a query parameter
+     * @return absolute redirect URL
+     */
     private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
         String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/admin/applications";
         String url = request.getContextPath() + target;
@@ -153,6 +218,18 @@ public class CertificateServlet extends BaseApiServlet {
         return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Renders the printable HTML certificate. Inline CSS keeps the page
+     * self-contained so it prints cleanly without external stylesheets, and
+     * a {@code @media print} block hides the action bar when the user prints.
+     *
+     * @param request  the incoming request (for context path)
+     * @param response the HTML response
+     * @param conn     open JDBC connection
+     * @param appId    application primary key
+     * @throws IOException  if writing fails
+     * @throws SQLException if the lookup fails
+     */
     private void renderCertificate(HttpServletRequest request, HttpServletResponse response, Connection conn, int appId)
             throws IOException, SQLException {
         CertificateData data = loadCertificateData(conn, appId);
@@ -223,6 +300,17 @@ public class CertificateServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Streams the certificate as a downloadable PDF. Filename uses the
+     * certificate number so users get something recognisable in their
+     * downloads folder.
+     *
+     * @param response the response
+     * @param conn     open JDBC connection
+     * @param appId    application primary key
+     * @throws IOException  if writing fails
+     * @throws SQLException if the lookup fails
+     */
     private void downloadCertificate(HttpServletResponse response, Connection conn, int appId) throws IOException, SQLException {
         CertificateData data = loadCertificateData(conn, appId);
         if (data == null || data.certificate == null) {
@@ -240,6 +328,18 @@ public class CertificateServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Pulls every piece of information the certificate needs in a single
+     * join. Returns {@code null} when the application doesn't exist; the
+     * certificate field on the result may itself be {@code null} when the
+     * application is approved but no certificate has been issued yet (used
+     * by the issue path to detect duplicates).
+     *
+     * @param conn  open JDBC connection
+     * @param appId application primary key
+     * @return populated DTO or {@code null} when the application is missing
+     * @throws SQLException if the join query fails
+     */
     private CertificateData loadCertificateData(Connection conn, int appId) throws SQLException {
         IssuedCertificateDAO certDAO = new IssuedCertificateDAO(conn);
         Optional<IssuedCertificate> certOpt = certDAO.findByApplicationId(appId);
@@ -287,6 +387,16 @@ public class CertificateServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Resolves the ward stamp image path into something an {@code <img>} tag
+     * can use. Absolute URLs pass through as-is; root-relative paths get the
+     * context path prefixed; everything else is treated as relative to the
+     * webapp root.
+     *
+     * @param contextPath    the webapp context path
+     * @param wardStampImage stored stamp path/URL (may be null)
+     * @return resolved {@code src} attribute
+     */
     private String resolveStampPath(String contextPath, String wardStampImage) {
         if (wardStampImage == null || wardStampImage.isBlank()) {
             return "";
@@ -297,11 +407,28 @@ public class CertificateServlet extends BaseApiServlet {
         return contextPath + "/" + wardStampImage;
     }
 
+    /**
+     * Emits one labelled field block in the HTML certificate grid.
+     *
+     * @param w         output writer
+     * @param label     field label
+     * @param value     field value (renders as "N/A" if null)
+     * @param fullWidth true to span both columns of the grid
+     */
     private void writeField(PrintWriter w, String label, String value, boolean fullWidth) {
         w.write("<div class='field" + (fullWidth ? " full" : "") + "'><div class='label'>" + safeHtml(label)
                 + "</div><div class='value'>" + safeHtml(value == null ? "N/A" : value) + "</div></div>");
     }
 
+    /**
+     * Cheap pretty-printer for the JSON form data we store on applications —
+     * strips braces/quotes and turns commas into newlines so the certificate
+     * renders the answers as a small list rather than a JSON blob. Returns
+     * an empty string when the data is empty or just an empty object.
+     *
+     * @param rawFormData raw stored form-data JSON
+     * @return human-readable rendering
+     */
     private String prettifyFormData(String rawFormData) {
         if (rawFormData == null || rawFormData.isBlank() || "{}".equals(rawFormData.trim())) {
             return "";
@@ -315,6 +442,15 @@ public class CertificateServlet extends BaseApiServlet {
         return prettified.trim();
     }
 
+    /**
+     * Builds a minimal PDF from scratch — header, catalog, pages, font, and
+     * a single text-content stream — so we don't need a PDF library on the
+     * classpath. ASCII-only by design; non-ASCII characters get replaced
+     * with question marks elsewhere in the pipeline.
+     *
+     * @param data certificate data
+     * @return PDF byte array ready to write to the response
+     */
     private byte[] generateSimplePdf(CertificateData data) {
         String issuedAt = data.certificate.getIssuedAt() == null
                 ? "N/A"
@@ -414,10 +550,24 @@ public class CertificateServlet extends BaseApiServlet {
         return out;
     }
 
+    /**
+     * Escapes the characters that are special inside a PDF text string —
+     * backslashes and parentheses.
+     *
+     * @param value raw text
+     * @return PDF-safe text
+     */
     private String escapePdfText(String value) {
         return safePdf(value).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)");
     }
 
+    /**
+     * Strips non-printable / non-ASCII characters so they don't trip up our
+     * minimal PDF generator. Replacement character is {@code ?}.
+     *
+     * @param value raw text
+     * @return ASCII-clean text
+     */
     private String safePdf(String value) {
         if (value == null) {
             return "";
@@ -425,6 +575,14 @@ public class CertificateServlet extends BaseApiServlet {
         return value.replaceAll("[^\\x20-\\x7E]", "?");
     }
 
+    /**
+     * HTML-escapes a value for injection into the certificate template.
+     * Newlines become {@code <br>} so multi-line form data renders as
+     * multiple lines.
+     *
+     * @param value raw text (may be null)
+     * @return HTML-safe text
+     */
     private String safeHtml(String value) {
         if (value == null) {
             return "";
@@ -437,6 +595,12 @@ public class CertificateServlet extends BaseApiServlet {
                 .replace("\n", "<br>");
     }
 
+    /**
+     * Renders an issued certificate as a JSON object.
+     *
+     * @param c the certificate
+     * @return JSON object literal
+     */
     private String toCertJson(IssuedCertificate c) {
         return "{\"certificateId\":" + c.getCertificateId()
                 + ",\"applicationId\":" + c.getApplicationId()
@@ -446,6 +610,10 @@ public class CertificateServlet extends BaseApiServlet {
                 + ",\"issuedByAdminId\":" + c.getIssuedByAdminId() + "}";
     }
 
+    /**
+     * Plain DTO that carries everything the certificate views need so we
+     * only run the join query once per request.
+     */
     private static class CertificateData {
         private int citizenId;
         private IssuedCertificate certificate;

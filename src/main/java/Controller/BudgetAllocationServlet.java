@@ -17,8 +17,22 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * CRUD endpoint for ward budget allocations. The public budget page reads
+ * from this; admins use it to add or remove rows. Allocation amounts must be
+ * strictly positive — zero or negative budgets are rejected at validation.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "budgetAllocationServlet", urlPatterns = "/api/budgets")
 public class BudgetAllocationServlet extends BaseApiServlet {
+    /**
+     * Returns every budget allocation as a JSON array.
+     *
+     * @param request  the incoming request
+     * @param response JSON array of allocations
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -33,6 +47,14 @@ public class BudgetAllocationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Creates a new allocation, or deletes an existing one when {@code
+     * action=delete} is set. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
@@ -68,6 +90,13 @@ public class BudgetAllocationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Deletes a budget row. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -81,6 +110,13 @@ public class BudgetAllocationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Shared delete helper.
+     *
+     * @param request the incoming request
+     * @return true if a row was deleted
+     * @throws SQLException if the delete fails
+     */
     private boolean deleteBudget(HttpServletRequest request) throws SQLException {
         int id = Integer.parseInt(getRequiredParameter(request, "budgetId"));
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -88,6 +124,16 @@ public class BudgetAllocationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Form/JSON dual-mode success dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param statusCode HTTP status when writing JSON
+     * @param json       JSON body when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                      int statusCode, String json) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -97,6 +143,16 @@ public class BudgetAllocationServlet extends BaseApiServlet {
         writeJson(response, statusCode, json);
     }
 
+    /**
+     * Form/JSON dual-mode error dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param message    error message
+     * @param statusCode HTTP status when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                       String message, int statusCode) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -106,6 +162,15 @@ public class BudgetAllocationServlet extends BaseApiServlet {
         writeError(response, statusCode, message);
     }
 
+    /**
+     * Builds a safe redirect URL. Untrusted targets fall back to
+     * {@code /admin/budgets}.
+     *
+     * @param request    the incoming request
+     * @param redirectTo requested target
+     * @param error      optional error to surface as a query parameter
+     * @return absolute redirect URL
+     */
     private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
         String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/admin/budgets";
         String url = request.getContextPath() + target;
@@ -115,6 +180,12 @@ public class BudgetAllocationServlet extends BaseApiServlet {
         return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Renders a budget allocation as a JSON object.
+     *
+     * @param b the allocation
+     * @return JSON object literal
+     */
     private String toJson(BudgetAllocation b) {
         return "{\"budgetId\":" + b.getBudgetId()
                 + ",\"wardId\":" + b.getWardId()

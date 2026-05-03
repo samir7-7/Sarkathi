@@ -96,51 +96,8 @@
             <!-- Dynamic Background -->
             <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_50%),radial-gradient(circle_at_bottom_left,rgba(11,61,134,0.05),transparent_50%)]"></div>
             
-            <!-- Desktop/Tablet Header -->
-            <header class="px-6 py-6 lg:px-12 relative z-10 transition-all duration-300">
-                <nav class="mx-auto flex max-w-7xl items-center justify-between">
-                    <a href="<%= request.getContextPath() %>" class="flex items-center gap-2 text-2xl font-black tracking-tight text-brand-900">
-                        Sarkar<span class="text-brand-500">Sathi</span>
-                    </a>
-                    
-                    <div class="hidden lg:flex items-center gap-10">
-                        <div class="flex items-center gap-8 text-sm font-black uppercase tracking-widest text-slate-500">
-                            <a href="<%= request.getContextPath() %>/announcements" class="hover:text-brand-900 transition-colors">Announcements</a>
-                            <a href="<%= request.getContextPath() %>/agriculture" class="hover:text-brand-900 transition-colors">Agriculture</a>
-                            <a href="<%= request.getContextPath() %>/budget" class="hover:text-brand-900 transition-colors">Budget</a>
-                            <a href="<%= request.getContextPath() %>/crop-advisory" class="hover:text-brand-900 transition-colors">Crop Advisory</a>
-                        </div>
-                        <div class="h-6 w-px bg-slate-200"></div>
-                        <div class="flex items-center gap-4">
-                            <% if (loggedIn) { %>
-                                <div class="flex items-center gap-4">
-                                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Digital Citizen</span>
-                                    <a href="<%= request.getContextPath() %>/citizen/dashboard" class="h-10 w-10 rounded-xl bg-brand-50 text-brand-900 flex items-center justify-center hover:bg-brand-900 hover:text-white transition-all">
-                                        <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                                    </a>
-                                    <a href="<%= request.getContextPath() %>/logout" class="h-10 w-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-all">
-                                        <i data-lucide="log-out" class="h-5 w-5"></i>
-                                    </a>
-                                </div>
-                            <% } else { %>
-                                <a href="<%= request.getContextPath() %>/login?userType=citizen" class="text-xs font-black uppercase tracking-[0.2em] text-brand-900 hover:text-brand-500 transition-colors">Identity Verification</a>
-                                <a href="<%= request.getContextPath() %>/register" class="rounded-xl bg-brand-900 px-8 py-3.5 text-xs font-black uppercase tracking-[0.2em] text-white shadow-xl shadow-brand-900/20 hover:bg-slate-900 transition-all active:scale-95">Enroll Now</a>
-                            <% } %>
-                        </div>
-                    </div>
+        <%@ include file="../includes/navbar-public.jsp" %>
 
-                    <!-- Mobile/Small Screen Actions -->
-                    <div class="lg:hidden">
-                        <% if (!loggedIn) { %>
-                            <a href="<%= request.getContextPath() %>/register" class="rounded-xl bg-brand-900 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg active:scale-95 transition-transform">Enlist</a>
-                        <% } else { %>
-                            <span class="h-10 w-10 rounded-xl bg-brand-50 text-brand-900 flex items-center justify-center">
-                                <i data-lucide="user-check" class="h-5 w-5"></i>
-                            </span>
-                        <% } %>
-                    </div>
-                </nav>
-            </header>
 
             <main>
                 <!-- Hero Section -->

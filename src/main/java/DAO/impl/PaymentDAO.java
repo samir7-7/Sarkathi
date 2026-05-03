@@ -13,13 +13,29 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JDBC implementation of {@link PaymentDAOInterface}.
+ *
+ * @author SarkarSathi
+ */
 public class PaymentDAO extends BaseDAO implements PaymentDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public PaymentDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * {@code applicationId} of 0 (or less) is stored as SQL NULL — useful for
+     * stand-alone tax payments that aren't tied to a specific application.
+     * Likewise, {@code paidAt} of {@code null} is preserved as NULL so a
+     * pending payment isn't mis-stamped with the insertion time.
+     */
     public Payment create(Payment payment) throws SQLException {
         String sql = """
                 INSERT INTO PAYMENT (ApplicationID, Amount, PaymentType, Status, PaidAt)
@@ -45,6 +61,11 @@ public class PaymentDAO extends BaseDAO implements PaymentDAOInterface {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sorted newest-payment first.
+     */
     public List<Payment> findByApplicationId(int applicationId) throws SQLException {
         String sql = "SELECT * FROM PAYMENT WHERE ApplicationID = ? ORDER BY PaidAt DESC";
         List<Payment> payments = new ArrayList<>();
@@ -59,6 +80,13 @@ public class PaymentDAO extends BaseDAO implements PaymentDAOInterface {
         return payments;
     }
 
+    /**
+     * Maps the current row into a {@link Payment}.
+     *
+     * @param resultSet result set positioned on a {@code PAYMENT} row
+     * @return the row as a payment object
+     * @throws SQLException if a column read fails
+     */
     private Payment map(ResultSet resultSet) throws SQLException {
         Payment payment = new Payment();
         payment.setPaymentId(resultSet.getInt("PaymentID"));

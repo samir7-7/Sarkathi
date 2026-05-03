@@ -6,6 +6,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Serves crop recommendations for the public agriculture page.
+ * <p>
+ * The data set is hardcoded in this class — keyed by
+ * {@code landType} (flatland / hilly / mountain) and {@code season} (spring
+ * / summer / autumn / winter). It's deliberately not in the database yet,
+ * since the catalogue is small and stable; if it grows, move it to a real
+ * table.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "cropAdvisoryServlet", urlPatterns = "/api/crop-advisory")
 public class CropAdvisoryServlet extends BaseApiServlet {
 
@@ -83,6 +94,20 @@ public class CropAdvisoryServlet extends BaseApiServlet {
         RECOMMENDATIONS.put("mountain", mountain);
     }
 
+    /**
+     * Handles {@code GET /api/crop-advisory}.
+     * <p>
+     * If neither {@code landType} nor {@code season} is supplied, returns
+     * the list of valid options so the front-end can build dropdowns
+     * dynamically. Otherwise returns the matching crop recommendations,
+     * each as {@code {name, description, growingPeriod}}. Bad inputs come
+     * back as 400s with a hint at the valid values.
+     *
+     * @param request  the incoming request — query params {@code landType}
+     *                 and {@code season}
+     * @param response JSON body
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String landType = request.getParameter("landType");

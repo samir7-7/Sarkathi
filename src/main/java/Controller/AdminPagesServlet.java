@@ -40,10 +40,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Page-loading dispatcher for the admin section. Each URL pulls the data its
+ * JSP needs (notices, announcements, budgets, applications) and forwards to
+ * the matching view under {@code /WEB-INF/admin/}. The whole servlet is
+ * gated by an inline session check on top of the global filter — belt and
+ * braces.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "adminPagesServlet", urlPatterns = {
     "/admin/applications", "/admin/notices", "/admin/announcements", "/admin/budgets"
 })
 public class AdminPagesServlet extends HttpServlet {
+    /**
+     * Routes the request to the right admin view, prefetching whatever the
+     * page needs. Database failures degrade gracefully — the page renders
+     * with empty lists and a banner instead of a 500.
+     *
+     * @param request  the incoming request
+     * @param response the response (forward to JSP, or redirect to login)
+     * @throws ServletException if forwarding fails
+     * @throws IOException      if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -91,6 +110,17 @@ public class AdminPagesServlet extends HttpServlet {
         request.getRequestDispatcher(jsp).forward(request, response);
     }
 
+    /**
+     * Loads the data the applications page needs: every application, plus
+     * lookup maps for citizens, services, and wards, plus per-application
+     * documents and per-citizen vault documents. We do this in code rather
+     * than via SQL joins because the vault join in particular is awkward to
+     * shape into a single query.
+     *
+     * @param request the incoming request (attributes go here)
+     * @param conn    open JDBC connection
+     * @throws SQLException if any lookup fails
+     */
     private void loadApplications(HttpServletRequest request, Connection conn) throws SQLException {
         ApplicationDAOInterface applicationDAO = new ApplicationDAO(conn);
         CitizenDAOInterface citizenDAO = new CitizenDAO(conn);
@@ -120,6 +150,12 @@ public class AdminPagesServlet extends HttpServlet {
         request.setAttribute("vaultDocumentsByCitizenId", vaultDocumentsByCitizenId);
     }
 
+    /**
+     * Indexes citizens by ID for cheap lookups inside the JSP.
+     *
+     * @param citizens citizen list
+     * @return map keyed by citizen ID
+     */
     private Map<Integer, Citizen> mapCitizens(List<Citizen> citizens) {
         Map<Integer, Citizen> map = new HashMap<>();
         for (Citizen citizen : citizens) {
@@ -128,6 +164,12 @@ public class AdminPagesServlet extends HttpServlet {
         return map;
     }
 
+    /**
+     * Indexes service types by ID.
+     *
+     * @param services service-type list
+     * @return map keyed by service-type ID
+     */
     private Map<Integer, ServiceType> mapServices(List<ServiceType> services) {
         Map<Integer, ServiceType> map = new HashMap<>();
         for (ServiceType service : services) {
@@ -136,6 +178,12 @@ public class AdminPagesServlet extends HttpServlet {
         return map;
     }
 
+    /**
+     * Indexes wards by ID.
+     *
+     * @param wards ward list
+     * @return map keyed by ward ID
+     */
     private Map<Integer, Ward> mapWards(List<Ward> wards) {
         Map<Integer, Ward> map = new HashMap<>();
         for (Ward ward : wards) {

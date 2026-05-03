@@ -201,12 +201,13 @@ String dashboardPath = "admin".equals(role) ? "/admin/dashboard" : "citizen".equ
                         <% } %>
                     </div>
                     <div class="actions">
-                        <a class="button primary" href="<%= contextPath + dashboardPath %>">Go to dashboard</a>
-                        <a class="button secondary" href="<%= contextPath %>/">Go to home</a>
-                        <a class="button secondary" href="<%= contextPath %>/login">Sign in</a>
+                        <a class="button primary" style="background: #0b3d86;" href="<%= contextPath + dashboardPath %>">Go to <%= dashboardPath.contains("dashboard") ? "Dashboard" : "Home" %></a>
+                        <a class="button secondary" href="<%= contextPath %>/announcements">Recent Announcements</a>
+                        <a class="button secondary" href="<%= contextPath %>/contact">Support</a>
                     </div>
                 </div>
             </section>
         </main>
+
     </body>
 </html>

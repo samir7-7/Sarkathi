@@ -20,20 +20,53 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+/**
+ * Admin-side endpoint for moving an application through its lifecycle. The
+ * single review handler accepts both POST (form submissions from the admin
+ * applications page) and PUT (programmatic JSON callers). Updating the status
+ * also drops a notification onto the citizen's feed so they hear about the
+ * decision.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "adminApplicationServlet", urlPatterns = {"/api/admin/applications/review", "/api/admin/applications"})
 public class AdminApplicationServlet extends BaseApiServlet {
     private static final Set<String> ALLOWED_STATUSES = Set.of("submitted", "review", "approved", "rejected");
 
+    /**
+     * Handles status reviews submitted via POST (form mode).
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         handleReview(request, response);
     }
 
+    /**
+     * Handles status reviews submitted via PUT (JSON/REST mode).
+     *
+     * @param request  the incoming request
+     * @param response JSON envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         handleReview(request, response);
     }
 
+    /**
+     * Shared review handler. Validates the status, confirms the admin session
+     * matches the {@code adminId} the request claims to act as, locates the
+     * target application by primary key or tracking ID, persists the new
+     * status, and queues a notification for the owning citizen.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope
+     * @throws IOException if writing fails
+     */
     private void handleReview(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
         try {
@@ -99,6 +132,17 @@ public class AdminApplicationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Redirect-or-JSON dispatcher for success paths. Mirrors the helper in
+     * {@link ApplicationServlet}.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param statusCode HTTP status when writing JSON
+     * @param json       JSON body when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                      int statusCode, String json) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -108,6 +152,16 @@ public class AdminApplicationServlet extends BaseApiServlet {
         writeJson(response, statusCode, json);
     }
 
+    /**
+     * Redirect-or-JSON dispatcher for error paths.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param message    user-visible error message
+     * @param statusCode HTTP status when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                       String message, int statusCode) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -117,6 +171,16 @@ public class AdminApplicationServlet extends BaseApiServlet {
         writeError(response, statusCode, message);
     }
 
+    /**
+     * Builds a context-path-relative redirect URL. Untrusted targets fall back
+     * to the admin applications page; an optional error gets appended as a
+     * query parameter.
+     *
+     * @param request    the incoming request (for context path)
+     * @param redirectTo requested redirect target
+     * @param error      optional error to surface in the URL
+     * @return safe redirect URL
+     */
     private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
         String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/admin/applications";
         String url = request.getContextPath() + target;

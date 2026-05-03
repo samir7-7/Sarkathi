@@ -12,13 +12,24 @@ import java.util.List;
 
 import Model.BudgetAllocation;
 
+/**
+ * JDBC implementation of {@link BudgetAllocationDAOInterface}.
+ *
+ * @author SarkarSathi
+ */
 public class BudgetAllocationDAO extends BaseDAO implements BudgetAllocationDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public BudgetAllocationDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public BudgetAllocation create(BudgetAllocation budget) throws SQLException {
         String sql = """
                 INSERT INTO BUDGET_ALLOCATION (WardID, Department, AllocatedAmount, FiscalYear, Description)
@@ -40,6 +51,12 @@ public class BudgetAllocationDAO extends BaseDAO implements BudgetAllocationDAOI
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note: the ward this allocation belongs to isn't editable — to change
+     * wards, delete and recreate the allocation.
+     */
     public boolean update(BudgetAllocation budget) throws SQLException {
         String sql = "UPDATE BUDGET_ALLOCATION SET Department = ?, AllocatedAmount = ?, FiscalYear = ?, Description = ? WHERE BudgetID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -52,6 +69,9 @@ public class BudgetAllocationDAO extends BaseDAO implements BudgetAllocationDAOI
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean delete(int budgetId) throws SQLException {
         String sql = "DELETE FROM BUDGET_ALLOCATION WHERE BudgetID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -60,6 +80,12 @@ public class BudgetAllocationDAO extends BaseDAO implements BudgetAllocationDAOI
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sorted by fiscal year (newest first) and then department name, so
+     * recent allocations float to the top of the transparency page.
+     */
     public List<BudgetAllocation> findAll() throws SQLException {
         String sql = "SELECT * FROM BUDGET_ALLOCATION ORDER BY FiscalYear DESC, Department";
         List<BudgetAllocation> budgets = new ArrayList<>();
@@ -72,6 +98,13 @@ public class BudgetAllocationDAO extends BaseDAO implements BudgetAllocationDAOI
         return budgets;
     }
 
+    /**
+     * Maps the current row into a {@link BudgetAllocation}.
+     *
+     * @param resultSet result set positioned on a {@code BUDGET_ALLOCATION} row
+     * @return the row as a budget allocation object
+     * @throws SQLException if a column read fails
+     */
     private BudgetAllocation map(ResultSet resultSet) throws SQLException {
         BudgetAllocation budget = new BudgetAllocation();
         budget.setBudgetId(resultSet.getInt("BudgetID"));

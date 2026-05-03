@@ -18,8 +18,23 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * CRUD endpoint for municipal announcements. Reads are public; writes (create,
+ * update, delete) require an admin session. The servlet intentionally accepts
+ * "delete via POST with {@code action=delete}" alongside HTTP DELETE so plain
+ * HTML forms can drive the admin page without JavaScript.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "announcementServlet", urlPatterns = "/api/announcements")
 public class AnnouncementServlet extends BaseApiServlet {
+    /**
+     * Returns every announcement as a JSON array.
+     *
+     * @param request  the incoming request
+     * @param response JSON array of announcements
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -35,6 +50,15 @@ public class AnnouncementServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Creates a new announcement, or deletes an existing one if {@code
+     * action=delete} is supplied. Authorship is taken from the admin session
+     * if available; the form-supplied {@code adminId} is only a fallback.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
@@ -70,6 +94,13 @@ public class AnnouncementServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Updates an existing announcement. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope, or 404 when the row doesn't exist
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -94,6 +125,13 @@ public class AnnouncementServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Deletes an announcement. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope, or 404 when the row doesn't exist
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -108,6 +146,13 @@ public class AnnouncementServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Shared delete helper used by both POST-with-action and DELETE handlers.
+     *
+     * @param request the incoming request
+     * @return true if a row was deleted
+     * @throws SQLException if the delete fails
+     */
     private boolean deleteAnnouncement(HttpServletRequest request) throws SQLException {
         int id = Integer.parseInt(getRequiredParameter(request, "announcementId"));
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -115,6 +160,16 @@ public class AnnouncementServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Form/JSON dual-mode dispatcher for success paths.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param statusCode HTTP status when writing JSON
+     * @param json       JSON body when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                      int statusCode, String json) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -124,6 +179,16 @@ public class AnnouncementServlet extends BaseApiServlet {
         writeJson(response, statusCode, json);
     }
 
+    /**
+     * Form/JSON dual-mode dispatcher for error paths.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param message    error message
+     * @param statusCode HTTP status when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                       String message, int statusCode) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -133,6 +198,15 @@ public class AnnouncementServlet extends BaseApiServlet {
         writeError(response, statusCode, message);
     }
 
+    /**
+     * Builds a safe redirect URL within this app's context. Untrusted targets
+     * fall back to the announcements admin page.
+     *
+     * @param request    the incoming request
+     * @param redirectTo requested redirect target
+     * @param error      optional error to surface as a query parameter
+     * @return absolute redirect URL
+     */
     private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
         String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/admin/announcements";
         String url = request.getContextPath() + target;
@@ -142,6 +216,12 @@ public class AnnouncementServlet extends BaseApiServlet {
         return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Renders an announcement as a JSON object.
+     *
+     * @param a the announcement
+     * @return JSON object literal
+     */
     private String toJson(Announcement a) {
         return "{\"announcementId\":" + a.getAnnouncementId()
             + ",\"postedByAdminId\":" + a.getPostedByAdminId()

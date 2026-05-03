@@ -5,7 +5,26 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * One-shot bootstrapper that creates the {@code SarkarSathi} database, all
+ * its tables, and a small set of default rows (wards 1–5, four basic
+ * service types).
+ * <p>
+ * Wired up as a Maven {@code exec:java} execution so the database can be
+ * brought up from scratch with a single command. Idempotent: every
+ * {@code CREATE} uses {@code IF NOT EXISTS} and every default-data insert
+ * uses {@code ON DUPLICATE KEY UPDATE}, so it's safe to re-run.
+ *
+ * @author SarkarSathi
+ */
 public class DatabaseSetup {
+  /**
+   * Entry point. Connects to MySQL, creates the database if it doesn't
+   * exist, then creates every table and seeds the default reference data.
+   * Errors are printed to stderr — the process won't throw out of main.
+   *
+   * @param args ignored
+   */
   public static void main(String[] args) {
     System.out.println("\n========================================");
     System.out.println("   SarkarSathi Database Setup");

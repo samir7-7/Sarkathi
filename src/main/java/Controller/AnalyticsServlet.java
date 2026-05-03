@@ -13,8 +13,30 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Returns aggregate analytics for the admin dashboard — application
+ * counts by status, approval and rejection rates, average processing
+ * time (in hours, only over completed applications), total registered
+ * citizens, and a six-month submission trend.
+ * <p>
+ * All numbers are computed live against the database on each request;
+ * there's no caching layer in front of this. That's fine for low traffic;
+ * if dashboards start feeling slow, this is a candidate for a short
+ * in-memory cache.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "analyticsServlet", urlPatterns = "/api/analytics")
 public class AnalyticsServlet extends BaseApiServlet {
+    /**
+     * Handles {@code GET /api/analytics}. Builds the JSON dashboard payload
+     * by running a handful of count queries plus two aggregations (the
+     * average processing-hours query and the monthly trend query).
+     *
+     * @param request  the incoming request
+     * @param response JSON dashboard payload
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try (Connection conn = DatabaseConnection.getConnection()) {

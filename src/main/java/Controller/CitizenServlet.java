@@ -18,8 +18,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * REST-style endpoint for citizen records and their attached vault documents.
+ * URL shape: {@code /api/citizens}, {@code /api/citizens/{id}}, and {@code
+ * /api/citizens/{id}/documents}. Citizens can read and edit their own
+ * record; admins can list everyone and delete accounts.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "citizenServlet", urlPatterns = "/api/citizens/*")
 public class CitizenServlet extends BaseApiServlet {
+    /**
+     * Fetches either the full citizen list (admin only), a specific citizen
+     * (owner only), or a citizen's vault documents (owner only). Returns
+     * {@code 403} when ownership doesn't match.
+     *
+     * @param request  the incoming request
+     * @param response JSON envelope or array
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
@@ -57,6 +74,15 @@ public class CitizenServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Updates a citizen's profile. Every field is optional — omit a parameter
+     * to leave that column unchanged. Email changes are checked against the
+     * uniqueness constraint before we apply them.
+     *
+     * @param request  the incoming request
+     * @param response JSON envelope with the updated record
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
@@ -110,6 +136,14 @@ public class CitizenServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Deletes a citizen account. Admin-only — citizens can't tear down their
+     * own account through this endpoint.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
@@ -135,6 +169,13 @@ public class CitizenServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Pulls the {@code citizenId} segment from the URL path.
+     *
+     * @param path path info portion of the request URL
+     * @return parsed citizen ID
+     * @throws IllegalArgumentException if the segment is missing or non-numeric
+     */
     private int extractCitizenId(String path) {
         String normalized = path.startsWith("/") ? path.substring(1) : path;
         if (normalized.isBlank()) {
@@ -147,6 +188,12 @@ public class CitizenServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Renders a list of citizens as a JSON array.
+     *
+     * @param citizens citizens to render
+     * @return JSON array string
+     */
     private String citizensToJson(List<Citizen> citizens) {
         List<String> items = new ArrayList<>();
         for (Citizen citizen : citizens) {
@@ -155,6 +202,12 @@ public class CitizenServlet extends BaseApiServlet {
         return jsonArray(items);
     }
 
+    /**
+     * Renders a list of vault documents as a JSON array.
+     *
+     * @param documents documents to render
+     * @return JSON array string
+     */
     private String documentsToJson(List<CitizenDocumentVault> documents) {
         List<String> items = new ArrayList<>();
         for (CitizenDocumentVault document : documents) {
@@ -169,6 +222,12 @@ public class CitizenServlet extends BaseApiServlet {
         return jsonArray(items);
     }
 
+    /**
+     * Renders a single citizen as a JSON object — minus the password hash.
+     *
+     * @param citizen the citizen
+     * @return JSON object literal
+     */
     private String toCitizenJson(Citizen citizen) {
         return "{"
                 + "\"citizenId\":" + citizen.getCitizenId() + ","

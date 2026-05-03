@@ -17,8 +17,22 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * CRUD endpoint for agriculture notices — the seasonal advisories shown on
+ * the public agriculture page and managed from the admin notices page. Reads
+ * are public; writes require an admin session.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "agricultureNoticeServlet", urlPatterns = "/api/agriculture-notices")
 public class AgricultureNoticeServlet extends BaseApiServlet {
+    /**
+     * Returns every agriculture notice as a JSON array.
+     *
+     * @param request  the incoming request
+     * @param response JSON array of notices
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -33,6 +47,14 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Creates a notice, or deletes one if {@code action=delete} is supplied.
+     * Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
@@ -63,6 +85,13 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Updates a notice in place. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -83,6 +112,13 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Deletes a notice. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -96,6 +132,13 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Shared delete helper.
+     *
+     * @param request the incoming request
+     * @return true if a row was deleted
+     * @throws SQLException if the delete fails
+     */
     private boolean deleteNotice(HttpServletRequest request) throws SQLException {
         int id = Integer.parseInt(getRequiredParameter(request, "noticeId"));
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -103,6 +146,16 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Form/JSON dual-mode success dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param statusCode HTTP status when writing JSON
+     * @param json       JSON body when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                      int statusCode, String json) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -112,6 +165,16 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         writeJson(response, statusCode, json);
     }
 
+    /**
+     * Form/JSON dual-mode error dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param message    error message
+     * @param statusCode HTTP status when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                       String message, int statusCode) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -121,6 +184,15 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         writeError(response, statusCode, message);
     }
 
+    /**
+     * Builds a safe redirect URL. Untrusted targets fall back to
+     * {@code /admin/notices}.
+     *
+     * @param request    the incoming request
+     * @param redirectTo requested target
+     * @param error      optional error to surface as a query parameter
+     * @return absolute redirect URL
+     */
     private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
         String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/admin/notices";
         String url = request.getContextPath() + target;
@@ -130,6 +202,12 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
         return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Renders a notice as a JSON object.
+     *
+     * @param n the notice
+     * @return JSON object literal
+     */
     private String toJson(AgricultureNotice n) {
         return "{\"noticeId\":" + n.getNoticeId()
                 + ",\"postedByAdminId\":" + n.getPostedByAdminId()

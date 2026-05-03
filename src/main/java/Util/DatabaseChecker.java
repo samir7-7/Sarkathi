@@ -6,7 +6,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Diagnostic helper for verifying the database is in a usable state.
+ * <p>
+ * Run this any time you're not sure whether the schema is created, the
+ * admins are seeded, or the wards exist. It just prints a status report —
+ * it doesn't change anything.
+ *
+ * @author SarkarSathi
+ */
 public class DatabaseChecker {
+  /**
+   * Entry point. Opens a connection through {@link DatabaseConnection},
+   * lists every table it can find via JDBC metadata, then prints summary
+   * counts of admins, citizens, and wards.
+   *
+   * @param args ignored
+   */
   public static void main(String[] args) {
     try (Connection connection = DatabaseConnection.getConnection()) {
       System.out.println("\n========================================");

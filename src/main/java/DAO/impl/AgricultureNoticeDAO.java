@@ -14,13 +14,28 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JDBC implementation of {@link AgricultureNoticeDAOInterface}. Notices are
+ * always returned newest-first.
+ *
+ * @author SarkarSathi
+ */
 public class AgricultureNoticeDAO extends BaseDAO implements AgricultureNoticeDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public AgricultureNoticeDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * If {@link AgricultureNotice#getPublishedAt()} is null, the current time
+     * is used so the notice still gets a sensible timestamp.
+     */
     public AgricultureNotice create(AgricultureNotice notice) throws SQLException {
         String sql = """
                 INSERT INTO AGRICULTURE_NOTICE (PostedByAdminID, Title, Content, Category, PublishedAt)
@@ -43,6 +58,12 @@ public class AgricultureNoticeDAO extends BaseDAO implements AgricultureNoticeDA
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note: this only updates the editable fields — the original posting
+     * admin and publish timestamp aren't changed.
+     */
     public boolean update(AgricultureNotice notice) throws SQLException {
         String sql = "UPDATE AGRICULTURE_NOTICE SET Title = ?, Content = ?, Category = ? WHERE NoticeID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -54,6 +75,9 @@ public class AgricultureNoticeDAO extends BaseDAO implements AgricultureNoticeDA
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean delete(int noticeId) throws SQLException {
         String sql = "DELETE FROM AGRICULTURE_NOTICE WHERE NoticeID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -62,6 +86,11 @@ public class AgricultureNoticeDAO extends BaseDAO implements AgricultureNoticeDA
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sorted newest-first by publish time.
+     */
     public List<AgricultureNotice> findAll() throws SQLException {
         String sql = "SELECT * FROM AGRICULTURE_NOTICE ORDER BY PublishedAt DESC";
         List<AgricultureNotice> notices = new ArrayList<>();
@@ -74,6 +103,13 @@ public class AgricultureNoticeDAO extends BaseDAO implements AgricultureNoticeDA
         return notices;
     }
 
+    /**
+     * Maps the current row into an {@link AgricultureNotice}.
+     *
+     * @param resultSet result set positioned on an {@code AGRICULTURE_NOTICE} row
+     * @return the row as a notice object
+     * @throws SQLException if a column read fails
+     */
     private AgricultureNotice map(ResultSet resultSet) throws SQLException {
         AgricultureNotice notice = new AgricultureNotice();
         notice.setNoticeId(resultSet.getInt("NoticeID"));

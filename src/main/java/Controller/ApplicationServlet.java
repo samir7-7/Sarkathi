@@ -31,8 +31,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The application API. Citizens use this endpoint to file new applications and
+ * to read back the ones they own; admins use the listing version to see every
+ * application in the system. Tracking-ID lookups are also handled here so the
+ * public tracking page and the citizen dashboard share one code path.
+ * <p>
+ * Authorization is checked per-call: citizens may only see their own
+ * applications (via {@code requireCitizenOwnership}); admin-only listings
+ * route through {@code requireAdmin}.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "applicationServlet", urlPatterns = "/api/applications/*")
 public class ApplicationServlet extends BaseApiServlet {
+    /**
+     * Lists or fetches applications. Three modes, picked by the parameters:
+     * <ul>
+     *   <li>{@code trackingId} — single application lookup (tracking page).</li>
+     *   <li>{@code citizenId} — every application owned by that citizen.</li>
+     *   <li>neither — the full list (admin only).</li>
+     * </ul>
+     *
+     * @param request  the incoming request
+     * @param response JSON envelope or array of applications
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String trackingId = request.getParameter("trackingId");
@@ -81,6 +105,20 @@ public class ApplicationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Creates a new application for the logged-in citizen. Validates that the
+     * service type is active and the ward exists, generates a fresh tracking
+     * ID ({@code UDAS-XXXXXXXX}), and optionally re-attaches documents from the
+     * citizen's vault that they want to reuse for this application.
+     * <p>
+     * If a {@code redirectTo} parameter is supplied (the citizen apply form
+     * uses this), we redirect to that path instead of returning JSON — that
+     * way the form submission acts like a regular HTML POST.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope with the saved application
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
@@ -140,6 +178,17 @@ public class ApplicationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * If the caller asked to be redirected, send them there; otherwise write
+     * the JSON envelope. Used by the form/JSON dual mode.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param statusCode HTTP status when writing JSON
+     * @param json       JSON body when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                      int statusCode, String json) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -149,6 +198,17 @@ public class ApplicationServlet extends BaseApiServlet {
         writeJson(response, statusCode, json);
     }
 
+    /**
+     * Form/JSON dual mode for error paths — redirect with an {@code error}
+     * query string, or write a JSON error envelope.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank for JSON mode)
+     * @param message    user-visible error message
+     * @param statusCode HTTP status when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                       String message, int statusCode) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -158,6 +218,17 @@ public class ApplicationServlet extends BaseApiServlet {
         writeError(response, statusCode, message);
     }
 
+    /**
+     * Builds an absolute redirect URL relative to the context path. Falls back
+     * to the citizen tracking page if the supplied target is suspicious
+     * (protocol-relative {@code //} URLs, or anything that doesn't start with
+     * {@code /}). Optionally appends an {@code error} query parameter.
+     *
+     * @param request    the incoming request (for context path)
+     * @param redirectTo requested target path
+     * @param error      optional error to surface in the URL
+     * @return safe redirect URL
+     */
     private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
         String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/citizen/tracking";
         String url = request.getContextPath() + target;
@@ -167,6 +238,18 @@ public class ApplicationServlet extends BaseApiServlet {
         return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Copies documents the citizen picked from their vault into the new
+     * application. The vault row stays put — we just create application
+     * document rows pointing at the same files, so subsequent applications can
+     * keep reusing them.
+     *
+     * @param request     the incoming request (carries the reuse IDs)
+     * @param application freshly-saved application
+     * @param documentDAO application document DAO
+     * @param vaultDAO    citizen vault DAO (used to enforce ownership)
+     * @throws SQLException if any insert fails
+     */
     private void attachReusedDocuments(HttpServletRequest request, Application application,
                                        ApplicationDocumentDAO documentDAO,
                                        CitizenDocumentVaultDAO vaultDAO) throws SQLException {
@@ -187,6 +270,14 @@ public class ApplicationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Reads {@code reuseDocumentIds} from the request and parses it. The form
+     * may send the values as repeated parameters (multi-select) or as a
+     * single comma-separated string — both are handled.
+     *
+     * @param request the incoming request
+     * @return parsed vault document IDs (empty list when nothing was supplied)
+     */
     private List<Integer> parseReuseDocumentIds(HttpServletRequest request) {
         List<Integer> ids = new ArrayList<>();
         String[] values = request.getParameterValues("reuseDocumentIds");
@@ -199,6 +290,13 @@ public class ApplicationServlet extends BaseApiServlet {
         return parseCsvIds(getOptionalParameter(request, "reuseDocumentIds"));
     }
 
+    /**
+     * Splits a comma-separated string of integers into a list. Blanks are
+     * skipped silently; non-numeric values throw {@link NumberFormatException}.
+     *
+     * @param csv comma-separated string (may be null)
+     * @return parsed integer list
+     */
     private List<Integer> parseCsvIds(String csv) {
         List<Integer> ids = new ArrayList<>();
         if (csv == null || csv.isBlank()) {
@@ -214,6 +312,18 @@ public class ApplicationServlet extends BaseApiServlet {
         return ids;
     }
 
+    /**
+     * Renders a list of applications to a JSON array, with each item enriched
+     * by the related citizen, service type, ward, and document records.
+     *
+     * @param applications applications to render
+     * @param documentDAO  document DAO (used for per-application document lookups)
+     * @param citizens     citizenId → Citizen map for fast joins
+     * @param serviceTypes serviceTypeId → ServiceType map
+     * @param wards        wardId → Ward map
+     * @return JSON array string
+     * @throws SQLException if any document lookup fails
+     */
     private String applicationsToJson(List<Application> applications, ApplicationDocumentDAO documentDAO,
                                       Map<Integer, Citizen> citizens, Map<Integer, ServiceType> serviceTypes,
                                       Map<Integer, Ward> wards) throws SQLException {
@@ -224,6 +334,20 @@ public class ApplicationServlet extends BaseApiServlet {
         return jsonArray(items);
     }
 
+    /**
+     * Renders a single application as a JSON object. Looks up related entities
+     * from the supplied maps (cheap O(1) joins) and pulls per-application
+     * documents from the DAO. {@code null} relateds are tolerated so that
+     * partially-loaded data still renders without crashing.
+     *
+     * @param application  the application to render
+     * @param documentDAO  document DAO
+     * @param citizens     citizenId → Citizen map
+     * @param serviceTypes serviceTypeId → ServiceType map
+     * @param wards        wardId → Ward map
+     * @return JSON object string
+     * @throws SQLException if document lookup fails
+     */
     private String toApplicationJson(Application application, ApplicationDocumentDAO documentDAO,
                                      Map<Integer, Citizen> citizens, Map<Integer, ServiceType> serviceTypes,
                                      Map<Integer, Ward> wards) throws SQLException {
@@ -260,6 +384,12 @@ public class ApplicationServlet extends BaseApiServlet {
                 + "}";
     }
 
+    /**
+     * Renders the list of attached documents as a JSON array.
+     *
+     * @param documents documents to render
+     * @return JSON array string
+     */
     private String documentsToJson(List<ApplicationDocument> documents) {
         List<String> items = new ArrayList<>();
         for (ApplicationDocument document : documents) {
@@ -275,6 +405,12 @@ public class ApplicationServlet extends BaseApiServlet {
         return jsonArray(items);
     }
 
+    /**
+     * Indexes citizens by ID for O(1) lookup during JSON rendering.
+     *
+     * @param citizens list of citizens
+     * @return map keyed by citizen ID
+     */
     private Map<Integer, Citizen> mapCitizens(List<Citizen> citizens) {
         Map<Integer, Citizen> map = new HashMap<>();
         for (Citizen citizen : citizens) {
@@ -283,6 +419,13 @@ public class ApplicationServlet extends BaseApiServlet {
         return map;
     }
 
+    /**
+     * Indexes service types by ID, preserving insertion order so iteration
+     * stays predictable for callers that lean on it.
+     *
+     * @param services list of service types
+     * @return ordered map keyed by service-type ID
+     */
     private Map<Integer, ServiceType> mapServices(List<ServiceType> services) {
         Map<Integer, ServiceType> map = new LinkedHashMap<>();
         for (ServiceType serviceType : services) {
@@ -291,6 +434,12 @@ public class ApplicationServlet extends BaseApiServlet {
         return map;
     }
 
+    /**
+     * Indexes wards by ID, preserving insertion order.
+     *
+     * @param wards list of wards
+     * @return ordered map keyed by ward ID
+     */
     private Map<Integer, Ward> mapWards(List<Ward> wards) {
         Map<Integer, Ward> map = new LinkedHashMap<>();
         for (Ward ward : wards) {

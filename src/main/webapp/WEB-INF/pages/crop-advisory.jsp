@@ -24,37 +24,8 @@
     </head>
     <body class="bg-[#f8fafc] text-slate-900 antialiased selection:bg-brand-100 selection:text-brand-900 pb-20 lg:pb-0">
         <!-- Modern Sidebar for Desktop -->
-        <aside class="fixed left-0 top-0 hidden h-full w-64 border-r border-slate-200 bg-white lg:block z-50">
-            <div class="flex h-full flex-col p-6">
-                <a href="<%= request.getContextPath() %>" class="flex items-center gap-2 text-2xl font-black tracking-tight text-brand-900 mb-10">
-                    Sarkar<span class="text-brand-500">Sathi</span>
-                </a>
-                
-                <nav class="flex-1 space-y-2">
-                    <a href="<%= request.getContextPath() %>/index.jsp" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50 transition-all">
-                        <i data-lucide="home" class="h-5 w-5"></i> Home
-                    </a>
-                    <a href="<%= request.getContextPath() %>/announcements" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50 transition-all">
-                        <i data-lucide="megaphone" class="h-5 w-5"></i> Announcements
-                    </a>
-                    <a href="<%= request.getContextPath() %>/agriculture" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50 transition-all">
-                        <i data-lucide="leaf" class="h-5 w-5"></i> Agriculture
-                    </a>
-                    <a href="<%= request.getContextPath() %>/budget" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50 transition-all">
-                        <i data-lucide="wallet" class="h-5 w-5"></i> Budget
-                    </a>
-                    <a href="<%= request.getContextPath() %>/crop-advisory" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-black bg-brand-50 text-brand-900 shadow-sm border border-brand-100/50">
-                        <i data-lucide="sprout" class="h-5 w-5"></i> Crop Advisory
-                    </a>
-                </nav>
+        <%@ include file="../includes/sidebar-public.jsp" %>
 
-                <div class="mt-auto pt-6 border-t border-slate-100">
-                    <a href="<%= request.getContextPath() %>/login" class="flex items-center justify-center gap-2 w-full rounded-xl bg-slate-900 py-3 text-sm font-black text-white hover:bg-brand-900 transition-all">
-                        <i data-lucide="log-in" class="h-4 w-4"></i> Login
-                    </a>
-                </div>
-            </div>
-        </aside>
 
         <!-- Mobile Header -->
         <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-6 backdrop-blur-md lg:hidden">
@@ -178,7 +149,7 @@
         <!-- Mobile Global Navigation -->
         <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 px-6 pb-safe backdrop-blur-md lg:hidden">
             <div class="flex h-16 items-center justify-between">
-                <a href="<%= request.getContextPath() %>/index.jsp" class="flex flex-col items-center gap-1 text-slate-400 hover:text-brand-900">
+                <a href="<%= request.getContextPath() %>/" class="flex flex-col items-center gap-1 text-slate-400 hover:text-brand-900">
                     <i data-lucide="home" class="h-5 w-5"></i>
                     <span class="text-[10px] font-black uppercase tracking-tighter">Home</span>
                 </a>

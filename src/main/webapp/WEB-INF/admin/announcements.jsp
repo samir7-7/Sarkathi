@@ -50,51 +50,9 @@
 
             <!-- Sidebar Overlay -->
             <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
+            
+            <%@ include file="../includes/sidebar-admin.jsp" %>
 
-            <aside id="sidebar" class="fixed inset-y-0 right-0 z-[70] flex w-[280px] translate-x-full flex-col border-l border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0 lg:w-[240px] lg:border-l-0 lg:border-r">
-                <div class="px-6 pt-6 pb-2 flex items-center justify-between">
-                    <div class="flex items-center gap-1.5">
-                        <a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a>
-                        <span class="text-xl font-bold text-brand-500">Admin</span>
-                    </div>
-                    <button onclick="toggleSidebar()" class="p-2 text-slate-500 lg:hidden rounded-full hover:bg-slate-100 transition-colors">
-                        <i data-lucide="x" class="h-6 w-6"></i>
-                    </button>
-                </div>
-                <div class="mx-5 mt-4 rounded-2xl bg-brand-900 px-4 py-4 text-white shadow-xl shadow-brand-900/10">
-                    <p class="text-xs font-bold uppercase tracking-widest text-white/50 mb-1">Active Admin</p>
-                    <p class="text-sm font-semibold text-white truncate"><%= esc(adminName) %></p>
-                    <p class="mt-1 text-[10px] font-bold text-brand-200 uppercase tracking-tighter bg-white/10 inline-block px-2 py-0.5 rounded-lg border border-white/10"><%= esc(adminRole) %></p>
-                </div>
-                <nav class="mt-8 flex-1 space-y-1.5 px-4 overflow-y-auto">
-                    <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-600">
-                        <i data-lucide="layout-dashboard" class="h-5 w-5 shrink-0"></i>
-                        <span>Admin Console</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-600">
-                        <i data-lucide="clipboard-list" class="h-5 w-5 shrink-0"></i>
-                        <span>Process Stream</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/admin/announcements" class="sidebar-link active flex items-center gap-3 rounded-xl px-3 py-3 text-sm">
-                        <i data-lucide="megaphone" class="h-5 w-5 shrink-0"></i>
-                        <span>Announcements</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/admin/notices" class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-600">
-                        <i data-lucide="sprout" class="h-5 w-5 shrink-0"></i>
-                        <span>Agri Hub</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/admin/budgets" class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-600">
-                        <i data-lucide="banknote" class="h-5 w-5 shrink-0"></i>
-                        <span>Budget Ledger</span>
-                    </a>
-                </nav>
-                <div class="mt-auto border-t border-slate-100 px-4 pb-20 lg:pb-6 pt-4">
-                    <a href="<%= request.getContextPath() %>/logout" class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-red-600 hover:bg-red-50">
-                        <i data-lucide="log-out" class="h-5 w-5 shrink-0"></i>
-                        <span>System Exit</span>
-                    </a>
-                </div>
-            </aside>
             <div class="flex-1 flex flex-col min-h-screen w-full overflow-hidden pb-16 lg:pb-0">
                 <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200 px-6 py-4 sm:px-8">
                     <h1 class="text-lg font-bold text-slate-900 tracking-tight">Public Announcements</h1>

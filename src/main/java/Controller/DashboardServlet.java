@@ -11,8 +11,22 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Lightweight admin dashboard counters. Returns total applications and the
+ * per-status breakdown as a single JSON object — used by the admin dashboard
+ * page when it needs the headline numbers without the full analytics payload.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "dashboardServlet", urlPatterns = "/api/dashboard")
 public class DashboardServlet extends BaseApiServlet {
+    /**
+     * Returns the dashboard counter object as JSON.
+     *
+     * @param request  the incoming request
+     * @param response JSON object with counters
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try (Connection connection = DatabaseConnection.getConnection()) {

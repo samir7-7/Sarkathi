@@ -21,8 +21,26 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Payment recording endpoint. Payments are dual-purpose: application service
+ * fees are charged against an application, while house and land taxes are
+ * recorded against the citizen and create or update a {@code TaxRecord} row
+ * in the same transaction.
+ * <p>
+ * The whole save runs inside a manual transaction so a half-committed payment
+ * (without the matching tax-record update) can never leak into the database.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "paymentServlet", urlPatterns = "/api/payments")
 public class PaymentServlet extends BaseApiServlet {
+    /**
+     * Lists payments for an application. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response JSON array of payments
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String applicationIdParam = request.getParameter("applicationId");
@@ -43,6 +61,16 @@ public class PaymentServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Records a payment, updating the matching tax record in the same
+     * transaction when this payment is for a tax type. Citizens can pay their
+     * own taxes; everything else (admin-driven payments, application fees)
+     * runs through {@code requireAdmin}.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON envelope with the saved payment
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
@@ -100,6 +128,16 @@ public class PaymentServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Form/JSON dual-mode success dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank)
+     * @param statusCode HTTP status when writing JSON
+     * @param json       JSON body when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteJson(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                      int statusCode, String json) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -109,6 +147,16 @@ public class PaymentServlet extends BaseApiServlet {
         writeJson(response, statusCode, json);
     }
 
+    /**
+     * Form/JSON dual-mode error dispatcher.
+     *
+     * @param request    the incoming request
+     * @param response   the response
+     * @param redirectTo redirect target (may be null/blank)
+     * @param message    error message
+     * @param statusCode HTTP status when writing JSON
+     * @throws IOException if writing fails
+     */
     private void redirectOrWriteError(HttpServletRequest request, HttpServletResponse response, String redirectTo,
                                       String message, int statusCode) throws IOException {
         if (redirectTo != null && !redirectTo.isBlank()) {
@@ -118,6 +166,15 @@ public class PaymentServlet extends BaseApiServlet {
         writeError(response, statusCode, message);
     }
 
+    /**
+     * Builds a safe redirect URL. Untrusted targets fall back to
+     * {@code /citizen/payments}.
+     *
+     * @param request    the incoming request
+     * @param redirectTo requested target
+     * @param error      optional error to surface as a query parameter
+     * @return absolute redirect URL
+     */
     private String formRedirectUrl(HttpServletRequest request, String redirectTo, String error) {
         String target = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/citizen/payments";
         String url = request.getContextPath() + target;
@@ -127,6 +184,18 @@ public class PaymentServlet extends BaseApiServlet {
         return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
     }
 
+    /**
+     * If this payment looks like a tax payment, locate or create the matching
+     * tax-record row and mark it paid. Returns {@code null} when the payment
+     * isn't tax-related — the caller treats that as "nothing to do".
+     *
+     * @param request      the incoming request (may carry {@code taxId} or
+     *                     {@code fiscalYear})
+     * @param taxRecordDAO tax-record DAO
+     * @param savedPayment the freshly-persisted payment
+     * @return updated tax record, or {@code null}
+     * @throws SQLException if any update fails
+     */
     private TaxRecord handleTaxPayment(HttpServletRequest request, TaxRecordDAO taxRecordDAO, Payment savedPayment)
             throws SQLException {
         String citizenIdParam = getOptionalParameter(request, "citizenId");
@@ -170,6 +239,14 @@ public class PaymentServlet extends BaseApiServlet {
         return taxRecordDAO.update(taxRecord);
     }
 
+    /**
+     * Maps the loose payment-type strings the form may send ({@code houseTax},
+     * {@code house}, etc.) to the canonical tax types stored on the record.
+     * Returns {@code null} for non-tax payment types.
+     *
+     * @param paymentType payment-type string from the request
+     * @return canonical tax type, or {@code null}
+     */
     private String normalizeTaxType(String paymentType) {
         if (paymentType == null) {
             return null;
@@ -181,12 +258,25 @@ public class PaymentServlet extends BaseApiServlet {
         };
     }
 
+    /**
+     * Computes the current Nepali fiscal year label ({@code yyyy/yy}). The
+     * fiscal year flips on July 1 — so July 2025 onwards is "2025/26", and
+     * January 2026 still belongs to "2025/26".
+     *
+     * @return current fiscal-year label
+     */
     private String currentFiscalYear() {
         LocalDate today = LocalDate.now();
         int startYear = today.getMonthValue() >= 7 ? today.getYear() : today.getYear() - 1;
         return startYear + "/" + String.valueOf(startYear + 1).substring(2);
     }
 
+    /**
+     * Renders a list of payments as a JSON array.
+     *
+     * @param payments payments to render
+     * @return JSON array string
+     */
     private String paymentsToJson(List<Payment> payments) {
         List<String> items = new ArrayList<>();
         for (Payment payment : payments) {
@@ -195,6 +285,12 @@ public class PaymentServlet extends BaseApiServlet {
         return jsonArray(items);
     }
 
+    /**
+     * Renders a single payment as a JSON object.
+     *
+     * @param payment the payment
+     * @return JSON object literal
+     */
     private String toPaymentJson(Payment payment) {
         return "{"
                 + "\"paymentId\":" + payment.getPaymentId() + ","
@@ -206,6 +302,12 @@ public class PaymentServlet extends BaseApiServlet {
                 + "}";
     }
 
+    /**
+     * Renders a tax-record as a JSON object.
+     *
+     * @param taxRecord the tax record
+     * @return JSON object literal
+     */
     private String toTaxJson(TaxRecord taxRecord) {
         return "{"
                 + "\"taxId\":" + taxRecord.getTaxId() + ","

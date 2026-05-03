@@ -14,13 +14,27 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JDBC implementation of {@link ApplicationDocumentDAOInterface}.
+ *
+ * @author SarkarSathi
+ */
 public class ApplicationDocumentDAO extends BaseDAO implements ApplicationDocumentDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public ApplicationDocumentDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * If no upload timestamp is set on the document, the current time is
+     * substituted in.
+     */
     public ApplicationDocument create(ApplicationDocument document) throws SQLException {
         String sql = """
                 INSERT INTO APPLICATION_DOCUMENT (ApplicationID, DocumentType, FilePath, UploadedAt, IsReusable)
@@ -43,6 +57,11 @@ public class ApplicationDocumentDAO extends BaseDAO implements ApplicationDocume
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sorted newest-upload first.
+     */
     public List<ApplicationDocument> findByApplicationId(int applicationId) throws SQLException {
         String sql = "SELECT * FROM APPLICATION_DOCUMENT WHERE ApplicationID = ? ORDER BY UploadedAt DESC";
         List<ApplicationDocument> documents = new ArrayList<>();
@@ -57,6 +76,12 @@ public class ApplicationDocumentDAO extends BaseDAO implements ApplicationDocume
         return documents;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Joins through {@code APPLICATION} so we can filter by the owning
+     * citizen rather than by application id.
+     */
     public List<ApplicationDocument> findByCitizenId(int citizenId) throws SQLException {
         String sql = """
                 SELECT ad.* FROM APPLICATION_DOCUMENT ad
@@ -76,6 +101,13 @@ public class ApplicationDocumentDAO extends BaseDAO implements ApplicationDocume
         return documents;
     }
 
+    /**
+     * Maps the current row into an {@link ApplicationDocument}.
+     *
+     * @param resultSet result set positioned on an {@code APPLICATION_DOCUMENT} row
+     * @return the row as a document object
+     * @throws SQLException if a column read fails
+     */
     private ApplicationDocument map(ResultSet resultSet) throws SQLException {
         ApplicationDocument document = new ApplicationDocument();
         document.setDocId(resultSet.getInt("DocID"));

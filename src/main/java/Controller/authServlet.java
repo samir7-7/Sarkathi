@@ -18,8 +18,33 @@ import Model.Citizen;
 import Util.DatabaseConnection;
 import Util.PasswordUtil;
 
+/**
+ * Alternative JSON API for authentication, separate from the page-flow
+ * {@link LoginServlet}/{@link RegisterServlet}.
+ * <p>
+ * Two sub-paths under {@code /api/auth/*}:
+ * <ul>
+ *   <li>{@code POST /api/auth/register/citizen} — creates a citizen account</li>
+ *   <li>{@code POST /api/auth/login} — authenticates either a citizen or admin
+ *       (controlled by the {@code userType} parameter; defaults to citizen)</li>
+ * </ul>
+ * Unlike {@link LoginServlet}, this does <em>not</em> populate a session —
+ * it's intended for clients that want the user record back as JSON and
+ * will manage their own auth state.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "authServlet", urlPatterns = "/api/auth/*")
 public class authServlet extends BaseApiServlet {
+    /**
+     * Routes the POST sub-paths to the right handler. Bad parameters yield
+     * a 400; database errors yield a 500. Anything else falls through to a
+     * 404 "unknown auth endpoint."
+     *
+     * @param request  the incoming request
+     * @param response JSON response
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String path = request.getPathInfo() == null ? "" : request.getPathInfo();
@@ -36,6 +61,16 @@ public class authServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Registers a new citizen. Expects fullName, email, phone, password,
+     * dateOfBirth, and gender as form parameters. Returns 409 if the email
+     * already exists.
+     *
+     * @param request  the incoming request
+     * @param response JSON response with the created citizen
+     * @throws IOException if writing fails
+     * @throws SQLException if the database insert fails
+     */
     private void registerCitizen(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
         Citizen citizen = new Citizen();
         citizen.setFullName(getRequiredParameter(request, "fullName"));
@@ -59,6 +94,17 @@ public class authServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Authenticates a citizen or admin and returns the user record as JSON.
+     * The {@code userType} parameter ({@code admin} or {@code citizen})
+     * picks which table to look in; defaults to {@code citizen} when blank.
+     * Returns 401 on bad credentials.
+     *
+     * @param request  the incoming request
+     * @param response JSON response
+     * @throws IOException if writing fails
+     * @throws SQLException if the lookup fails
+     */
     private void login(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
         String email = getRequiredParameter(request, "email");
         String password = getRequiredParameter(request, "password");
@@ -90,6 +136,12 @@ public class authServlet extends BaseApiServlet {
         writeError(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid credentials");
     }
 
+    /**
+     * Renders a citizen as a JSON object — without the password hash.
+     *
+     * @param citizen the citizen to render
+     * @return JSON object literal
+     */
     private String toCitizenJson(Citizen citizen) {
         return "{"
                 + "\"citizenId\":" + citizen.getCitizenId() + ","
@@ -102,6 +154,12 @@ public class authServlet extends BaseApiServlet {
                 + "}";
     }
 
+    /**
+     * Renders an admin user as a JSON object — without the password hash.
+     *
+     * @param adminUser the admin to render
+     * @return JSON object literal
+     */
     private String toAdminJson(AdminUser adminUser) {
         return "{"
                 + "\"adminId\":" + adminUser.getAdminId() + ","

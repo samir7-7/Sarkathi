@@ -13,11 +13,25 @@ import java.util.List;
 
 import Model.TaxRecord;
 
+/**
+ * JDBC implementation of {@link TaxRecordDAOInterface}.
+ *
+ * @author SarkarSathi
+ */
 public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public TaxRecordDAO(Connection connection) { this.connection = connection; }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A {@code paymentId} of 0 (or less) is stored as SQL NULL since the
+     * record hasn't been paid yet.
+     */
     public TaxRecord create(TaxRecord t) throws SQLException {
         String sql = "INSERT INTO TAX_RECORD (CitizenID, TaxType, FiscalYear, DueAmount, PaymentID, IsPaid) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement s = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -30,6 +44,9 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean markAsPaid(int taxId, int paymentId) throws SQLException {
         String sql = "UPDATE TAX_RECORD SET IsPaid = TRUE, PaymentID = ? WHERE TaxID = ?";
         try (PreparedStatement s = connection.prepareStatement(sql)) {
@@ -37,6 +54,9 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public TaxRecord update(TaxRecord t) throws SQLException {
         String sql = "UPDATE TAX_RECORD SET FiscalYear = ?, DueAmount = ?, PaymentID = ?, IsPaid = ? WHERE TaxID = ?";
         try (PreparedStatement s = connection.prepareStatement(sql)) {
@@ -54,6 +74,12 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
         return t;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Re-reads the row after the update so the caller gets the canonical
+     * values (e.g. timestamps the database may have applied).
+     */
     public TaxRecord markAsPaidAndUpdateAmount(int taxId, int paymentId, java.math.BigDecimal amount) throws SQLException {
         String sql = "UPDATE TAX_RECORD SET IsPaid = TRUE, PaymentID = ?, DueAmount = ? WHERE TaxID = ?";
         try (PreparedStatement s = connection.prepareStatement(sql)) {
@@ -65,6 +91,9 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
         return findById(taxId).orElse(null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public java.util.Optional<TaxRecord> findById(int taxId) throws SQLException {
         String sql = "SELECT * FROM TAX_RECORD WHERE TaxID = ?";
         try (PreparedStatement s = connection.prepareStatement(sql)) {
@@ -75,6 +104,13 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The {@code LIMIT 1} guards against duplicates in case the data
+     * accidentally got into a state with more than one row per
+     * (citizen, tax type, fiscal year) combination.
+     */
     public java.util.Optional<TaxRecord> findByCitizenTypeAndFiscalYear(int citizenId, String taxType, String fiscalYear) throws SQLException {
         String sql = "SELECT * FROM TAX_RECORD WHERE CitizenID = ? AND TaxType = ? AND FiscalYear = ? LIMIT 1";
         try (PreparedStatement s = connection.prepareStatement(sql)) {
@@ -87,6 +123,11 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sorted newest fiscal year first.
+     */
     public List<TaxRecord> findByCitizenId(int citizenId) throws SQLException {
         String sql = "SELECT * FROM TAX_RECORD WHERE CitizenID = ? ORDER BY FiscalYear DESC";
         List<TaxRecord> records = new ArrayList<>();
@@ -97,6 +138,13 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
         return records;
     }
 
+    /**
+     * Maps the current row into a {@link TaxRecord}.
+     *
+     * @param rs result set positioned on a {@code TAX_RECORD} row
+     * @return the row as a tax record object
+     * @throws SQLException if a column read fails
+     */
     private TaxRecord map(ResultSet rs) throws SQLException {
         TaxRecord t = new TaxRecord();
         t.setTaxId(rs.getInt("TaxID")); t.setCitizenId(rs.getInt("CitizenID"));

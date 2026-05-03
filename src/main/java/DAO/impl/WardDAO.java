@@ -12,13 +12,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JDBC implementation of {@link WardDAOInterface}. Wards are essentially
+ * static data — they don't change once seeded — so this DAO is read-only.
+ *
+ * @author SarkarSathi
+ */
 public class WardDAO implements WardDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public WardDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sorted ascending by ward number.
+     */
     public List<Ward> findAll() throws SQLException {
         String sql = "SELECT * FROM WARD ORDER BY WardNumber";
         List<Ward> wards = new ArrayList<>();
@@ -31,6 +45,9 @@ public class WardDAO implements WardDAOInterface {
         return wards;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Optional<Ward> findById(int wardId) throws SQLException {
         String sql = "SELECT * FROM WARD WHERE WardID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -41,6 +58,13 @@ public class WardDAO implements WardDAOInterface {
         }
     }
 
+    /**
+     * Maps the current row into a {@link Ward}.
+     *
+     * @param resultSet result set positioned on a {@code WARD} row
+     * @return the row as a ward object
+     * @throws SQLException if a column read fails
+     */
     private Ward map(ResultSet resultSet) throws SQLException {
         Ward ward = new Ward();
         ward.setWardId(resultSet.getInt("WardID"));

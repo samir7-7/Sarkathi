@@ -6,18 +6,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * One-time utility to seed 5 admin accounts into the database.
- * Run this class once to create the admin accounts.
+ * One-time utility that seeds five default admin accounts into the database
+ * so you can actually log in to the admin side after a fresh install.
+ * <p>
+ * Wards 1–5 are a prerequisite — if they're missing, this seeder also
+ * creates those (Birgunj Metropolitan City, Madhesh province) before
+ * inserting the admin rows.
+ * <p>
+ * <strong>Default credentials</strong> (all use password {@code Admin@123}):
+ * <ol>
+ *   <li>samir.nepal@sarkarsathi.gov.np — supervisor, Ward 1</li>
+ *   <li>prajwal.koirala@sarkarsathi.gov.np — officer, Ward 2</li>
+ *   <li>min.pandey@sarkarsathi.gov.np — officer, Ward 3</li>
+ *   <li>nabin.adhikari@sarkarsathi.gov.np — supervisor, Ward 4</li>
+ *   <li>rythm.shrestha@sarkarsathi.gov.np — officer, Ward 5</li>
+ * </ol>
+ * Passwords are stored as BCrypt hashes via {@link PasswordUtil#hash(String)}.
  *
- * PREREQUISITE: WARD table must have at least wards 1-5 inserted.
- * If not, this seeder will create them automatically.
- *
- * Admin accounts created (all use password: Admin@123):
- * 1. samir.nepal@sarkarsathi.gov.np (supervisor, Ward 1)
- * 2. prajwal.koirala@sarkarsathi.gov.np (officer, Ward 2)
- * 3. min.pandey@sarkarsathi.gov.np (officer, Ward 3)
- * 4. nabin.adhikari@sarkarsathi.gov.np (supervisor, Ward 4)
- * 5. rythm.shrestha@sarkarsathi.gov.np (officer, Ward 5)
+ * @author SarkarSathi
  */
 public class AdminSeeder {
 
@@ -32,6 +38,14 @@ public class AdminSeeder {
             { "5", "Rythm Shrestha", "rythm.shrestha@sarkarsathi.gov.np", "Admin@123", "officer", "5" },
     };
 
+    /**
+     * Entry point used when running this seeder manually
+     * ({@code mvnw exec:java@seed-admins}). Always tries to create every
+     * admin in the {@link #ADMINS} list, skipping ones whose email already
+     * exists.
+     *
+     * @param args ignored
+     */
     public static void main(String[] args) {
         System.out.println("=== SarkarSathi Admin Seeder ===");
         System.out.println("Seeding 5 admin accounts...\n");
@@ -52,6 +66,15 @@ public class AdminSeeder {
         }
     }
 
+    /**
+     * Server-startup hook used by {@link AdminSeedStartupListener}. Only
+     * seeds when the {@code ADMIN_USER} table is completely empty — so
+     * existing deployments with custom admins don't get extra defaults
+     * sprinkled in on every restart.
+     *
+     * @return {@code true} if any admin rows were actually inserted
+     * @throws SQLException if the database operations fail
+     */
     public static boolean seedAdminsIfMissing() throws SQLException {
         try (Connection connection = DatabaseConnection.getConnection()) {
             SeedResult result = seedAdmins(connection, true);
@@ -59,6 +82,18 @@ public class AdminSeeder {
         }
     }
 
+    /**
+     * Shared seed loop. Makes sure wards exist, then for each entry in
+     * {@link #ADMINS} skips it if an admin with that email is already in
+     * the table, otherwise BCrypt-hashes the password and inserts a row.
+     *
+     * @param connection         open JDBC connection to use
+     * @param onlyWhenTableEmpty if {@code true}, do nothing when at least
+     *                           one admin already exists (used by the
+     *                           startup-listener path)
+     * @return a small struct of created/skipped counts
+     * @throws SQLException if any of the queries fail
+     */
     private static SeedResult seedAdmins(Connection connection, boolean onlyWhenTableEmpty) throws SQLException {
         seedWards(connection);
 
@@ -107,6 +142,11 @@ public class AdminSeeder {
         return new SeedResult(created, skipped);
     }
 
+    /**
+     * @param connection open JDBC connection
+     * @return {@code true} if there's at least one row in {@code ADMIN_USER}
+     * @throws SQLException if the count query fails
+     */
     private static boolean hasExistingAdmins(Connection connection) throws SQLException {
         try (PreparedStatement check = connection.prepareStatement("SELECT COUNT(*) FROM ADMIN_USER")) {
             try (ResultSet rs = check.executeQuery()) {
@@ -116,6 +156,14 @@ public class AdminSeeder {
         }
     }
 
+    /**
+     * Inserts wards 1–5 if they aren't already in the database. Each ward
+     * is checked individually so partially-seeded states are handled
+     * correctly.
+     *
+     * @param connection open JDBC connection
+     * @throws SQLException if any of the inserts fail
+     */
     private static void seedWards(Connection connection) throws SQLException {
         String checkSql = "SELECT COUNT(*) FROM WARD WHERE WardID = ?";
         String insertSql = "INSERT INTO WARD (WardID, WardNumber, MunicipalityName, Province) VALUES (?, ?, ?, ?)";
@@ -148,10 +196,19 @@ public class AdminSeeder {
         }
     }
 
+    /**
+     * Tiny value type holding the count of admins that were freshly
+     * inserted vs. skipped because an account with that email already
+     * existed.
+     */
     private static final class SeedResult {
         private final int created;
         private final int skipped;
 
+        /**
+         * @param created number of admin rows newly inserted
+         * @param skipped number of admins that were already present
+         */
         private SeedResult(int created, int skipped) {
             this.created = created;
             this.skipped = skipped;

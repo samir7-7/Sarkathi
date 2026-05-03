@@ -173,7 +173,7 @@
 
                         <div id="register-link" class="mt-8 pt-8 border-t border-slate-50 text-center" <%= "admin".equalsIgnoreCase(userType) ? "style='display: none;'" : "" %>>
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">New to the platform?</p>
-                            <a href="<%= request.getContextPath() %>/register.jsp" class="inline-flex items-center gap-2 rounded-xl bg-brand-50 px-6 py-3 text-xs font-xl text-[#0c8ce9] hover:bg-brand-100 transition-colors">
+                            <a href="<%= request.getContextPath() %>/register" class="inline-flex items-center gap-2 rounded-xl bg-brand-50 px-6 py-3 text-xs font-xl text-[#0c8ce9] hover:bg-brand-100 transition-colors">
                                 <i data-lucide="user-plus" class="h-4 w-4"></i>
                                 Create Citizen Account
                             </a>

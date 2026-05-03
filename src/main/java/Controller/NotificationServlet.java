@@ -15,8 +15,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Notifications API. Citizens read their own feed (and mark items as read);
+ * admins push new messages onto a citizen's feed (typically used by the
+ * application-review flow). Ownership is enforced for every read or mutation
+ * via {@link #requireCitizenOwnership(HttpServletRequest, int)}.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "notificationServlet", urlPatterns = "/api/notifications")
 public class NotificationServlet extends BaseApiServlet {
+    /**
+     * Lists notifications for the citizen named in the {@code citizenId}
+     * parameter. Bundles the unread count alongside the list so the UI can
+     * update the sidebar badge without a second request.
+     *
+     * @param request  the incoming request
+     * @param response JSON envelope with {@code unreadCount} and array
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String citizenIdParam = request.getParameter("citizenId");
@@ -43,6 +60,16 @@ public class NotificationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Two modes: mark-read flows (for citizens, via {@code action=markRead}
+     * or {@code action=markAll}), and admin-pushed notification creation.
+     * The lack of an action falls into create-mode and requires an admin
+     * session.
+     *
+     * @param request  the incoming request
+     * @param response redirect (mark-read with {@code redirectTo}) or JSON
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -70,6 +97,16 @@ public class NotificationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Marks one notification (or all of a citizen's notifications) as read.
+     * Always citizen-scoped — admins can't mark a citizen's notifications
+     * for them. Honours {@code redirectTo} so HTML form submissions can land
+     * back on the notifications page.
+     *
+     * @param request  the incoming request
+     * @param response redirect or JSON success envelope
+     * @throws IOException if writing fails
+     */
     private void handleMarkRead(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectTo = getOptionalParameter(request, "redirectTo");
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -92,6 +129,16 @@ public class NotificationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * REST-style mark-read endpoint. Either {@code markAll=true} with a
+     * {@code citizenId} (mark every notification for that citizen) or a
+     * single {@code notificationId} together with the owning {@code
+     * citizenId}.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope
+     * @throws IOException if writing fails
+     */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -123,6 +170,12 @@ public class NotificationServlet extends BaseApiServlet {
         }
     }
 
+    /**
+     * Renders a notification as a JSON object.
+     *
+     * @param n the notification
+     * @return JSON object literal
+     */
     private String toJson(Notification n) {
         return "{\"notificationId\":" + n.getNotificationId()
                 + ",\"citizenId\":" + n.getCitizenId()

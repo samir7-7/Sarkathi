@@ -83,63 +83,13 @@
             </nav>
 
             <!-- Sidebar -->
-            <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 -translate-x-full border-r border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0">
-                <div class="flex h-full flex-col">
-                    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                        <a href="<%= request.getContextPath() %>/" class="text-xl font-bold tracking-tight text-brand-900">SarkarSathi</a>
-                        <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400"><i data-lucide="x" class="h-5 w-5"></i></button>
-                    </div>
-
-                    <div class="p-6">
-                        <div class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 mb-8">
-                            <div class="h-10 w-10 flex items-center justify-center rounded-xl bg-brand-900 text-white font-bold uppercase text-xs">
-                                <%= citizenName.substring(0,1).toUpperCase() %>
-                            </div>
-                            <div class="overflow-hidden">
-                                <p class="text-sm font-bold text-slate-900 truncate tracking-tight"><%= esc(citizenName) %></p>
-                                <p class="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Citizen Profile</p>
-                            </div>
-                        </div>
-
-                        <nav class="space-y-1">
-                            <a href="<%= request.getContextPath() %>/citizen/dashboard" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                                <span>Home Board</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="file-plus-2" class="h-5 w-5"></i>
-                                <span>Apply for Service</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="search-check" class="h-5 w-5"></i>
-                                <span>Track Status</span>
-                            </a>
-                            <p class="px-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 mt-8">RECORDS</p>
-                            <a href="<%= request.getContextPath() %>/citizen/payments" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="credit-card" class="h-5 w-5"></i>
-                                <span>Payments & Tax</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/certificates" class="sidebar-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600">
-                                <i data-lucide="award" class="h-5 w-5"></i>
-                                <span>My Certificates</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/documents" class="sidebar-link active flex items-center gap-3 rounded-xl px-4 py-3 text-sm">
-                                <i data-lucide="folder-open" class="h-5 w-5"></i>
-                                <span>My Documents</span>
-                            </a>
-                        </nav>
-                    </div>
-
-                    <div class="mt-auto p-6 border-t border-slate-100 pb-20 lg:pb-6">
-                        <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors">
-                            <i data-lucide="log-out" class="h-5 w-5"></i>
-                            <span>Logout Session</span>
-                        </a>
-                    </div>
-                </div>
-            </aside>
+            <!-- Sidebar Overlay -->
+            <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
+            
+            <%@ include file="../includes/sidebar-citizen.jsp" %>
 
             <div class="flex-1 flex flex-col min-h-screen w-full relative">
+
                 <!-- Header -->
                 <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">Document Vault</h1>
@@ -191,7 +141,7 @@
                             <h3 class="text-base font-bold text-slate-900 px-2 mb-4 uppercase tracking-wider text-[11px] text-slate-400">Reusable Vault Files</h3>
                             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 <% if(documents.isEmpty()){ %>
-                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 italic">No files in vault</div>
+                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 ">No files in vault</div>
                                 <% } else { for(CitizenDocumentVault d : documents){ 
                                     String path = d.getFilePath()==null?"#":(d.getFilePath().startsWith("/")?request.getContextPath()+d.getFilePath():request.getContextPath()+"/"+d.getFilePath()); 
                                 %>
@@ -213,7 +163,7 @@
                             <h3 class="text-base font-bold text-slate-900 px-2 mb-4 uppercase tracking-wider text-[11px] text-slate-400">Application Attachments</h3>
                             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 <% if(applicationDocuments.isEmpty()){ %>
-                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 italic">No linked documents</div>
+                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 ">No linked documents</div>
                                 <% } else { for(ApplicationDocument d : applicationDocuments){ 
                                     String path = d.getFilePath()==null?"#":(d.getFilePath().startsWith("/")?request.getContextPath()+d.getFilePath():request.getContextPath()+"/"+d.getFilePath()); 
                                 %>
@@ -222,7 +172,7 @@
                                             <i data-lucide="paperclip" class="h-5 w-5"></i>
                                         </div>
                                         <div class="flex-1 overflow-hidden">
-                                            <h4 class="text-[11px] font-bold text-slate-900 truncate uppercase mb-0.5"><%= esc(d.getOriginalName()) %></h4>
+                                            <h4 class="text-[11px] font-bold text-slate-900 truncate uppercase mb-0.5"><%= esc(d.getDocumentType()) %></h4>
                                             <p class="text-[9px] text-slate-400 font-bold uppercase opacity-70">App #<%= d.getApplicationId() %></p>
                                         </div>
                                         <a href="<%= esc(path) %>" target="_blank" class="p-2 text-brand-900 hover:bg-brand-50 rounded-lg transition-colors"><i data-lucide="external-link" class="h-4 w-4"></i></a>

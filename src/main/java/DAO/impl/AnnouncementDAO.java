@@ -15,13 +15,28 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JDBC implementation of {@link AnnouncementDAOInterface}. Mostly a mirror
+ * of {@link AgricultureNoticeDAO} with an extra {@code EventDate} column.
+ *
+ * @author SarkarSathi
+ */
 public class AnnouncementDAO extends BaseDAO implements AnnouncementDAOInterface {
     private final Connection connection;
 
+    /**
+     * @param connection an open JDBC connection — caller owns its lifecycle
+     */
     public AnnouncementDAO(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * If no publish timestamp is set on the announcement, the current time
+     * is substituted in.
+     */
     public Announcement create(Announcement announcement) throws SQLException {
         String sql = """
                 INSERT INTO ANNOUNCEMENT (PostedByAdminID, Title, Content, EventDate, PublishedAt)
@@ -44,6 +59,9 @@ public class AnnouncementDAO extends BaseDAO implements AnnouncementDAOInterface
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean update(Announcement announcement) throws SQLException {
         String sql = "UPDATE ANNOUNCEMENT SET Title = ?, Content = ?, EventDate = ? WHERE AnnouncementID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -55,6 +73,9 @@ public class AnnouncementDAO extends BaseDAO implements AnnouncementDAOInterface
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean delete(int announcementId) throws SQLException {
         String sql = "DELETE FROM ANNOUNCEMENT WHERE AnnouncementID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -63,6 +84,11 @@ public class AnnouncementDAO extends BaseDAO implements AnnouncementDAOInterface
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sorted newest-first by publish time.
+     */
     public List<Announcement> findAll() throws SQLException {
         String sql = "SELECT * FROM ANNOUNCEMENT ORDER BY PublishedAt DESC";
         List<Announcement> announcements = new ArrayList<>();
@@ -75,6 +101,13 @@ public class AnnouncementDAO extends BaseDAO implements AnnouncementDAOInterface
         return announcements;
     }
 
+    /**
+     * Maps the current row into an {@link Announcement}.
+     *
+     * @param resultSet result set positioned on an {@code ANNOUNCEMENT} row
+     * @return the row as an announcement object
+     * @throws SQLException if a column read fails
+     */
     private Announcement map(ResultSet resultSet) throws SQLException {
         Announcement announcement = new Announcement();
         announcement.setAnnouncementId(resultSet.getInt("AnnouncementID"));

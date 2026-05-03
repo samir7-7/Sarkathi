@@ -71,75 +71,12 @@
     <body class="bg-[#f8fafc] text-slate-900 antialiased overflow-x-hidden">
         <div class="flex min-h-screen relative">
             <% if(loggedIn){ %>
-                <!-- Mobile Bottom Nav (Citizen Mode) -->
-                <nav class="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-slate-200 bg-white/95 backdrop-blur-md px-2 lg:hidden safe-area-bottom">
-                    <a href="<%= request.getContextPath() %>/citizen/dashboard" class="flex flex-col items-center justify-center gap-1 text-slate-400">
-                        <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                        <span class="text-[10px] font-black uppercase tracking-tighter">Portal</span>
-                    </a>
-                    <a href="<%= request.getContextPath() %>/citizen/tracking" class="flex flex-col items-center justify-center gap-1 text-brand-900">
-                        <i data-lucide="search-check" class="h-5 w-5"></i>
-                        <span class="text-[10px] font-black uppercase tracking-tighter">Track</span>
-                    </a>
-                    <div class="relative -top-3">
-                        <a href="<%= request.getContextPath() %>/citizen/apply" class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-900 text-white shadow-lg shadow-brand-900/30">
-                            <i data-lucide="plus" class="h-6 w-6"></i>
-                        </a>
-                    </div>
-                     <a href="<%= request.getContextPath() %>/citizen/documents" class="flex flex-col items-center justify-center gap-1 text-slate-400">
-                        <i data-lucide="folder-key" class="h-5 w-5"></i>
-                        <span class="text-[10px] font-black uppercase tracking-tighter">Files</span>
-                    </a>
-                    <button onclick="toggleSidebar()" class="flex flex-col items-center justify-center gap-1 text-slate-400">
-                        <i data-lucide="menu" class="h-5 w-5"></i>
-                        <span class="text-[10px] font-black uppercase tracking-tighter">Menu</span>
-                    </button>
-                </nav>
-
-                <!-- Desktop Sidebar -->
-                <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 -translate-x-full border-r border-slate-100 bg-white transition-transform duration-300 lg:static lg:translate-x-0">
-                    <div class="flex h-full flex-col p-6">
-                        <div class="flex items-center justify-between">
-                            <a href="<%= request.getContextPath() %>/" class="text-2xl font-black text-brand-900 italic tracking-tighter">SarkarSathi</a>
-                            <button onclick="toggleSidebar()" class="lg:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400">
-                                <i data-lucide="x" class="h-5 w-5"></i>
-                            </button>
-                        </div>
-
-                        <div class="mt-10 mb-6 px-4 py-8 rounded-[2rem] bg-brand-900 text-white shadow-2xl shadow-brand-900/20 relative overflow-hidden group">
-                            <div class="absolute top-0 right-0 h-24 w-24 bg-white/5 rounded-bl-[3rem] -mr-8 -mt-8 rotate-12 group-hover:bg-white/10 transition-colors"></div>
-                            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-300/80 mb-2">Verified Citizen</p>
-                            <h4 class="text-xl font-black tracking-tight truncate"><%= esc(citizenName) %></h4>
-                        </div>
-
-                        <nav class="flex-1 space-y-2">
-                            <a href="<%= request.getContextPath() %>/citizen/dashboard" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-2xl text-slate-500 font-bold uppercase tracking-widest text-[11px]">
-                                <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                                <span>Overview</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/tracking" class="sidebar-link active group flex items-center gap-4 px-4 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest">
-                                <i data-lucide="search-check" class="h-5 w-5"></i>
-                                <span>Query Tracking</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/apply" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-2xl text-slate-500 font-bold uppercase tracking-widest text-[11px]">
-                                <i data-lucide="file-plus" class="h-5 w-5"></i>
-                                <span>New Service</span>
-                            </a>
-                            <a href="<%= request.getContextPath() %>/citizen/certificates" class="sidebar-link group flex items-center gap-4 px-4 py-4 rounded-2xl text-slate-500 font-bold uppercase tracking-widest text-[11px]">
-                                <i data-lucide="award" class="h-5 w-5"></i>
-                                <span>Certificates</span>
-                            </a>
-                        </nav>
-
-                        <div class="pt-6 border-t border-slate-50">
-                            <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-4 px-4 py-4 rounded-2xl text-rose-500 font-black uppercase tracking-widest text-[11px] hover:bg-rose-50 transition-colors">
-                                <i data-lucide="log-out" class="h-5 w-5"></i>
-                                <span>Terminate Session</span>
-                            </a>
-                        </div>
-                    </div>
-                </aside>
+                <!-- Sidebar Overlay -->
+                <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
+                
+                <%@ include file="../includes/sidebar-citizen.jsp" %>
             <% } %>
+
 
             <div class="flex-1 flex flex-col min-h-screen w-full relative">
                 <!-- Header -->
@@ -200,7 +137,7 @@
                                 <div class="inline-flex h-20 w-20 items-center justify-center rounded-[2.5rem] bg-slate-50 text-slate-300 mb-8">
                                     <i data-lucide="database-zap" class="h-10 w-10"></i>
                                 </div>
-                                <h3 class="text-2xl font-black text-slate-900 italic">No Node Found</h3>
+                                <h3 class="text-2xl font-black text-slate-900 ">No Node Found</h3>
                                 <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-4">Verification cycle returned null for this ID</p>
                             </div>
                         <% } else { %>
@@ -211,7 +148,7 @@
                                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-16 relative z-10">
                                     <div>
                                         <p class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-2">Process Stream</p>
-                                        <h2 class="text-4xl lg:text-5xl font-black text-brand-900 tracking-tighter italic">#<%= esc(trackingResult.getTrackingId()) %></h2>
+                                        <h2 class="text-4xl lg:text-5xl font-black text-brand-900 tracking-tighter ">#<%= esc(trackingResult.getTrackingId()) %></h2>
                                     </div>
                                     <div class="px-8 py-4 rounded-3xl border <%= badgeClass(trackingResult.getStatus()) %> inline-flex items-center gap-3">
                                         <span class="h-2 w-2 rounded-full bg-current animate-pulse"></span>
@@ -264,7 +201,7 @@
                                                         <i data-lucide="hash" class="h-6 w-6"></i>
                                                     </div>
                                                     <div>
-                                                        <h4 class="text-sm font-black uppercase tracking-widest text-slate-900 italic">#<%= esc(a.getTrackingId()) %></h4>
+                                                        <h4 class="text-sm font-black uppercase tracking-widest text-slate-900 ">#<%= esc(a.getTrackingId()) %></h4>
                                                         <p class="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-widest"><%= a.getSubmittedAt()==null ? "—" : esc(a.getSubmittedAt().format(fmt)) %></p>
                                                     </div>
                                                 </div>
@@ -273,7 +210,7 @@
                                                         <span class="text-[10px] font-black uppercase tracking-widest <%= a.getStatus().equals("approved") ? "text-emerald-500" : "text-slate-400" %>">
                                                             <%= esc(a.getStatus()) %>
                                                         </span>
-                                                        <p class="text-[9px] font-bold text-slate-300 uppercase mt-0.5 tracking-tighter italic">LATEST STATUS</p>
+                                                        <p class="text-[9px] font-bold text-slate-300 uppercase mt-0.5 tracking-tighter ">LATEST STATUS</p>
                                                     </div>
                                                     <i data-lucide="arrow-right" class="h-5 w-5 text-slate-200 group-hover:text-brand-900 group-hover:translate-x-1 transition-all"></i>
                                                 </div>

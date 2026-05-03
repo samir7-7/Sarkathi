@@ -14,8 +14,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * Renders the admin dashboard. Pulls the headline counters (total / submitted
+ * / review / approved / rejected) and the recent applications list, then
+ * forwards to {@code dashboard.jsp}. On a database error the page still
+ * renders, but with zeros and an error banner — a broken DB shouldn't take
+ * down the dashboard chrome.
+ *
+ * @author SarkarSathi
+ */
 @WebServlet(name = "adminDashboardPageServlet", urlPatterns = "/admin/dashboard")
 public class AdminDashboardPageServlet extends HttpServlet {
+    /**
+     * Builds the admin dashboard page. Verifies the admin session, prefetches
+     * dashboard counters, and forwards.
+     *
+     * @param request  the incoming request
+     * @param response the response (forward to JSP, or redirect to login)
+     * @throws ServletException if forwarding fails
+     * @throws IOException      if writing fails
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
