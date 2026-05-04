@@ -1,13 +1,5 @@
 package Controller;
 
-import DAO.impl.BudgetAllocationDAO;
-import Model.BudgetAllocation;
-import Util.DatabaseConnection;
-
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -16,6 +8,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import DAO.impl.BudgetAllocationDAO;
+import Model.BudgetAllocation;
+import Util.DatabaseConnection;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * CRUD endpoint for ward budget allocations. The public budget page reads
@@ -85,8 +84,42 @@ public class BudgetAllocationServlet extends BaseApiServlet {
             }
         } catch (SecurityException e) {
             redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | SQLException e) {
             redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Updates an existing budget allocation. Admin-only.
+     *
+     * @param request  the incoming request
+     * @param response JSON success envelope, or 404 when the row doesn't exist
+     * @throws IOException if writing fails
+     */
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            requireAdmin(request);
+            BudgetAllocation b = new BudgetAllocation();
+            b.setBudgetId(Integer.parseInt(getRequiredParameter(request, "budgetId")));
+            b.setWardId(Integer.parseInt(getRequiredParameter(request, "wardId")));
+            b.setDepartment(getRequiredParameter(request, "department"));
+            BigDecimal allocatedAmount = new BigDecimal(getRequiredParameter(request, "allocatedAmount"));
+            if (allocatedAmount.signum() <= 0) {
+                throw new IllegalArgumentException("Allocated amount must be greater than zero");
+            }
+            b.setAllocatedAmount(allocatedAmount);
+            b.setFiscalYear(getRequiredParameter(request, "fiscalYear"));
+            b.setDescription(getOptionalParameter(request, "description"));
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                boolean ok = new BudgetAllocationDAO(conn).update(b);
+                writeJson(response, ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND,
+                    "{\"success\":" + ok + "}");
+            }
+        } catch (SecurityException e) {
+            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+        } catch (IllegalArgumentException | SQLException e) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
 
@@ -105,7 +138,7 @@ public class BudgetAllocationServlet extends BaseApiServlet {
             writeJson(response, ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND, "{\"success\":" + ok + "}");
         } catch (SecurityException e) {
             writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | SQLException e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }

@@ -3,7 +3,7 @@
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
 <%! private String esc(Object value) { if (value == null) return ""; return value.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;"); } %>
-<% Integer adminId=(Integer)request.getAttribute("adminId"); String adminName=(String)request.getAttribute("adminName"); String adminRole=(String)request.getAttribute("adminRole"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); List<Announcement> announcements=(List<Announcement>)request.getAttribute("announcements"); DateTimeFormatter dateFormatter=DateTimeFormatter.ofPattern("MMM d, yyyy"); if(adminName==null)adminName="Admin"; if(adminRole==null)adminRole="admin"; if(announcements==null)announcements=List.of(); %>
+<% Integer adminId=(Integer)request.getAttribute("adminId"); String adminName=(String)request.getAttribute("adminName"); String adminRole=(String)request.getAttribute("adminRole"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); List<Announcement> announcements=(List<Announcement>)request.getAttribute("announcements"); String editingAnnouncementId=(String)request.getAttribute("editingAnnouncementId"); DateTimeFormatter dateFormatter=DateTimeFormatter.ofPattern("MMM d, yyyy"); if(adminName==null)adminName="Admin"; if(adminRole==null)adminRole="admin"; if(announcements==null)announcements=List.of(); %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -120,13 +120,46 @@
                                         <h3 class="text-lg font-black text-slate-900 mb-2 truncate"><%= esc(a.getTitle()) %></h3>
                                         <p class="text-sm leading-relaxed text-slate-600 font-medium line-clamp-2"><%= esc(a.getContent()) %></p>
                                     </div>
-                                    <form method="post" action="<%= request.getContextPath() %>/api/announcements" class="shrink-0">
-                                        <input type="hidden" name="redirectTo" value="/admin/announcements">
-                                        <input type="hidden" name="action" value="delete">
+                                    <div class="shrink-0 flex gap-2">
+                                        <form method="get" action="<%= request.getContextPath() %>/admin/announcements" class="inline">
+                                            <input type="hidden" name="edit" value="<%= a.getAnnouncementId() %>">
+                                            <button class="h-10 w-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-all hover:bg-blue-100 active:scale-95" title="Edit Notice" type="submit">
+                                                <i data-lucide="edit-2" class="h-4 w-4"></i>
+                                            </button>
+                                        </form>
+                                        <form method="post" action="<%= request.getContextPath() %>/api/announcements" onsubmit="return confirm('Are you sure you want to delete?')" class="inline">
+                                            <input type="hidden" name="redirectTo" value="/admin/announcements">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="announcementId" value="<%= a.getAnnouncementId() %>">
+                                            <button class="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 text-red-600 transition-all hover:bg-red-100 active:scale-95" type="submit" title="Archive Notice">
+                                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div <% if(editingAnnouncementId!=null && editingAnnouncementId.equals(String.valueOf(a.getAnnouncementId()))) { %> style="display:block" <% } else { %> style="display:none" <% } %> id="edit-form-<%= a.getAnnouncementId() %>" class="mt-6 pt-6 border-t border-slate-200">
+                                    <form method="post" action="<%= request.getContextPath() %>/api/announcements" class="space-y-4">
                                         <input type="hidden" name="announcementId" value="<%= a.getAnnouncementId() %>">
-                                        <button class="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 text-red-600 transition-all hover:bg-red-100 active:scale-95" type="submit" title="Archive Notice">
-                                            <i data-lucide="trash-2" class="h-4 w-4"></i>
-                                        </button>
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="redirectTo" value="/admin/announcements">
+                                        <div class="grid gap-4 sm:grid-cols-2">
+                                            <div class="col-span-full">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Headline</label>
+                                                <input name="title" type="text" required value="<%= esc(a.getTitle()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
+                                            </div>
+                                            <div class="col-span-full">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Content</label>
+                                                <textarea name="content" rows="3" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none resize-none"><%= esc(a.getContent()) %></textarea>
+                                            </div>
+                                            <div>
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Event Date</label>
+                                                <input name="eventDate" type="date" value="<%= a.getEventDate()==null?"":a.getEventDate() %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button class="flex-1 rounded-2xl bg-brand-900 px-6 py-4 text-sm font-bold text-white hover:bg-brand-800 transition-colors" type="submit">Save Changes</button>
+                                                <a href="<%= request.getContextPath() %>/admin/announcements" class="flex-1 w-full rounded-2xl bg-slate-200 px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-300 transition-colors text-center">Cancel</a>
+                                            </div>
+                                        </div>
                                     </form>
                                 </div>
                             </article>
@@ -151,8 +184,14 @@
                     document.body.style.overflow = '';
                 }
             }
+            function toggleEditForm(announcementId) {
+                const form = document.getElementById('edit-form-' + announcementId);
+                if (form) {
+                    form.classList.toggle('hidden');
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+            lucide.createIcons();
         </script>
-    </body>
-</html>
     </body>
 </html>

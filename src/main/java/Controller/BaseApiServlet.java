@@ -3,6 +3,7 @@ package Controller;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
@@ -35,6 +36,34 @@ import java.util.Map;
  */
 public abstract class BaseApiServlet extends HttpServlet {
     private static final String FORM_BODY_PARAMS_ATTR = BaseApiServlet.class.getName() + ".formBodyParams";
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+            String override = request.getParameter("_method");
+            if (override != null && !override.trim().isBlank()) {
+                String method = override.trim().toUpperCase();
+                HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request) {
+                    @Override
+                    public String getMethod() {
+                        return method;
+                    }
+                };
+                try {
+                    super.service(wrapper, response);
+                } catch (jakarta.servlet.ServletException e) {
+                    throw new IOException(e);
+                }
+                return;
+            }
+        }
+
+        try {
+            super.service(request, response);
+        } catch (jakarta.servlet.ServletException e) {
+            throw new IOException(e);
+        }
+    }
 
     /**
      * Writes a JSON payload to the response with the given status code and

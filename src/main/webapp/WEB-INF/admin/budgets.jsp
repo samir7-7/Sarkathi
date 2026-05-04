@@ -2,7 +2,7 @@
 <%@ page import="Model.BudgetAllocation" %>
 <%@ page import="java.util.List" %>
 <%! private String esc(Object value) { if (value == null) return ""; return value.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;"); } %>
-<% Integer adminId=(Integer)request.getAttribute("adminId"); String adminName=(String)request.getAttribute("adminName"); String adminRole=(String)request.getAttribute("adminRole"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); List<BudgetAllocation> budgets=(List<BudgetAllocation>)request.getAttribute("budgets"); if(adminName==null)adminName="Admin"; if(adminRole==null)adminRole="admin"; if(budgets==null)budgets=List.of(); %>
+<% Integer adminId=(Integer)request.getAttribute("adminId"); String adminName=(String)request.getAttribute("adminName"); String adminRole=(String)request.getAttribute("adminRole"); String pageError=(String)request.getAttribute("pageError"); String formError=request.getParameter("error"); List<BudgetAllocation> budgets=(List<BudgetAllocation>)request.getAttribute("budgets"); String editingBudgetId=(String)request.getAttribute("editingBudgetId"); if(adminName==null)adminName="Admin"; if(adminRole==null)adminRole="admin"; if(budgets==null)budgets=List.of(); %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -149,8 +149,14 @@
                                             <p class="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Total Rs.</p>
                                             <p class="text-base font-black text-emerald-600 tracking-tight leading-none"><%= esc(b.getAllocatedAmount()) %></p>
                                         </td>
-                                        <td class="px-8 py-6">
-                                            <form method="post" action="<%= request.getContextPath() %>/api/budgets" onsubmit="return confirm('Revoke this budget entry?')">
+                                        <td class="px-8 py-6 flex gap-2 items-center justify-end">
+                                            <form method="get" action="<%= request.getContextPath() %>/admin/budgets" class="inline">
+                                                <input type="hidden" name="edit" value="<%= b.getBudgetId() %>">
+                                                <button class="p-2 text-blue-300 hover:text-blue-600 transition-colors" title="Edit" type="submit">
+                                                    <i data-lucide="edit-2" class="h-5 w-5"></i>
+                                                </button>
+                                            </form>
+                                            <form method="post" action="<%= request.getContextPath() %>/api/budgets" onsubmit="return confirm('Are you sure you want to delete?')" class="inline">
                                                 <input type="hidden" name="redirectTo" value="/admin/budgets">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="budgetId" value="<%= b.getBudgetId() %>">
@@ -158,6 +164,49 @@
                                                     <i data-lucide="trash-2" class="h-5 w-5"></i>
                                                 </button>
                                             </form>
+                                        </td>
+                                    </tr>
+                                    <tr <% if(editingBudgetId!=null && editingBudgetId.equals(String.valueOf(b.getBudgetId()))) { %> style="display:table-row" <% } else { %> style="display:none" <% } %> class="bg-slate-50/30">
+                                        <td colspan="5" class="px-8 pb-8">
+                                            <div class="mt-2 rounded-2xl border border-slate-200 bg-white p-6">
+                                                <div class="mb-4 flex items-center justify-between">
+                                                    <div>
+                                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Editing allocation</p>
+                                                        <p class="text-sm font-black text-slate-900">#<%= b.getBudgetId() %> &mdash; <%= esc(b.getDepartment()) %></p>
+                                                    </div>
+                                                    <a href="<%= request.getContextPath() %>/admin/budgets" class="rounded-xl bg-slate-200 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-300 transition-colors">Cancel</a>
+                                                </div>
+                                                <form method="post" action="<%= request.getContextPath() %>/api/budgets" class="space-y-4">
+                                                    <input type="hidden" name="budgetId" value="<%= b.getBudgetId() %>">
+                                                    <input type="hidden" name="_method" value="PUT">
+                                                    <input type="hidden" name="redirectTo" value="/admin/budgets">
+                                                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                                        <div class="col-span-full lg:col-span-2">
+                                                            <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Department</label>
+                                                            <input name="department" type="text" required value="<%= esc(b.getDepartment()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                                        </div>
+                                                        <div class="lg:col-span-1">
+                                                            <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Ward</label>
+                                                            <input name="wardId" type="number" required value="<%= b.getWardId() %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                                        </div>
+                                                        <div class="lg:col-span-1">
+                                                            <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Fiscal Year</label>
+                                                            <input name="fiscalYear" type="text" required value="<%= esc(b.getFiscalYear()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                                        </div>
+                                                        <div class="sm:col-span-1 lg:col-span-1">
+                                                            <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Fund Amount (Rs.)</label>
+                                                            <input name="allocatedAmount" type="number" required min="1" value="<%= esc(b.getAllocatedAmount().toString()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-black text-brand-900 focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                                        </div>
+                                                        <div class="sm:col-span-1 lg:col-span-3">
+                                                            <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Description</label>
+                                                            <input name="description" type="text" value="<%= esc(b.getDescription()==null?"":b.getDescription()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                                        </div>
+                                                        <div class="col-span-full">
+                                                            <button class="w-full rounded-2xl bg-brand-900 px-6 py-4 text-sm font-bold text-white hover:bg-brand-800 transition-colors" type="submit">Save Changes</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% }} %>
@@ -187,15 +236,57 @@
                                 <div class="mb-5 rounded-2xl bg-slate-50 p-4">
                                     <p class="text-xs font-semibold text-slate-600 leading-relaxed"><%= esc(b.getDescription()==null?"Official budget allocation for departmental projects.":b.getDescription()) %></p>
                                 </div>
-                                <form method="post" action="<%= request.getContextPath() %>/api/budgets" onsubmit="return confirm('Revoke this entry?')" class="flex justify-end">
-                                    <input type="hidden" name="redirectTo" value="/admin/budgets">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="budgetId" value="<%= b.getBudgetId() %>">
-                                    <button class="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-xs font-bold text-red-600 transition-all active:scale-95" type="submit">
-                                        <i data-lucide="trash-2" class="h-4 w-4"></i>
-                                        Revoke Fund
-                                    </button>
-                                </form>
+                                <div class="flex gap-3 justify-end">
+                                    <form method="get" action="<%= request.getContextPath() %>/admin/budgets" class="inline">
+                                        <input type="hidden" name="edit" value="<%= b.getBudgetId() %>">
+                                        <button class="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2.5 text-xs font-bold text-blue-600 transition-all active:scale-95" type="submit">
+                                            <i data-lucide="edit-2" class="h-4 w-4"></i>
+                                            Edit
+                                        </button>
+                                    </form>
+                                    <form method="post" action="<%= request.getContextPath() %>/api/budgets" onsubmit="return confirm('Are you sure you want to delete?')" class="inline">
+                                        <input type="hidden" name="redirectTo" value="/admin/budgets">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="budgetId" value="<%= b.getBudgetId() %>">
+                                        <button class="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-xs font-bold text-red-600 transition-all active:scale-95" type="submit">
+                                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                            Revoke Fund
+                                        </button>
+                                    </form>
+                                </div>
+                                <div <% if(editingBudgetId!=null && editingBudgetId.equals(String.valueOf(b.getBudgetId()))) { %> style="display:block" <% } else { %> style="display:none" <% } %> id="edit-budget-<%= b.getBudgetId() %>" class="mt-6 pt-6 border-t border-slate-200">
+                                    <form method="post" action="<%= request.getContextPath() %>/api/budgets" class="space-y-4">
+                                        <input type="hidden" name="budgetId" value="<%= b.getBudgetId() %>">
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="redirectTo" value="/admin/budgets">
+                                        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                            <div class="col-span-full lg:col-span-2">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Department</label>
+                                                <input name="department" type="text" required value="<%= esc(b.getDepartment()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                            </div>
+                                            <div class="lg:col-span-1">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Ward</label>
+                                                <input name="wardId" type="number" required value="<%= b.getWardId() %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                            </div>
+                                            <div class="lg:col-span-1">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Fiscal Year</label>
+                                                <input name="fiscalYear" type="text" required value="<%= esc(b.getFiscalYear()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-bold focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                            </div>
+                                            <div class="sm:col-span-1 lg:col-span-1">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Fund Amount (Rs.)</label>
+                                                <input name="allocatedAmount" type="number" required min="1" value="<%= esc(b.getAllocatedAmount().toString()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-black text-brand-900 focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                            </div>
+                                            <div class="sm:col-span-1 lg:col-span-3">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Description</label>
+                                                <input name="description" type="text" value="<%= esc(b.getDescription()==null?"":b.getDescription()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-orange-500/20 outline-none">
+                                            </div>
+                                            <div class="col-span-full flex gap-2">
+                                                <button class="flex-1 rounded-2xl bg-brand-900 px-6 py-4 text-sm font-bold text-white hover:bg-brand-800 transition-colors" type="submit">Save Changes</button>
+                                                <a href="<%= request.getContextPath() %>/admin/budgets" class="flex-1 w-full rounded-2xl bg-slate-200 px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-300 transition-colors text-center">Cancel</a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         <% }} %>
                     </div>
@@ -218,8 +309,14 @@
                     document.body.style.overflow = '';
                 }
             }
+            function toggleBudgetEdit(budgetId) {
+                const form = document.getElementById('edit-budget-' + budgetId);
+                if (form) {
+                    form.classList.toggle('hidden');
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+            lucide.createIcons();
         </script>
-    </body>
-</html>
     </body>
 </html>

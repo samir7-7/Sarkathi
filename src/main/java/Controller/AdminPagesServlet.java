@@ -1,22 +1,29 @@
 package Controller;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import DAO.impl.AgricultureNoticeDAO;
-import DAO.interfaces.AgricultureNoticeDAOInterface;
 import DAO.impl.AnnouncementDAO;
-import DAO.interfaces.AnnouncementDAOInterface;
 import DAO.impl.ApplicationDAO;
 import DAO.impl.ApplicationDocumentDAO;
-import DAO.interfaces.ApplicationDocumentDAOInterface;
-import DAO.interfaces.ApplicationDAOInterface;
 import DAO.impl.BudgetAllocationDAO;
-import DAO.interfaces.BudgetAllocationDAOInterface;
 import DAO.impl.CitizenDAO;
-import DAO.interfaces.CitizenDAOInterface;
 import DAO.impl.CitizenDocumentVaultDAO;
-import DAO.interfaces.CitizenDocumentVaultDAOInterface;
 import DAO.impl.ServiceTypeDAO;
-import DAO.interfaces.ServiceTypeDAOInterface;
 import DAO.impl.WardDAO;
+import DAO.interfaces.AgricultureNoticeDAOInterface;
+import DAO.interfaces.AnnouncementDAOInterface;
+import DAO.interfaces.ApplicationDAOInterface;
+import DAO.interfaces.ApplicationDocumentDAOInterface;
+import DAO.interfaces.BudgetAllocationDAOInterface;
+import DAO.interfaces.CitizenDAOInterface;
+import DAO.interfaces.CitizenDocumentVaultDAOInterface;
+import DAO.interfaces.ServiceTypeDAOInterface;
 import DAO.interfaces.WardDAOInterface;
 import Model.Application;
 import Model.ApplicationDocument;
@@ -25,20 +32,12 @@ import Model.CitizenDocumentVault;
 import Model.ServiceType;
 import Model.Ward;
 import Util.DatabaseConnection;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Page-loading dispatcher for the admin section. Each URL pulls the data its
@@ -82,12 +81,24 @@ public class AdminPagesServlet extends HttpServlet {
             if ("/admin/notices".equals(path)) {
                 AgricultureNoticeDAOInterface noticeDAO = new AgricultureNoticeDAO(conn);
                 request.setAttribute("notices", noticeDAO.findAll());
+                String editNoticeId = request.getParameter("edit");
+                if (editNoticeId != null && !editNoticeId.isBlank()) {
+                    request.setAttribute("editingNoticeId", editNoticeId);
+                }
             } else if ("/admin/announcements".equals(path)) {
                 AnnouncementDAOInterface announcementDAO = new AnnouncementDAO(conn);
                 request.setAttribute("announcements", announcementDAO.findAll());
+                String editAnnouncementId = request.getParameter("edit");
+                if (editAnnouncementId != null && !editAnnouncementId.isBlank()) {
+                    request.setAttribute("editingAnnouncementId", editAnnouncementId);
+                }
             } else if ("/admin/budgets".equals(path)) {
                 BudgetAllocationDAOInterface budgetDAO = new BudgetAllocationDAO(conn);
                 request.setAttribute("budgets", budgetDAO.findAll());
+                String editBudgetId = request.getParameter("edit");
+                if (editBudgetId != null && !editBudgetId.isBlank()) {
+                    request.setAttribute("editingBudgetId", editBudgetId);
+                }
             } else if ("/admin/applications".equals(path)) {
                 loadApplications(request, conn);
             }

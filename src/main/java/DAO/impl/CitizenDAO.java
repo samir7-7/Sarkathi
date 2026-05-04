@@ -1,9 +1,5 @@
 package DAO.impl;
 
-import DAO.interfaces.CitizenDAOInterface;
-
-import Model.Citizen;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -14,6 +10,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import DAO.interfaces.CitizenDAOInterface;
+import Model.Citizen;
 
 /**
  * JDBC implementation of {@link CitizenDAOInterface}. Used by registration,
@@ -37,6 +36,7 @@ public class CitizenDAO extends BaseDAO implements CitizenDAOInterface {
      * The citizen object is expected to already carry a BCrypt password hash
      * by the time it gets here — see {@code Util.PasswordUtil}.
      */
+    @Override
     public Citizen create(Citizen citizen) throws SQLException {
         String sql = """
                 INSERT INTO CITIZEN (FullName, Email, Phone, PasswordHash, DateOfBirth, Gender, CreatedAt)
@@ -64,6 +64,7 @@ public class CitizenDAO extends BaseDAO implements CitizenDAOInterface {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Optional<Citizen> findById(int citizenId) throws SQLException {
         String sql = "SELECT * FROM CITIZEN WHERE CitizenID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -77,6 +78,7 @@ public class CitizenDAO extends BaseDAO implements CitizenDAOInterface {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Optional<Citizen> findByEmail(String email) throws SQLException {
         String sql = "SELECT * FROM CITIZEN WHERE Email = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -92,6 +94,7 @@ public class CitizenDAO extends BaseDAO implements CitizenDAOInterface {
      * <p>
      * Sorted newest-registration first.
      */
+    @Override
     public List<Citizen> findAll() throws SQLException {
         String sql = "SELECT * FROM CITIZEN ORDER BY CreatedAt DESC";
         List<Citizen> citizens = new ArrayList<>();
@@ -111,6 +114,7 @@ public class CitizenDAO extends BaseDAO implements CitizenDAOInterface {
      * changes go through a dedicated flow so we don't accidentally clobber
      * the hash with whatever was in memory.
      */
+    @Override
     public Citizen update(Citizen citizen) throws SQLException {
         String sql = """
                 UPDATE CITIZEN
@@ -132,6 +136,7 @@ public class CitizenDAO extends BaseDAO implements CitizenDAOInterface {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean deleteById(int citizenId) throws SQLException {
         String sql = "DELETE FROM CITIZEN WHERE CitizenID = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {

@@ -3,7 +3,7 @@
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
 <%! private String esc(Object value) { if (value == null) return ""; return value.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;"); } private String categoryClass(String category) { if ("subsidy".equals(category)) return "bg-emerald-50 text-emerald-700"; if ("training".equals(category)) return "bg-violet-50 text-violet-700"; if ("scheme".equals(category)) return "bg-blue-50 text-blue-700"; return "bg-slate-50 text-slate-600"; } %>
-<% Integer adminId = (Integer) request.getAttribute("adminId"); String adminName = (String) request.getAttribute("adminName"); String adminRole = (String) request.getAttribute("adminRole"); String pageError = (String) request.getAttribute("pageError"); String noticeError = (String) request.getAttribute("noticeError"); String formError = request.getParameter("error"); List<AgricultureNotice> notices = (List<AgricultureNotice>) request.getAttribute("notices"); DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy"); if (adminName == null) adminName = "Admin"; if (adminRole == null) adminRole = "admin"; if (notices == null) notices = List.of(); String error = pageError != null ? pageError : (noticeError != null ? noticeError : formError); %>
+<% Integer adminId = (Integer) request.getAttribute("adminId"); String adminName = (String) request.getAttribute("adminName"); String adminRole = (String) request.getAttribute("adminRole"); String pageError = (String) request.getAttribute("pageError"); String noticeError = (String) request.getAttribute("noticeError"); String formError = request.getParameter("error"); List<AgricultureNotice> notices = (List<AgricultureNotice>) request.getAttribute("notices"); String editingNoticeId = (String) request.getAttribute("editingNoticeId"); DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy"); if (adminName == null) adminName = "Admin"; if (adminRole == null) adminRole = "admin"; if (notices == null) notices = List.of(); String error = pageError != null ? pageError : (noticeError != null ? noticeError : formError); %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -123,13 +123,50 @@
                                         <h3 class="text-lg font-black text-slate-900 mb-2 truncate"><%= esc(notice.getTitle()) %></h3>
                                         <p class="text-sm leading-relaxed text-slate-600 font-medium whitespace-pre-wrap"><%= esc(notice.getContent()) %></p>
                                     </div>
-                                    <form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" class="shrink-0 self-end sm:self-start">
-                                        <input type="hidden" name="redirectTo" value="/admin/notices">
-                                        <input type="hidden" name="action" value="delete">
+                                    <div class="shrink-0 self-end sm:self-start flex gap-2">
+                                        <form method="get" action="<%= request.getContextPath() %>/admin/notices" class="inline">
+                                            <input type="hidden" name="edit" value="<%= notice.getNoticeId() %>">
+                                            <button class="h-11 w-11 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-all hover:bg-blue-100 active:scale-95" title="Edit" type="submit">
+                                                <i data-lucide="edit-2" class="h-5 w-5"></i>
+                                            </button>
+                                        </form>
+                                        <form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" onsubmit="return confirm('Are you sure you want to delete?')" class="inline">
+                                            <input type="hidden" name="redirectTo" value="/admin/notices">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="noticeId" value="<%= notice.getNoticeId() %>">
+                                            <button class="h-11 w-11 flex items-center justify-center rounded-xl bg-red-50 text-red-600 transition-all hover:bg-red-100 active:scale-95" type="submit" title="Cease Broadcast">
+                                                <i data-lucide="x-circle" class="h-5 w-5"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div <% if(editingNoticeId!=null && editingNoticeId.equals(String.valueOf(notice.getNoticeId()))) { %> style="display:block" <% } else { %> style="display:none" <% } %> id="edit-notice-<%= notice.getNoticeId() %>" class="mt-6 pt-6 border-t border-slate-200">
+                                    <form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" class="space-y-4">
                                         <input type="hidden" name="noticeId" value="<%= notice.getNoticeId() %>">
-                                        <button class="h-11 w-11 flex items-center justify-center rounded-xl bg-red-50 text-red-600 transition-all hover:bg-red-100 active:scale-95" type="submit" title="Cease Broadcast">
-                                            <i data-lucide="x-circle" class="h-5 w-5"></i>
-                                        </button>
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" name="redirectTo" value="/admin/notices">
+                                        <div class="grid gap-4 sm:grid-cols-2">
+                                            <div class="col-span-full">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Notice Title</label>
+                                                <input name="title" type="text" required value="<%= esc(notice.getTitle()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
+                                            </div>
+                                            <div class="col-span-full">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Content</label>
+                                                <textarea name="content" rows="3" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none resize-none"><%= esc(notice.getContent()) %></textarea>
+                                            </div>
+                                            <div class="col-span-full sm:col-span-1">
+                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Category</label>
+                                                <select name="category" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-black text-slate-700 appearance-none focus:ring-2 focus:ring-emerald-500 outline-none">
+                                                    <option value="subsidy" <% if ("subsidy".equals(notice.getCategory())) { %>selected<% } %>>Grant & Subsidy</option>
+                                                    <option value="training" <% if ("training".equals(notice.getCategory())) { %>selected<% } %>>Skills & Training</option>
+                                                    <option value="scheme" <% if ("scheme".equals(notice.getCategory())) { %>selected<% } %>>General Scheme</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-span-full sm:col-span-1 flex gap-2 sm:items-end">
+                                                <button class="flex-1 rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-bold text-white hover:bg-emerald-700 transition-colors" type="submit">Save Changes</button>
+                                                <a href="<%= request.getContextPath() %>/admin/notices" class="flex-1 w-full rounded-2xl bg-slate-200 px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-300 transition-colors text-center">Cancel</a>
+                                            </div>
+                                        </div>
                                     </form>
                                 </div>
                             </article>
@@ -154,8 +191,14 @@
                     document.body.style.overflow = '';
                 }
             }
+            function toggleEditForm(noticeId) {
+                const form = document.getElementById('edit-notice-' + noticeId);
+                if (form) {
+                    form.classList.toggle('hidden');
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+            lucide.createIcons();
         </script>
-    </body>
-</html>
     </body>
 </html>

@@ -1,13 +1,5 @@
 package Controller;
 
-import DAO.impl.AnnouncementDAO;
-import Model.Announcement;
-import Util.DatabaseConnection;
-
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +9,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import DAO.impl.AnnouncementDAO;
+import Model.Announcement;
+import Util.DatabaseConnection;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * CRUD endpoint for municipal announcements. Reads are public; writes (create,
@@ -89,7 +88,7 @@ public class AnnouncementServlet extends BaseApiServlet {
             }
         } catch (SecurityException e) {
             redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | SQLException e) {
             redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         }
     }
@@ -103,6 +102,7 @@ public class AnnouncementServlet extends BaseApiServlet {
      */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
         try {
             requireAdmin(request);
             Announcement a = new Announcement();
@@ -115,13 +115,14 @@ public class AnnouncementServlet extends BaseApiServlet {
             }
             try (Connection conn = DatabaseConnection.getConnection()) {
                 boolean ok = new AnnouncementDAO(conn).update(a);
-                writeJson(response, ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND,
-                    "{\"success\":" + ok + "}");
+                redirectOrWriteJson(request, response, redirectTo,
+                        ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND,
+                        "{\"success\":" + ok + "}");
             }
         } catch (SecurityException e) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-        } catch (Exception e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
+        } catch (IllegalArgumentException | SQLException e) {
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
@@ -141,7 +142,7 @@ public class AnnouncementServlet extends BaseApiServlet {
                 "{\"success\":" + ok + "}");
         } catch (SecurityException e) {
             writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | SQLException e) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
