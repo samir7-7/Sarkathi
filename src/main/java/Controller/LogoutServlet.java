@@ -1,5 +1,6 @@
 package Controller;
 
+import Util.CookieUtil;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +32,7 @@ public class LogoutServlet extends HttpServlet {
         if (session != null) {
             session.invalidate();
         }
+        CookieUtil.clearCookie(request, response, "JSESSIONID");
         response.sendRedirect(request.getContextPath() + "/login");
     }
 }

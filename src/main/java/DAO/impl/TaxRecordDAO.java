@@ -2,6 +2,7 @@ package DAO.impl;
 
 import DAO.interfaces.TaxRecordDAOInterface;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -89,6 +90,62 @@ public class TaxRecordDAO extends BaseDAO implements TaxRecordDAOInterface {
             s.executeUpdate();
         }
         return findById(taxId).orElse(null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long countPaid() throws SQLException {
+        String sql = """
+                SELECT COUNT(*)
+                FROM TAX_RECORD tr
+                INNER JOIN PAYMENT p ON p.PaymentID = tr.PaymentID
+                WHERE tr.IsPaid = TRUE AND p.Status = 'completed'
+                """;
+        try (PreparedStatement s = connection.prepareStatement(sql);
+             ResultSet rs = s.executeQuery()) {
+            return rs.next() ? rs.getLong(1) : 0L;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public BigDecimal sumPaidAmount() throws SQLException {
+        String sql = """
+                SELECT COALESCE(SUM(tr.DueAmount), 0)
+                FROM TAX_RECORD tr
+                INNER JOIN PAYMENT p ON p.PaymentID = tr.PaymentID
+                WHERE tr.IsPaid = TRUE AND p.Status = 'completed'
+                """;
+        try (PreparedStatement s = connection.prepareStatement(sql);
+             ResultSet rs = s.executeQuery()) {
+            return rs.next() ? rs.getBigDecimal(1) : BigDecimal.ZERO;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<TaxRecord> findRecentPaid(int limit) throws SQLException {
+        String sql = """
+                SELECT tr.*
+                FROM TAX_RECORD tr
+                INNER JOIN PAYMENT p ON p.PaymentID = tr.PaymentID
+                WHERE tr.IsPaid = TRUE AND p.Status = 'completed'
+                ORDER BY p.PaidAt DESC, tr.TaxID DESC
+                LIMIT ?
+                """;
+        List<TaxRecord> records = new ArrayList<>();
+        try (PreparedStatement s = connection.prepareStatement(sql)) {
+            s.setInt(1, limit);
+            try (ResultSet rs = s.executeQuery()) {
+                while (rs.next()) {
+                    records.add(map(rs));
+                }
+            }
+        }
+        return records;
     }
 
     /**

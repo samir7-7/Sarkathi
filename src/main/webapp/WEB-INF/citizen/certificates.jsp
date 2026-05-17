@@ -48,35 +48,13 @@
             }
         </style>
         <%@ include file="../includes/lucide-icons.jsp" %>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/style/ui-improvements.css">
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/style/typography.css">
     </head>
     <body class="bg-[#fafafc] text-slate-800 antialiased overflow-x-hidden">
         <div class="flex min-h-screen relative">
-            <!-- Mobile Bottom Nav -->
-            <nav class="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-slate-200 bg-white/95 backdrop-blur-md px-2 lg:hidden safe-area-bottom">
-                <a href="<%= request.getContextPath() %>/citizen/dashboard" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Home</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/apply" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="file-plus-2" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Apply</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/tracking" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="search-check" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Track</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/notifications" class="flex flex-col items-center justify-center gap-1 text-slate-500 relative">
-                    <i data-lucide="bell" class="h-5 w-5"></i>
-                    <% if(unread>0){ %>
-                        <span class="absolute top-0 right-1 h-2 w-2 rounded-full bg-red-500"></span>
-                    <% } %>
-                    <span class="text-[10px] font-medium">Inbox</span>
-                </a>
-                <button onclick="toggleSidebar()" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Menu</span>
-                </button>
-            </nav>
+            <%@ include file="../includes/mobile-nav-citizen.jsp" %>
+
 
             <!-- Sidebar Overlay -->
             <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
@@ -86,30 +64,30 @@
             <div class="flex-1 flex flex-col min-h-screen w-full relative">
 
                 <!-- Header -->
-                <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
+                <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200/80 bg-white px-8 py-4">
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Credentials Vault</h1>
-                        <p class="text-xs text-slate-500 font-medium mt-0.5">Your officially issued digital certificates</p>
+                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Certificates</h1>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Your officially issued digital credentials</p>
                     </div>
-                    <div class="flex items-center gap-4">
-                         <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative p-2 text-slate-500 hover:text-brand-900 transition-colors border border-slate-100 rounded-xl">
-                            <i data-lucide="bell" class="h-5 w-5"></i>
-                            <% if(unread>0){ %><span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span><% } %>
+                    <div class="flex items-center gap-3">
+                         <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative p-2.5 text-slate-400 hover:text-brand-900 transition-colors border border-slate-200 rounded-xl hover:bg-slate-50">
+                            <i data-lucide="bell" class="h-[18px] w-[18px]"></i>
+                            <% if(unread>0){ %><span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span><% } %>
                         </a>
+                        <div class="h-9 w-9 rounded-xl bg-brand-900 text-white flex items-center justify-center text-xs font-bold"><%= citizenName.substring(0,1).toUpperCase() %></div>
                     </div>
                 </header>
 
-                <!-- Mobile Header -->
-                <div class="lg:hidden flex items-center justify-between px-5 pt-6 pb-4 bg-[#fafafc]">
+                <div class="lg:hidden flex items-center justify-between px-5 pt-6 pb-4">
                      <div class="flex flex-col">
-                        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight leading-tight leading-tight">Certificates</h1>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Official Vault</p>
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tight leading-tight">Certificates</h1>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Official Vault</p>
                     </div>
                 </div>
 
-                <main class="flex-1 px-4 py-6 sm:px-8 sm:py-8 overflow-y-auto w-full max-w-7xl mx-auto pb-32 lg:pb-8">
+                <main class="flex-1 px-4 py-4 sm:px-6 lg:px-8 overflow-y-auto w-full pb-24 lg:pb-8">
                     <% if(certificates.isEmpty()){ %>
-                        <div class="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                        <div class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-slate-200/80">
                             <div class="h-20 w-20 rounded-full bg-brand-50 flex items-center justify-center text-brand-900 mb-6">
                                 <i data-lucide="award" class="h-10 w-10"></i>
                             </div>
@@ -120,7 +98,7 @@
                     <% } else { %>
                         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <% for(IssuedCertificate c : certificates){ %>
-                                <article class="group relative bg-white rounded-3xl border border-slate-200 p-6 transition-all hover:shadow-xl hover:shadow-brand-900/5 overflow-hidden">
+                                <article class="group relative bg-white rounded-2xl border border-slate-200/80 p-6 transition-all hover:shadow-xl hover:shadow-brand-900/5 overflow-hidden">
                                     <!-- Decorative background -->
                                     <div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-brand-50/30 group-hover:scale-110 transition-transform duration-500"></div>
                                     

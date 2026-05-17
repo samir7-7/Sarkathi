@@ -1,6 +1,7 @@
 package Controller;
 
 import DAO.impl.ApplicationDAO;
+import DAO.impl.TaxRecordDAO;
 import Util.DatabaseConnection;
 
 import jakarta.servlet.annotation.WebServlet;
@@ -31,13 +32,16 @@ public class DashboardServlet extends BaseApiServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try (Connection connection = DatabaseConnection.getConnection()) {
             ApplicationDAO applicationDAO = new ApplicationDAO(connection);
+            TaxRecordDAO taxRecordDAO = new TaxRecordDAO(connection);
             writeJson(response, HttpServletResponse.SC_OK,
                     "{"
                             + "\"totalApplications\":" + applicationDAO.countAll() + ","
                             + "\"submitted\":" + applicationDAO.countByStatus("submitted") + ","
                             + "\"review\":" + applicationDAO.countByStatus("review") + ","
                             + "\"approved\":" + applicationDAO.countByStatus("approved") + ","
-                            + "\"rejected\":" + applicationDAO.countByStatus("rejected")
+                            + "\"rejected\":" + applicationDAO.countByStatus("rejected") + ","
+                            + "\"paidTaxCount\":" + taxRecordDAO.countPaid() + ","
+                            + "\"totalTaxCollected\":" + taxRecordDAO.sumPaidAmount()
                             + "}");
         } catch (SQLException e) {
             writeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());

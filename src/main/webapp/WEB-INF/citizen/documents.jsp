@@ -2,6 +2,7 @@
 <%@ page import="Model.ApplicationDocument" %>
 <%@ page import="Model.CitizenDocumentVault" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.List" %>
 <%! private String esc(Object value){if(value==null)return "";return value.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");} %>
 <% 
@@ -54,33 +55,13 @@
             }
         </style>
         <%@ include file="../includes/lucide-icons.jsp" %>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/style/ui-improvements.css">
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/style/typography.css">
     </head>
     <body class="bg-[#fafafc] text-slate-800 antialiased overflow-x-hidden">
         <div class="flex min-h-screen relative">
-            <!-- Mobile Bottom Nav -->
-            <nav class="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-slate-200 bg-white/95 backdrop-blur-md px-2 lg:hidden safe-area-bottom">
-                <a href="<%= request.getContextPath() %>/citizen/dashboard" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Home</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/apply" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="file-plus-2" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Apply</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/tracking" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="search-check" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Track</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/notifications" class="flex flex-col items-center justify-center gap-1 text-slate-500 relative">
-                    <i data-lucide="bell" class="h-5 w-5"></i>
-                    <% if(unread>0){ %><span class="absolute top-0 right-1 h-2 w-2 rounded-full bg-red-500"></span><% } %>
-                    <span class="text-[10px] font-medium">Inbox</span>
-                </a>
-                <button onclick="toggleSidebar()" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Menu</span>
-                </button>
-            </nav>
+            <%@ include file="../includes/mobile-nav-citizen.jsp" %>
+
 
             <!-- Sidebar -->
             <!-- Sidebar Overlay -->
@@ -91,22 +72,28 @@
             <div class="flex-1 flex flex-col min-h-screen w-full relative">
 
                 <!-- Header -->
-                <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Document Vault</h1>
-                    <div class="flex items-center gap-4">
-                         <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative p-2 text-slate-500 hover:text-brand-900 border border-slate-100 rounded-xl transition-colors">
-                            <i data-lucide="bell" class="h-5 w-5"></i>
-                            <% if(unread>0){ %><span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span><% } %>
+                <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200/80 bg-white px-8 py-4">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Documents</h1>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Your personal document repository</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                         <a href="<%= request.getContextPath() %>/citizen/notifications" class="relative p-2.5 text-slate-400 hover:text-brand-900 border border-slate-200 rounded-xl transition-colors hover:bg-slate-50">
+                            <i data-lucide="bell" class="h-[18px] w-[18px]"></i>
+                            <% if(unread>0){ %><span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span><% } %>
                         </a>
+                        <div class="h-9 w-9 rounded-xl bg-brand-900 text-white flex items-center justify-center text-xs font-bold"><%= citizenName.substring(0,1).toUpperCase() %></div>
                     </div>
                 </header>
 
-                <div class="lg:hidden px-5 pt-6 pb-2">
-                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Documents</h1>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Personal Repository</p>
+                <div class="lg:hidden flex items-center justify-between px-5 pt-6 pb-4">
+                    <div class="flex flex-col">
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Documents</h1>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Personal Repository</p>
+                    </div>
                 </div>
 
-                <main class="flex-1 px-4 py-6 sm:px-8 sm:py-8 overflow-y-auto w-full max-w-7xl mx-auto pb-32 lg:pb-8">
+                <main class="flex-1 px-4 py-4 sm:px-6 lg:px-8 overflow-y-auto w-full pb-24 lg:pb-8">
                     <% if(pageError != null || formError != null){ %>
                         <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-700 text-sm font-medium">
                             <%= esc(pageError != null ? pageError : formError) %>
@@ -114,7 +101,7 @@
                     <% } %>
 
                     <!-- Upload Form -->
-                    <section class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm mb-8">
+                    <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm mb-6">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="h-10 w-10 bg-brand-50 text-brand-900 rounded-xl flex items-center justify-center">
                                 <i data-lucide="upload-cloud" class="h-5 w-5"></i>
@@ -136,16 +123,16 @@
                     </section>
 
                     <!-- Documents Grid -->
-                    <div class="space-y-8">
+                    <div class="space-y-6">
                         <section>
                             <h3 class="text-base font-bold text-slate-900 px-2 mb-4 uppercase tracking-wider text-[11px] text-slate-400">Reusable Vault Files</h3>
                             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 <% if(documents.isEmpty()){ %>
-                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 ">No files in vault</div>
+                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-2xl border border-dashed border-slate-200/80 text-slate-400 ">No files in vault</div>
                                 <% } else { for(CitizenDocumentVault d : documents){ 
-                                    String path = d.getFilePath()==null?"#":(d.getFilePath().startsWith("/")?request.getContextPath()+d.getFilePath():request.getContextPath()+"/"+d.getFilePath()); 
+                                    String path = d.getFilePath()==null?"#":request.getContextPath()+"/api/files/view?path="+URLEncoder.encode(d.getFilePath(),"UTF-8"); 
                                 %>
-                                    <article class="bg-white p-5 rounded-3xl border border-slate-200 flex flex-col items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
+                                    <article class="bg-white p-5 rounded-2xl border border-slate-200/80 flex flex-col items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
                                         <div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
                                             <i data-lucide="file-text" class="h-5 w-5"></i>
                                         </div>
@@ -163,11 +150,11 @@
                             <h3 class="text-base font-bold text-slate-900 px-2 mb-4 uppercase tracking-wider text-[11px] text-slate-400">Application Attachments</h3>
                             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 <% if(applicationDocuments.isEmpty()){ %>
-                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 text-slate-400 ">No linked documents</div>
+                                    <div class="sm:col-span-2 lg:col-span-3 py-12 text-center bg-white rounded-2xl border border-dashed border-slate-200/80 text-slate-400 ">No linked documents</div>
                                 <% } else { for(ApplicationDocument d : applicationDocuments){ 
-                                    String path = d.getFilePath()==null?"#":(d.getFilePath().startsWith("/")?request.getContextPath()+d.getFilePath():request.getContextPath()+"/"+d.getFilePath()); 
+                                    String path = d.getFilePath()==null?"#":request.getContextPath()+"/api/files/view?path="+URLEncoder.encode(d.getFilePath(),"UTF-8"); 
                                 %>
-                                    <article class="bg-white p-5 rounded-3xl border border-slate-200 flex items-center gap-4 shadow-sm">
+                                    <article class="bg-white p-5 rounded-2xl border border-slate-200/80 flex items-center gap-4 shadow-sm">
                                         <div class="h-10 w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center flex-shrink-0">
                                             <i data-lucide="paperclip" class="h-5 w-5"></i>
                                         </div>

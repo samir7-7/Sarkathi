@@ -94,6 +94,7 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
      */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
         try {
             requireAdmin(request);
             AgricultureNotice n = new AgricultureNotice();
@@ -103,12 +104,14 @@ public class AgricultureNoticeServlet extends BaseApiServlet {
             n.setCategory(getRequiredParameter(request, "category"));
             try (Connection conn = DatabaseConnection.getConnection()) {
                 boolean ok = new AgricultureNoticeDAO(conn).update(n);
-                writeJson(response, ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND, "{\"success\":" + ok + "}");
+                redirectOrWriteJson(request, response, redirectTo,
+                        ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND,
+                        "{\"success\":" + ok + "}");
             }
         } catch (SecurityException e) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
         } catch (IllegalArgumentException | SQLException e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 

@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * Payment recording endpoint. Payments are dual-purpose: application service
- * fees are charged against an application, while house and land taxes are
+ * fees are charged against an application, while municipal tax payments are
  * recorded against the citizen and create or update a {@code TaxRecord} row
  * in the same transaction.
  * <p>
@@ -95,6 +95,7 @@ public class PaymentServlet extends BaseApiServlet {
             String normalizedTaxType = normalizeTaxType(payment.getPaymentType());
             if (citizenIdParam != null && normalizedTaxType != null) {
                 requireCitizenOwnership(request, Integer.parseInt(citizenIdParam));
+                throw new SecurityException("Citizen tax payments must be completed through eSewa.");
             } else {
                 requireAdmin(request);
             }
@@ -241,7 +242,8 @@ public class PaymentServlet extends BaseApiServlet {
 
     /**
      * Maps the loose payment-type strings the form may send ({@code houseTax},
-     * {@code house}, etc.) to the canonical tax types stored on the record.
+     * {@code sanitationTax}, {@code house}, etc.) to the canonical tax types
+     * stored on the record.
      * Returns {@code null} for non-tax payment types.
      *
      * @param paymentType payment-type string from the request
@@ -254,6 +256,9 @@ public class PaymentServlet extends BaseApiServlet {
         return switch (paymentType.toLowerCase()) {
             case "housetax", "house" -> "house";
             case "landtax", "land" -> "land";
+            case "businesstax", "business" -> "business";
+            case "vehicletax", "vehicle" -> "vehicle";
+            case "sanitationtax", "sanitation" -> "sanitation";
             default -> null;
         };
     }

@@ -87,7 +87,7 @@ public class AuthenticationFilter implements Filter {
             return;
         }
 
-        String requiredRole = requiredRole(path);
+        String requiredRole = requiredRole(request, path);
         if (requiredRole == null && !requiresAuthenticatedUser(path)) {
             chain.doFilter(request, response);
             return;
@@ -159,11 +159,13 @@ public class AuthenticationFilter implements Filter {
      * @param path application-relative path
      * @return {@code "admin"}, {@code "citizen"}, or {@code null}
      */
-    private String requiredRole(String path) {
+    private String requiredRole(HttpServletRequest request, String path) {
+        if ("/api/announcements".equals(path)) {
+            return "GET".equalsIgnoreCase(request.getMethod()) ? null : "admin";
+        }
         if (path.startsWith("/admin") || path.startsWith("/api/admin")
                 || "/api/analytics".equals(path)
                 || "/api/dashboard".equals(path)
-                || "/api/announcements".equals(path)
                 || "/api/agriculture-notices".equals(path)
                 || "/api/budgets".equals(path)) {
             return "admin";
@@ -184,6 +186,7 @@ public class AuthenticationFilter implements Filter {
      */
     private boolean requiresAuthenticatedUser(String path) {
         return path.startsWith("/uploads/")
+                || path.startsWith("/api/files")
                 || path.startsWith("/api/applications")
                 || path.startsWith("/api/certificates")
                 || path.startsWith("/api/citizens")

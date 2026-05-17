@@ -1,44 +1,49 @@
 package Controller;
 
-import DAO.impl.AgricultureNoticeDAO;
-import DAO.interfaces.AgricultureNoticeDAOInterface;
-import DAO.impl.AnnouncementDAO;
-import DAO.interfaces.AnnouncementDAOInterface;
-import DAO.impl.ApplicationDAO;
-import DAO.impl.ApplicationDocumentDAO;
-import DAO.interfaces.ApplicationDocumentDAOInterface;
-import DAO.interfaces.ApplicationDAOInterface;
-import DAO.impl.BudgetAllocationDAO;
-import DAO.interfaces.BudgetAllocationDAOInterface;
-import DAO.impl.CitizenDAO;
-import DAO.interfaces.CitizenDAOInterface;
-import DAO.impl.CitizenDocumentVaultDAO;
-import DAO.interfaces.CitizenDocumentVaultDAOInterface;
-import DAO.impl.ServiceTypeDAO;
-import DAO.interfaces.ServiceTypeDAOInterface;
-import DAO.impl.WardDAO;
-import DAO.interfaces.WardDAOInterface;
-import Model.Application;
-import Model.ApplicationDocument;
-import Model.Citizen;
-import Model.CitizenDocumentVault;
-import Model.ServiceType;
-import Model.Ward;
-import Util.DatabaseConnection;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import DAO.impl.AgricultureNoticeDAO;
+import DAO.impl.AnnouncementDAO;
+import DAO.impl.ApplicationDAO;
+import DAO.impl.ApplicationDocumentDAO;
+import DAO.impl.BudgetAllocationDAO;
+import DAO.impl.CitizenDAO;
+import DAO.impl.CitizenDocumentVaultDAO;
+import DAO.impl.IssuedCertificateDAO;
+import DAO.impl.PaymentDAO;
+import DAO.impl.ServiceTypeDAO;
+import DAO.impl.TaxRecordDAO;
+import DAO.impl.WardDAO;
+import DAO.interfaces.AgricultureNoticeDAOInterface;
+import DAO.interfaces.AnnouncementDAOInterface;
+import DAO.interfaces.ApplicationDAOInterface;
+import DAO.interfaces.ApplicationDocumentDAOInterface;
+import DAO.interfaces.BudgetAllocationDAOInterface;
+import DAO.interfaces.CitizenDAOInterface;
+import DAO.interfaces.CitizenDocumentVaultDAOInterface;
+import DAO.interfaces.ServiceTypeDAOInterface;
+import DAO.interfaces.WardDAOInterface;
+import Model.Application;
+import Model.ApplicationDocument;
+import Model.Citizen;
+import Model.CitizenDocumentVault;
+import Model.IssuedCertificate;
+import Model.Payment;
+import Model.ServiceType;
+import Model.TaxRecord;
+import Model.Ward;
+import Util.DatabaseConnection;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Page-loading dispatcher for the admin section. Each URL pulls the data its
@@ -50,7 +55,7 @@ import java.util.Map;
  * @author SarkarSathi
  */
 @WebServlet(name = "adminPagesServlet", urlPatterns = {
-    "/admin/applications", "/admin/notices", "/admin/announcements", "/admin/budgets"
+    "/admin/applications", "/admin/notices", "/admin/announcements", "/admin/budgets", "/admin/tax-payments"
 })
 public class AdminPagesServlet extends HttpServlet {
     /**
@@ -82,12 +87,26 @@ public class AdminPagesServlet extends HttpServlet {
             if ("/admin/notices".equals(path)) {
                 AgricultureNoticeDAOInterface noticeDAO = new AgricultureNoticeDAO(conn);
                 request.setAttribute("notices", noticeDAO.findAll());
+                String editNoticeId = request.getParameter("edit");
+                if (editNoticeId != null && !editNoticeId.isBlank()) {
+                    request.setAttribute("editingNoticeId", editNoticeId);
+                }
             } else if ("/admin/announcements".equals(path)) {
                 AnnouncementDAOInterface announcementDAO = new AnnouncementDAO(conn);
                 request.setAttribute("announcements", announcementDAO.findAll());
+                String editAnnouncementId = request.getParameter("edit");
+                if (editAnnouncementId != null && !editAnnouncementId.isBlank()) {
+                    request.setAttribute("editingAnnouncementId", editAnnouncementId);
+                }
             } else if ("/admin/budgets".equals(path)) {
                 BudgetAllocationDAOInterface budgetDAO = new BudgetAllocationDAO(conn);
                 request.setAttribute("budgets", budgetDAO.findAll());
+                String editBudgetId = request.getParameter("edit");
+                if (editBudgetId != null && !editBudgetId.isBlank()) {
+                    request.setAttribute("editingBudgetId", editBudgetId);
+                }
+            } else if ("/admin/tax-payments".equals(path)) {
+                loadTaxPayments(request, conn);
             } else if ("/admin/applications".equals(path)) {
                 loadApplications(request, conn);
             }
@@ -97,6 +116,10 @@ public class AdminPagesServlet extends HttpServlet {
             request.setAttribute("announcements", List.of());
             request.setAttribute("budgets", List.of());
             request.setAttribute("applications", List.of());
+            request.setAttribute("recentPaidTaxes", List.of());
+            request.setAttribute("paidTaxCitizensById", Map.of());
+            request.setAttribute("paidTaxPaymentsById", Map.of());
+            request.setAttribute("paidTaxCount", 0L);
         }
 
         String jsp = switch (path) {
@@ -104,6 +127,7 @@ public class AdminPagesServlet extends HttpServlet {
             case "/admin/notices" -> "/WEB-INF/admin/notices.jsp";
             case "/admin/announcements" -> "/WEB-INF/admin/announcements.jsp";
             case "/admin/budgets" -> "/WEB-INF/admin/budgets.jsp";
+            case "/admin/tax-payments" -> "/WEB-INF/admin/tax-payments.jsp";
             default -> "/WEB-INF/admin/dashboard.jsp";
         };
 
@@ -133,11 +157,15 @@ public class AdminPagesServlet extends HttpServlet {
         request.setAttribute("wardsById", mapWards(wardDAO.findAll()));
         ApplicationDocumentDAOInterface documentDAO = new ApplicationDocumentDAO(conn);
         CitizenDocumentVaultDAOInterface vaultDAO = new CitizenDocumentVaultDAO(conn);
+        IssuedCertificateDAO certificateDAO = new IssuedCertificateDAO(conn);
         Map<Integer, List<ApplicationDocument>> documentsByApplicationId = new HashMap<>();
+        Map<Integer, IssuedCertificate> certificatesByApplicationId = new HashMap<>();
         Map<Integer, List<CitizenDocumentVault>> vaultDocumentsByCitizenId = new HashMap<>();
         for (Application application : applications) {
             documentsByApplicationId.put(application.getApplicationId(),
                     documentDAO.findByApplicationId(application.getApplicationId()));
+            certificateDAO.findByApplicationId(application.getApplicationId())
+                    .ifPresent(certificate -> certificatesByApplicationId.put(application.getApplicationId(), certificate));
             vaultDocumentsByCitizenId.computeIfAbsent(application.getCitizenId(), citizenId -> {
                 try {
                     return vaultDAO.findByCitizenId(citizenId);
@@ -147,7 +175,50 @@ public class AdminPagesServlet extends HttpServlet {
             });
         }
         request.setAttribute("documentsByApplicationId", documentsByApplicationId);
+        request.setAttribute("certificatesByApplicationId", certificatesByApplicationId);
         request.setAttribute("vaultDocumentsByCitizenId", vaultDocumentsByCitizenId);
+    }
+
+    /**
+     * Loads paid municipal tax records along with citizen and payment lookups
+     * so the JSP can render a readable admin ledger.
+     *
+     * @param request the incoming request
+     * @param conn    open JDBC connection
+     * @throws SQLException if any lookup fails
+     */
+    private void loadTaxPayments(HttpServletRequest request, Connection conn) throws SQLException {
+        TaxRecordDAO taxRecordDAO = new TaxRecordDAO(conn);
+        CitizenDAO citizenDAO = new CitizenDAO(conn);
+        PaymentDAO paymentDAO = new PaymentDAO(conn);
+
+        List<TaxRecord> recentPaidTaxes = taxRecordDAO.findRecentPaid(100);
+        Map<Integer, Citizen> paidTaxCitizensById = new HashMap<>();
+        Map<Integer, Payment> paidTaxPaymentsById = new HashMap<>();
+
+        for (TaxRecord taxRecord : recentPaidTaxes) {
+            paidTaxCitizensById.computeIfAbsent(taxRecord.getCitizenId(), citizenId -> {
+                try {
+                    return citizenDAO.findById(citizenId).orElse(null);
+                } catch (SQLException e) {
+                    return null;
+                }
+            });
+            if (taxRecord.getPaymentId() > 0) {
+                paidTaxPaymentsById.computeIfAbsent(taxRecord.getPaymentId(), paymentId -> {
+                    try {
+                        return paymentDAO.findById(paymentId).orElse(null);
+                    } catch (SQLException e) {
+                        return null;
+                    }
+                });
+            }
+        }
+
+        request.setAttribute("recentPaidTaxes", recentPaidTaxes);
+        request.setAttribute("paidTaxCitizensById", paidTaxCitizensById);
+        request.setAttribute("paidTaxPaymentsById", paidTaxPaymentsById);
+        request.setAttribute("paidTaxCount", taxRecordDAO.countPaid());
     }
 
     /**

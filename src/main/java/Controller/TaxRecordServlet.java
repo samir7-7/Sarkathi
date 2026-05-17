@@ -18,8 +18,8 @@ import java.util.List;
 
 /**
  * Read-only tax record endpoint for citizens. The first time a citizen hits
- * this in a given fiscal year we lazily seed the canonical house- and
- * land-tax rows for them so the payments page always has something to show.
+ * this in a given fiscal year we lazily seed the standard municipal tax rows
+ * for them so the payments page always has something to show.
  * <p>
  * Default amounts are hard-coded for now (5000 / 3000) — when the
  * municipality starts publishing real per-citizen amounts, this is the
@@ -65,7 +65,7 @@ public class TaxRecordServlet extends BaseApiServlet {
     }
 
     /**
-     * Seeds the two standard tax records (house, land) for the current
+     * Seeds the standard tax records for the current
      * fiscal year if they don't already exist for this citizen.
      *
      * @param taxRecordDAO tax DAO
@@ -76,6 +76,14 @@ public class TaxRecordServlet extends BaseApiServlet {
         String fiscalYear = currentFiscalYear();
         ensureRecordExists(taxRecordDAO, citizenId, "house", fiscalYear, new BigDecimal("5000"));
         ensureRecordExists(taxRecordDAO, citizenId, "land", fiscalYear, new BigDecimal("3000"));
+        ensureRecordExists(taxRecordDAO, citizenId, "business", fiscalYear, new BigDecimal("2500"));
+        ensureRecordExists(taxRecordDAO, citizenId, "vehicle", fiscalYear, new BigDecimal("1800"));
+        ensureRecordExists(taxRecordDAO, citizenId, "sanitation", fiscalYear, new BigDecimal("1200"));
+        ensureRecordExists(taxRecordDAO, citizenId, "water", fiscalYear, new BigDecimal("900"));
+        ensureRecordExists(taxRecordDAO, citizenId, "rental", fiscalYear, new BigDecimal("2200"));
+        ensureRecordExists(taxRecordDAO, citizenId, "advertisement", fiscalYear, new BigDecimal("1500"));
+        ensureRecordExists(taxRecordDAO, citizenId, "solidwaste", fiscalYear, new BigDecimal("700"));
+        ensureRecordExists(taxRecordDAO, citizenId, "propertytransfer", fiscalYear, new BigDecimal("3500"));
     }
 
     /**

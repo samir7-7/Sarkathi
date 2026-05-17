@@ -20,7 +20,7 @@ public final class DatabaseConnection {
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String URL = "jdbc:mysql://localhost:3306/SarkarSathi";
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "1234567890";
 
     static {
         try {
@@ -50,6 +50,8 @@ public final class DatabaseConnection {
      * @throws SQLException if the connection can't be opened
      */
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        SchemaMigration.ensureCompatibility(connection);
+        return connection;
     }
 }

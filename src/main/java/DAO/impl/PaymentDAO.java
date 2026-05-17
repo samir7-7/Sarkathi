@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * JDBC implementation of {@link PaymentDAOInterface}.
@@ -58,6 +59,19 @@ public class PaymentDAO extends BaseDAO implements PaymentDAOInterface {
                 }
             }
             return payment;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Optional<Payment> findById(int paymentId) throws SQLException {
+        String sql = "SELECT * FROM PAYMENT WHERE PaymentID = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, paymentId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? Optional.of(map(resultSet)) : Optional.empty();
+            }
         }
     }
 

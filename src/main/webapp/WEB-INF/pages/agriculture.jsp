@@ -16,29 +16,19 @@
         <script src="https://cdn.tailwindcss.com">
         </script>
         <script>
-            tailwind.config={theme:{extend:{fontFamily:{sans:['Outfit','sans-serif']},colors:{brand:{50:'#f0f5fc',100:'#e1eafa',500:'#3b82f6',800:'#154a91',900:'#0b3d86'}}}}}
+            tailwind.config={theme:{extend:{fontFamily:{sans:['Outfit','sans-serif']},colors:{brand:{50:'#f0f5fc',100:'#e1eafa',400:'#60a5fa',500:'#3b82f6',800:'#154a91',900:'#0b3d86'}}}}}
         </script>
+        <%@ include file="../includes/responsive-scripts.jsp" %>
         <style>
-            body{font-family:'Outfit',sans-serif}
+            html{zoom:0.86}body{font-family:'Outfit',sans-serif}
         </style>
-            <%@ include file="../includes/lucide-icons.jsp" %>
+        <%@ include file="../includes/lucide-icons.jsp" %>
     </head>
-    <body class="bg-[#f8fafc] text-slate-900 antialiased selection:bg-brand-100 selection:text-brand-900 pb-20 lg:pb-0">
-        <!-- Modern Sidebar for Desktop -->
-        <%@ include file="../includes/sidebar-public.jsp" %>
+    <body class="bg-[#f8fafc] text-slate-900 antialiased selection:bg-brand-100 selection:text-brand-900 pb-16 lg:pb-0 overflow-x-hidden">
+        <% String displayName = (String) session.getAttribute("displayName"); boolean loggedIn = displayName != null && !displayName.isBlank(); %>
+        <%@ include file="../includes/navbar-public.jsp" %>
 
-
-        <!-- Mobile Header -->
-        <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-6 backdrop-blur-md lg:hidden">
-            <a href="<%= request.getContextPath() %>" class="text-xl font-black tracking-tight text-brand-900">
-                Sarkar<span class="text-brand-500">Sathi</span>
-            </a>
-            <a href="<%= request.getContextPath() %>/login" class="rounded-lg bg-brand-50 p-2 text-brand-900">
-                <i data-lucide="user" class="h-5 w-5"></i>
-            </a>
-        </header>
-
-        <main class="min-h-screen lg:ml-64 relative">
+        <main>
             <div class="p-6 lg:p-12">
                 <!-- Page Title -->
                 <div class="max-w-4xl mx-auto mb-10">
@@ -142,36 +132,8 @@
             </div>
         </main>
 
-        <!-- Mobile Global Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 px-6 pb-safe backdrop-blur-md lg:hidden">
-            <div class="flex h-16 items-center justify-between">
-                <a href="<%= request.getContextPath() %>/" class="flex flex-col items-center gap-1 text-slate-400 hover:text-brand-900">
-                    <i data-lucide="home" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-black uppercase tracking-tighter">Home</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/announcements" class="flex flex-col items-center gap-1 text-slate-400 hover:text-brand-900">
-                    <i data-lucide="megaphone" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-black uppercase tracking-tighter">News</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/agriculture" class="flex flex-col items-center gap-1 text-brand-900">
-                    <div class="bg-brand-100/50 p-2 rounded-xl">
-                        <i data-lucide="leaf" class="h-5 w-5"></i>
-                    </div>
-                    <span class="text-[10px] font-black uppercase tracking-tighter leading-none mt-1">Agri</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/budget" class="flex flex-col items-center gap-1 text-slate-400 hover:text-brand-900">
-                    <i data-lucide="wallet" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-black uppercase tracking-tighter">Budget</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/crop-advisory" class="flex flex-col items-center gap-1 text-slate-400 hover:text-brand-900">
-                    <i data-lucide="sprout" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-black uppercase tracking-tighter">Advisory</span>
-                </a>
-            </div>
-        </nav>
+        <%@ include file="../includes/mobile-nav-public.jsp" %>
 
-        <script>
-            lucide.createIcons();
-        </script>
+        <script>lucide.createIcons();</script>
     </body>
 </html>

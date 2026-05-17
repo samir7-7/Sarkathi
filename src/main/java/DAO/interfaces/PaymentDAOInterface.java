@@ -4,6 +4,7 @@ import Model.Payment;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Database access contract for {@link Payment} records.
@@ -19,6 +20,15 @@ public interface PaymentDAOInterface {
      * @throws SQLException if the insert fails
      */
     Payment create(Payment payment) throws SQLException;
+
+    /**
+     * Looks up a payment by id.
+     *
+     * @param paymentId payment to look up
+     * @return matching payment if any
+     * @throws SQLException if the query fails
+     */
+    Optional<Payment> findById(int paymentId) throws SQLException;
 
     /**
      * Returns every payment recorded against a given application — service

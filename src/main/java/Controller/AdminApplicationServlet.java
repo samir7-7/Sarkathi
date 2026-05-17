@@ -97,9 +97,11 @@ public class AdminApplicationServlet extends BaseApiServlet {
                 if (applicationIdParam != null && !applicationIdParam.isBlank()) {
                     int applicationId = Integer.parseInt(applicationIdParam);
                     application = applicationDAO.findById(applicationId).orElse(null);
+                    validateStatusTransition(application, status);
                     updated = applicationDAO.updateStatusById(applicationId, status, remarks, adminId);
                 } else if (trackingId != null && !trackingId.isBlank()) {
                     application = applicationDAO.findByTrackingId(trackingId).orElse(null);
+                    validateStatusTransition(application, status);
                     updated = applicationDAO.updateStatus(trackingId, status, remarks, adminId);
                 } else {
                     redirectOrWriteError(request, response, redirectTo, "applicationId or trackingId is required",
@@ -188,5 +190,46 @@ public class AdminApplicationServlet extends BaseApiServlet {
             return url;
         }
         return url + "?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Enforces sane admin review transitions so applications stay in the correct
+     * bucket once reviewed.
+     *
+     * @param application target application
+     * @param nextStatus  requested next status
+     */
+    private void validateStatusTransition(Application application, String nextStatus) {
+        if (application == null) {
+            throw new IllegalArgumentException("Application not found");
+        }
+
+        String currentStatus = application.getStatus();
+        if (currentStatus == null || currentStatus.isBlank()) {
+            currentStatus = "submitted";
+        }
+
+        if (currentStatus.equals(nextStatus)) {
+            return;
+        }
+
+        switch (currentStatus) {
+            case "submitted":
+                if (!Set.of("review", "approved", "rejected").contains(nextStatus)) {
+                    throw new IllegalArgumentException("Submitted applications may only move to review, approved, or rejected");
+                }
+                return;
+            case "review":
+                if (!Set.of("approved", "rejected").contains(nextStatus)) {
+                    throw new IllegalArgumentException("Applications under review may only move to approved or rejected");
+                }
+                return;
+            case "approved":
+                throw new IllegalArgumentException("Approved applications are locked and stay in the approved section");
+            case "rejected":
+                throw new IllegalArgumentException("Rejected applications must be resubmitted by the citizen before review can continue");
+            default:
+                throw new IllegalArgumentException("Unsupported current application status");
+        }
     }
 }

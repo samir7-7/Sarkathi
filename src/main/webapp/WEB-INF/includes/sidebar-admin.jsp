@@ -6,69 +6,64 @@
     if (sidebarAdminRole == null) sidebarAdminRole = (String) session.getAttribute("adminRole");
     if (sidebarAdminName == null) sidebarAdminName = "Admin";
     if (sidebarAdminRole == null) sidebarAdminRole = "Staff";
-
     String sidebarCurrentPath = request.getServletPath();
-
-    String sidebarActiveClass = "sidebar-link active group flex items-center gap-4 px-4 py-4 rounded-[5px] text-[11px] font-black uppercase tracking-widest";
-    String sidebarNormalClass = "sidebar-link group flex items-center gap-4 px-4 py-4 rounded-[5px] text-slate-500 font-bold uppercase tracking-widest text-[11px]";
 %>
-<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 -translate-x-full border-r border-slate-100 bg-white transition-transform duration-300 lg:static lg:translate-x-0">
-    <div class="flex h-full flex-col p-6">
-        <div class="flex items-center justify-between">
-            <a href="<%= request.getContextPath() %>/" class="text-2xl font-black text-brand-900 tracking-tighter">SarkarSathi</a>
-            <button onclick="toggleSidebar()" class="lg:hidden h-10 w-10 flex items-center justify-center rounded-[5px] bg-slate-50 text-slate-400">
-                <i data-lucide="x" class="h-5 w-5"></i>
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-[70] h-screen w-[260px] -translate-x-full border-r border-slate-200/80 bg-white transition-transform duration-300 overflow-hidden flex flex-col lg:sticky lg:top-0 lg:translate-x-0">
+    <div class="flex h-full min-h-0 flex-col">
+        <!-- Logo -->
+        <div class="flex items-center justify-between px-5 pt-5 pb-2">
+            <a href="<%= request.getContextPath() %>/" class="flex items-center gap-2 text-lg font-black text-slate-900 tracking-tight no-underline">
+                <div class="h-8 w-8 rounded-lg bg-brand-900 flex items-center justify-center">
+                    <i data-lucide="shield-check" class="h-4 w-4 text-white"></i>
+                </div>
+                <span>Sarkar<span class="text-brand-500">Sathi</span></span>
+            </a>
+            <button onclick="toggleSidebar()" class="lg:hidden h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+                <i data-lucide="x" class="h-4 w-4"></i>
             </button>
         </div>
 
-        <div class="mt-10 mb-6 px-4 py-8 rounded-[2rem] bg-slate-900 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden group">
-            <div class="absolute top-0 right-0 h-24 w-24 bg-white/5 rounded-bl-[3rem] -mr-8 -mt-8 rotate-12 group-hover:bg-white/10 transition-colors"></div>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-300/80 mb-2">Authenticated System</p>
-            <h4 class="text-lg font-black tracking-tight truncate"><%= sidebarAdminName %></h4>
-            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1 uppercase"><%= sidebarAdminRole %></p>
-        </div>
 
-        <nav class="flex-1 space-y-2 overflow-y-auto">
-            <p class="px-4 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Operations</p>
-            <a href="<%= request.getContextPath() %>/admin/dashboard" class="<%= sidebarCurrentPath.contains("dashboard") ? sidebarActiveClass : sidebarNormalClass %>">
-                <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                <span>Admin Terminal</span>
-            </a>
-            <a href="<%= request.getContextPath() %>/admin/applications" class="<%= sidebarCurrentPath.contains("applications") ? sidebarActiveClass : sidebarNormalClass %>">
-                <i data-lucide="clipboard-check" class="h-5 w-5"></i>
-                <span>Process Queue</span>
-            </a>
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 mt-6 space-y-1 min-h-0">
+            <p class="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Overview</p>
             
-            <p class="px-4 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Content</p>
-            <a href="<%= request.getContextPath() %>/admin/announcements" class="<%= sidebarCurrentPath.contains("announcements") ? sidebarActiveClass : sidebarNormalClass %>">
-                <i data-lucide="megaphone" class="h-5 w-5"></i>
+            <a href="<%= request.getContextPath() %>/admin/dashboard" class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all <%= sidebarCurrentPath.contains("dashboard") ? "bg-brand-50 text-brand-900 font-bold" : "text-slate-600 font-medium hover:bg-slate-50" %>">
+                <i data-lucide="layout-dashboard" class="h-[18px] w-[18px] flex-shrink-0"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="<%= request.getContextPath() %>/admin/applications" class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all <%= sidebarCurrentPath.contains("applications") ? "bg-brand-50 text-brand-900 font-bold" : "text-slate-600 font-medium hover:bg-slate-50" %>">
+                <i data-lucide="clipboard-list" class="h-[18px] w-[18px] flex-shrink-0"></i>
+                <span>Applications</span>
+            </a>
+            <a href="<%= request.getContextPath() %>/admin/tax-payments" class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all <%= sidebarCurrentPath.contains("tax-payments") ? "bg-brand-50 text-brand-900 font-bold" : "text-slate-600 font-medium hover:bg-slate-50" %>">
+                <i data-lucide="receipt" class="h-[18px] w-[18px] flex-shrink-0"></i>
+                <span>Tax Payments</span>
+            </a>
+
+            <p class="px-3 pb-1.5 pt-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Content</p>
+            
+            <a href="<%= request.getContextPath() %>/admin/announcements" class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all <%= sidebarCurrentPath.contains("announcements") ? "bg-brand-50 text-brand-900 font-bold" : "text-slate-600 font-medium hover:bg-slate-50" %>">
+                <i data-lucide="megaphone" class="h-[18px] w-[18px] flex-shrink-0"></i>
                 <span>Announcements</span>
             </a>
-            <a href="<%= request.getContextPath() %>/admin/notices" class="<%= sidebarCurrentPath.contains("notices") ? sidebarActiveClass : sidebarNormalClass %>">
-                <i data-lucide="sprout" class="h-5 w-5"></i>
-                <span>Agri Hub</span>
+            <a href="<%= request.getContextPath() %>/admin/notices" class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all <%= sidebarCurrentPath.contains("notices") ? "bg-brand-50 text-brand-900 font-bold" : "text-slate-600 font-medium hover:bg-slate-50" %>">
+                <i data-lucide="sprout" class="h-[18px] w-[18px] flex-shrink-0"></i>
+                <span>Agriculture</span>
             </a>
 
-            <p class="px-4 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Management</p>
-            <%-- 
-            <a href="<%= request.getContextPath() %>/admin/wards" class="<%= sidebarCurrentPath.contains("wards") ? sidebarActiveClass : sidebarNormalClass %>">
-                <i data-lucide="map-pinned" class="h-5 w-5"></i>
-                <span>Wards Node</span>
-            </a>
-            --%>
-            <a href="<%= request.getContextPath() %>/admin/services" class="<%= sidebarCurrentPath.contains("services") ? sidebarActiveClass : sidebarNormalClass %>">
-                <i data-lucide="layers-3" class="h-5 w-5"></i>
-                <span>Service Engine</span>
-            </a>
-            <a href="<%= request.getContextPath() %>/admin/budgets" class="<%= sidebarCurrentPath.contains("budgets") ? sidebarActiveClass : sidebarNormalClass %>">
-                <i data-lucide="pie-chart" class="h-5 w-5"></i>
-                <span>Fiscal Flow</span>
+            <p class="px-3 pb-1.5 pt-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Configuration</p>
+
+            <a href="<%= request.getContextPath() %>/admin/budgets" class="sidebar-nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all <%= sidebarCurrentPath.contains("budgets") ? "bg-brand-50 text-brand-900 font-bold" : "text-slate-600 font-medium hover:bg-slate-50" %>">
+                <i data-lucide="wallet" class="h-[18px] w-[18px] flex-shrink-0"></i>
+                <span>Budgets</span>
             </a>
         </nav>
 
-        <div class="pt-6 border-t border-slate-50">
-            <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-4 px-4 py-4 rounded-[5px] text-rose-500 font-black uppercase tracking-widest text-[11px] hover:bg-rose-50 transition-colors">
-                <i data-lucide="power" class="h-5 w-5"></i>
+        <!-- Logout -->
+        <div class="shrink-0 border-t border-slate-100 p-3 pb-6 lg:pb-3">
+            <a href="<%= request.getContextPath() %>/logout" class="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all">
+                <i data-lucide="log-out" class="h-[18px] w-[18px]"></i>
                 <span>Log Out</span>
             </a>
         </div>
