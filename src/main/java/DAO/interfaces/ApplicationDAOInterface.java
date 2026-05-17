@@ -64,6 +64,27 @@ public interface ApplicationDAOInterface {
     Optional<Application> findById(int applicationId) throws SQLException;
 
     /**
+     * Looks up the most recent application a citizen has filed for a given
+     * service type.
+     *
+     * @param citizenId     owning citizen
+     * @param serviceTypeId service type
+     * @return latest matching application, if any
+     * @throws SQLException if the query fails
+     */
+    Optional<Application> findLatestByCitizenAndService(int citizenId, int serviceTypeId) throws SQLException;
+
+    /**
+     * Re-submits an existing application after the citizen has edited the
+     * rejected data. This resets the review state back to {@code submitted}.
+     *
+     * @param application application carrying the refreshed fields
+     * @return {@code true} if a row was updated
+     * @throws SQLException if the update fails
+     */
+    boolean resubmit(Application application) throws SQLException;
+
+    /**
      * Updates an application's status by tracking id. Used by the public
      * tracking flow.
      *

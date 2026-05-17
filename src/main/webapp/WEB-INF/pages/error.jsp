@@ -64,150 +64,40 @@ String dashboardPath = "admin".equals(role) ? "/admin/dashboard" : "citizen".equ
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><%= status %> - SarkarSathi</title>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-        <style>
-            * { box-sizing: border-box; }
-            body {
-                margin: 0;
-                min-height: 100vh;
-                font-family: "Outfit", Arial, sans-serif;
-                color: #0f172a;
-                background: #f7f8fb;
-            }
-            .page {
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 32px 18px;
-            }
-            .panel {
-                width: min(720px, 100%);
-                border: 1px solid #e2e8f0;
-                border-radius: 18px;
-                background: #ffffff;
-                box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
-                overflow: hidden;
-            }
-            .top {
-                padding: 28px 30px;
-                border-bottom: 1px solid #eef2f7;
-            }
-            .brand {
-                margin: 0 0 18px;
-                font-size: 18px;
-                font-weight: 800;
-                color: #0b3d86;
-            }
-            .code {
-                display: inline-flex;
-                align-items: center;
-                height: 34px;
-                padding: 0 12px;
-                border-radius: 999px;
-                background: #eef5ff;
-                color: #154a91;
-                font-size: 13px;
-                font-weight: 700;
-            }
-            h1 {
-                margin: 18px 0 10px;
-                font-size: clamp(30px, 5vw, 46px);
-                line-height: 1.05;
-                letter-spacing: 0;
-            }
-            .message {
-                margin: 0;
-                color: #475569;
-                font-size: 17px;
-                line-height: 1.6;
-            }
-            .body {
-                padding: 24px 30px 30px;
-            }
-            .info {
-                display: grid;
-                gap: 12px;
-                margin: 0 0 24px;
-                padding: 18px;
-                border-radius: 14px;
-                background: #f8fafc;
-                border: 1px solid #e8edf4;
-            }
-            .label {
-                display: block;
-                margin-bottom: 4px;
-                color: #64748b;
-                font-size: 12px;
-                font-weight: 700;
-                text-transform: uppercase;
-            }
-            .value {
-                color: #1e293b;
-                font-size: 15px;
-                word-break: break-word;
-            }
-            .actions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 12px;
-            }
-            .button {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 44px;
-                padding: 0 18px;
-                border-radius: 12px;
-                font-size: 14px;
-                font-weight: 700;
-                text-decoration: none;
-            }
-            .primary {
-                background: #0b3d86;
-                color: #ffffff;
-            }
-            .secondary {
-                border: 1px solid #cbd5e1;
-                color: #334155;
-                background: #ffffff;
-            }
-            @media (max-width: 560px) {
-                .top, .body { padding-left: 20px; padding-right: 20px; }
-                .actions { flex-direction: column; }
-                .button { width: 100%; }
-            }
-        </style>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit','sans-serif'] }, colors: { brand: { 900:'#0b3d86' }}}}}
+        </script>
     </head>
-    <body>
-        <main class="page">
-            <section class="panel" aria-labelledby="error-title">
-                <div class="top">
-                    <p class="brand">SarkarSathi</p>
-                    <span class="code">Error <%= status %></span>
-                    <h1 id="error-title"><%= esc(titleFor(status)) %></h1>
-                    <p class="message"><%= esc(messageFor(status)) %></p>
+    <body class="m-0 min-h-screen font-sans text-slate-900 bg-[#f7f8fb]">
+        <main class="min-h-screen flex items-center justify-center p-5 sm:p-8">
+            <section class="w-full max-w-[720px] border border-slate-200 rounded-2xl bg-white shadow-[0_24px_60px_rgba(15,23,42,0.08)] overflow-hidden" aria-labelledby="error-title">
+                <div class="px-5 sm:px-8 py-7 border-b border-slate-100">
+                    <p class="mb-4 text-lg font-extrabold text-brand-900">SarkarSathi</p>
+                    <span class="inline-flex items-center h-[34px] px-3 rounded-full bg-blue-50 text-brand-900 text-[13px] font-bold">Error <%= status %></span>
+                    <h1 id="error-title" class="mt-4 mb-2.5 text-[clamp(30px,5vw,46px)] font-extrabold leading-[1.05]"><%= esc(titleFor(status)) %></h1>
+                    <p class="text-slate-500 text-[17px] leading-relaxed"><%= esc(messageFor(status)) %></p>
                 </div>
-                <div class="body">
-                    <div class="info">
+                <div class="px-5 sm:px-8 pt-6 pb-8">
+                    <div class="grid gap-3 mb-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
                         <div>
-                            <span class="label">What to do next</span>
-                            <span class="value"><%= esc(nextStepFor(status)) %></span>
+                            <span class="block mb-1 text-slate-500 text-xs font-bold uppercase">What to do next</span>
+                            <span class="text-slate-800 text-[15px] break-words"><%= esc(nextStepFor(status)) %></span>
                         </div>
                         <% if (!requestUri.isBlank()) { %>
                             <div>
-                                <span class="label">Page</span>
-                                <span class="value"><%= requestUri %></span>
+                                <span class="block mb-1 text-slate-500 text-xs font-bold uppercase">Page</span>
+                                <span class="text-slate-800 text-[15px] break-words"><%= requestUri %></span>
                             </div>
                         <% } %>
                     </div>
-                    <div class="actions">
-                        <a class="button primary" style="background: #0b3d86;" href="<%= contextPath + dashboardPath %>">Go to <%= dashboardPath.contains("dashboard") ? "Dashboard" : "Home" %></a>
-                        <a class="button secondary" href="<%= contextPath %>/announcements">Recent Announcements</a>
-                        <a class="button secondary" href="<%= contextPath %>/contact">Support</a>
+                    <div class="flex flex-col sm:flex-row flex-wrap gap-3">
+                        <a class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl text-sm font-bold no-underline bg-brand-900 text-white" href="<%= contextPath + dashboardPath %>">Go to <%= dashboardPath.contains("dashboard") ? "Dashboard" : "Home" %></a>
+                        <a class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl text-sm font-bold no-underline border border-slate-300 text-slate-700 bg-white" href="<%= contextPath %>/announcements">Recent Announcements</a>
+                        <a class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl text-sm font-bold no-underline border border-slate-300 text-slate-700 bg-white" href="<%= contextPath %>/contact">Support</a>
                     </div>
                 </div>
             </section>
         </main>
-
     </body>
 </html>

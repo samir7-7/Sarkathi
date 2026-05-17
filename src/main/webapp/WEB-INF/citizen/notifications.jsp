@@ -49,33 +49,13 @@
             }
         </style>
         <%@ include file="../includes/lucide-icons.jsp" %>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/style/ui-improvements.css">
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/style/typography.css">
     </head>
     <body class="bg-[#fafafc] text-slate-800 antialiased overflow-x-hidden">
         <div class="flex min-h-screen relative">
-            <!-- Mobile Bottom Nav -->
-            <nav class="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-slate-200 bg-white/95 backdrop-blur-md px-2 lg:hidden safe-area-bottom">
-                <a href="<%= request.getContextPath() %>/citizen/dashboard" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Home</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/apply" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="file-plus-2" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Apply</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/tracking" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="search-check" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Track</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/citizen/notifications" class="flex flex-col items-center justify-center gap-1 text-brand-900 relative">
-                    <i data-lucide="bell" class="h-5 w-5"></i>
-                    <% if(unread>0){ %><span class="absolute top-0 right-1 h-2 w-2 rounded-full bg-red-500"></span><% } %>
-                    <span class="text-[10px] font-bold">Inbox</span>
-                </a>
-                <button onclick="toggleSidebar()" class="flex flex-col items-center justify-center gap-1 text-slate-500">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Menu</span>
-                </button>
-            </nav>
+            <%@ include file="../includes/mobile-nav-citizen.jsp" %>
+
 
             <!-- Sidebar -->
             <!-- Sidebar Overlay -->
@@ -86,8 +66,11 @@
             <div class="flex-1 flex flex-col min-h-screen w-full relative">
 
                 <!-- Header -->
-                <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Inbox Notifications</h1>
+                <header class="hidden lg:flex sticky top-0 z-40 items-center justify-between border-b border-slate-200/80 bg-white px-8 py-4">
+                    <div>
+                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Notifications</h1>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Your inbox and system alerts</p>
+                    </div>
                     <% if(unread>0){ %>
                     <form method="post" action="<%= request.getContextPath() %>/api/notifications">
                         <input type="hidden" name="redirectTo" value="/citizen/notifications">
@@ -96,12 +79,13 @@
                         <button type="submit" class="bg-brand-50 text-brand-900 text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-xl hover:bg-brand-100 transition-colors">Clear All (<%= unread %>)</button>
                     </form>
                     <% } %>
+                    <div class="h-9 w-9 rounded-xl bg-brand-900 text-white flex items-center justify-center text-xs font-bold"><%= citizenName.substring(0,1).toUpperCase() %></div>
                 </header>
 
-                <div class="lg:hidden px-5 pt-6 pb-2 flex items-center justify-between">
-                    <div>
-                        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Alerts</h1>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Inbox Feed</p>
+                <div class="lg:hidden px-5 pt-6 pb-4 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Notifications</h1>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Inbox Feed</p>
                     </div>
                     <% if(unread>0){ %>
                     <form method="post" action="<%= request.getContextPath() %>/api/notifications">
@@ -113,10 +97,10 @@
                     <% } %>
                 </div>
 
-                <main class="flex-1 px-4 py-6 sm:px-8 sm:py-8 overflow-y-auto w-full max-w-4xl mx-auto pb-32 lg:pb-8">
+                <main class="flex-1 px-4 py-4 sm:px-6 lg:px-8 overflow-y-auto w-full pb-24 lg:pb-8">
                     <div class="space-y-3">
                         <% if(notifications.isEmpty()){ %>
-                            <div class="py-20 text-center bg-white rounded-3xl border border-dashed border-slate-200">
+                            <div class="py-20 text-center bg-white rounded-2xl border border-dashed border-slate-200/80">
                                 <div class="h-16 w-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <i data-lucide="bell-off" class="h-8 w-8"></i>
                                 </div>
@@ -124,7 +108,7 @@
                                 <p class="text-slate-400 text-sm mt-1">No pending updates found</p>
                             </div>
                         <% } else { for(Notification n : notifications){ %>
-                            <article class="bg-white p-5 rounded-3xl border <%= n.isRead() ? "border-slate-100 opacity-80" : "border-brand-100 bg-brand-50/20" %> shadow-sm flex items-start gap-4">
+                            <article class="bg-white p-5 rounded-2xl border <%= n.isRead() ? "border-slate-200/60 opacity-80" : "border-brand-100 bg-brand-50/20" %> shadow-sm flex items-start gap-4">
                                 <div class="h-10 w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center flex-shrink-0">
                                     <i data-lucide="<%= n.isRead() ? "mail-open" : "mail" %>" class="h-5 w-5 <%= n.isRead() ? "" : "text-brand-900" %>"></i>
                                 </div>

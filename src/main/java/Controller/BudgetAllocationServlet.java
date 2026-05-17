@@ -98,6 +98,7 @@ public class BudgetAllocationServlet extends BaseApiServlet {
      */
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectTo = getOptionalParameter(request, "redirectTo");
         try {
             requireAdmin(request);
             BudgetAllocation b = new BudgetAllocation();
@@ -113,13 +114,14 @@ public class BudgetAllocationServlet extends BaseApiServlet {
             b.setDescription(getOptionalParameter(request, "description"));
             try (Connection conn = DatabaseConnection.getConnection()) {
                 boolean ok = new BudgetAllocationDAO(conn).update(b);
-                writeJson(response, ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND,
-                    "{\"success\":" + ok + "}");
+                redirectOrWriteJson(request, response, redirectTo,
+                        ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_NOT_FOUND,
+                        "{\"success\":" + ok + "}");
             }
         } catch (SecurityException e) {
-            writeError(response, HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_FORBIDDEN);
         } catch (IllegalArgumentException | SQLException e) {
-            writeError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            redirectOrWriteError(request, response, redirectTo, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 

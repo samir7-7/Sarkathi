@@ -58,6 +58,33 @@ public interface TaxRecordDAOInterface {
     TaxRecord markAsPaidAndUpdateAmount(int taxId, int paymentId, BigDecimal amount) throws SQLException;
 
     /**
+     * Counts tax records that have been paid and linked to a completed
+     * payment.
+     *
+     * @return total paid tax record count
+     * @throws SQLException if the query fails
+     */
+    long countPaid() throws SQLException;
+
+    /**
+     * Sums the amounts collected from paid tax records linked to completed
+     * payments.
+     *
+     * @return total tax collected, or zero when nothing has been paid yet
+     * @throws SQLException if the query fails
+     */
+    BigDecimal sumPaidAmount() throws SQLException;
+
+    /**
+     * Returns the most recent paid tax records, newest payment first.
+     *
+     * @param limit maximum rows to return
+     * @return recent paid tax records
+     * @throws SQLException if the query fails
+     */
+    List<TaxRecord> findRecentPaid(int limit) throws SQLException;
+
+    /**
      * Looks up a tax record by id.
      *
      * @param taxId database id

@@ -151,6 +151,27 @@ public class ApplicationDAO extends BaseDAO implements ApplicationDAOInterface {
 
     /**
      * {@inheritDoc}
+     */
+    public Optional<Application> findLatestByCitizenAndService(int citizenId, int serviceTypeId) throws SQLException {
+        String sql = """
+                SELECT a.*, st.ServiceName as ServiceTypeName
+                FROM APPLICATION a
+                LEFT JOIN SERVICE_TYPE st ON a.ServiceTypeID = st.ServiceTypeID
+                WHERE a.CitizenID = ? AND a.ServiceTypeID = ?
+                ORDER BY a.SubmittedAt DESC, a.ApplicationID DESC
+                LIMIT 1
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, citizenId);
+            statement.setInt(2, serviceTypeId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next() ? Optional.of(map(resultSet)) : Optional.empty();
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Also bumps {@code LastUpdatedAt} to the current database time so the
      * citizen sees an accurate "last activity" stamp.
@@ -188,6 +209,32 @@ public class ApplicationDAO extends BaseDAO implements ApplicationDAOInterface {
             statement.setString(2, remarks);
             statement.setInt(3, reviewedByAdminId);
             statement.setInt(4, applicationId);
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean resubmit(Application application) throws SQLException {
+        String sql = """
+                UPDATE APPLICATION
+                SET WardID = ?, Status = ?, SubmittedAt = ?, FormData = ?, LastUpdatedAt = ?, Remarks = ?, ReviewedByAdminID = ?
+                WHERE ApplicationID = ?
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, application.getWardId());
+            statement.setString(2, application.getStatus());
+            statement.setTimestamp(3, Timestamp.valueOf(application.getSubmittedAt()));
+            statement.setString(4, application.getFormData());
+            statement.setTimestamp(5, Timestamp.valueOf(application.getLastUpdatedAt()));
+            statement.setString(6, application.getRemarks());
+            if (application.getReviewedByAdminId() > 0) {
+                statement.setInt(7, application.getReviewedByAdminId());
+            } else {
+                statement.setNull(7, java.sql.Types.INTEGER);
+            }
+            statement.setInt(8, application.getApplicationId());
             return statement.executeUpdate() > 0;
         }
     }

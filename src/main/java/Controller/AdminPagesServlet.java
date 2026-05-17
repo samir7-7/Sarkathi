@@ -14,7 +14,10 @@ import DAO.impl.ApplicationDocumentDAO;
 import DAO.impl.BudgetAllocationDAO;
 import DAO.impl.CitizenDAO;
 import DAO.impl.CitizenDocumentVaultDAO;
+import DAO.impl.IssuedCertificateDAO;
+import DAO.impl.PaymentDAO;
 import DAO.impl.ServiceTypeDAO;
+import DAO.impl.TaxRecordDAO;
 import DAO.impl.WardDAO;
 import DAO.interfaces.AgricultureNoticeDAOInterface;
 import DAO.interfaces.AnnouncementDAOInterface;
@@ -29,7 +32,10 @@ import Model.Application;
 import Model.ApplicationDocument;
 import Model.Citizen;
 import Model.CitizenDocumentVault;
+import Model.IssuedCertificate;
+import Model.Payment;
 import Model.ServiceType;
+import Model.TaxRecord;
 import Model.Ward;
 import Util.DatabaseConnection;
 import jakarta.servlet.ServletException;
@@ -49,7 +55,7 @@ import jakarta.servlet.http.HttpSession;
  * @author SarkarSathi
  */
 @WebServlet(name = "adminPagesServlet", urlPatterns = {
-    "/admin/applications", "/admin/notices", "/admin/announcements", "/admin/budgets"
+    "/admin/applications", "/admin/notices", "/admin/announcements", "/admin/budgets", "/admin/tax-payments"
 })
 public class AdminPagesServlet extends HttpServlet {
     /**
@@ -99,6 +105,8 @@ public class AdminPagesServlet extends HttpServlet {
                 if (editBudgetId != null && !editBudgetId.isBlank()) {
                     request.setAttribute("editingBudgetId", editBudgetId);
                 }
+            } else if ("/admin/tax-payments".equals(path)) {
+                loadTaxPayments(request, conn);
             } else if ("/admin/applications".equals(path)) {
                 loadApplications(request, conn);
             }
@@ -108,6 +116,10 @@ public class AdminPagesServlet extends HttpServlet {
             request.setAttribute("announcements", List.of());
             request.setAttribute("budgets", List.of());
             request.setAttribute("applications", List.of());
+            request.setAttribute("recentPaidTaxes", List.of());
+            request.setAttribute("paidTaxCitizensById", Map.of());
+            request.setAttribute("paidTaxPaymentsById", Map.of());
+            request.setAttribute("paidTaxCount", 0L);
         }
 
         String jsp = switch (path) {
@@ -115,6 +127,7 @@ public class AdminPagesServlet extends HttpServlet {
             case "/admin/notices" -> "/WEB-INF/admin/notices.jsp";
             case "/admin/announcements" -> "/WEB-INF/admin/announcements.jsp";
             case "/admin/budgets" -> "/WEB-INF/admin/budgets.jsp";
+            case "/admin/tax-payments" -> "/WEB-INF/admin/tax-payments.jsp";
             default -> "/WEB-INF/admin/dashboard.jsp";
         };
 
@@ -144,11 +157,15 @@ public class AdminPagesServlet extends HttpServlet {
         request.setAttribute("wardsById", mapWards(wardDAO.findAll()));
         ApplicationDocumentDAOInterface documentDAO = new ApplicationDocumentDAO(conn);
         CitizenDocumentVaultDAOInterface vaultDAO = new CitizenDocumentVaultDAO(conn);
+        IssuedCertificateDAO certificateDAO = new IssuedCertificateDAO(conn);
         Map<Integer, List<ApplicationDocument>> documentsByApplicationId = new HashMap<>();
+        Map<Integer, IssuedCertificate> certificatesByApplicationId = new HashMap<>();
         Map<Integer, List<CitizenDocumentVault>> vaultDocumentsByCitizenId = new HashMap<>();
         for (Application application : applications) {
             documentsByApplicationId.put(application.getApplicationId(),
                     documentDAO.findByApplicationId(application.getApplicationId()));
+            certificateDAO.findByApplicationId(application.getApplicationId())
+                    .ifPresent(certificate -> certificatesByApplicationId.put(application.getApplicationId(), certificate));
             vaultDocumentsByCitizenId.computeIfAbsent(application.getCitizenId(), citizenId -> {
                 try {
                     return vaultDAO.findByCitizenId(citizenId);
@@ -158,7 +175,50 @@ public class AdminPagesServlet extends HttpServlet {
             });
         }
         request.setAttribute("documentsByApplicationId", documentsByApplicationId);
+        request.setAttribute("certificatesByApplicationId", certificatesByApplicationId);
         request.setAttribute("vaultDocumentsByCitizenId", vaultDocumentsByCitizenId);
+    }
+
+    /**
+     * Loads paid municipal tax records along with citizen and payment lookups
+     * so the JSP can render a readable admin ledger.
+     *
+     * @param request the incoming request
+     * @param conn    open JDBC connection
+     * @throws SQLException if any lookup fails
+     */
+    private void loadTaxPayments(HttpServletRequest request, Connection conn) throws SQLException {
+        TaxRecordDAO taxRecordDAO = new TaxRecordDAO(conn);
+        CitizenDAO citizenDAO = new CitizenDAO(conn);
+        PaymentDAO paymentDAO = new PaymentDAO(conn);
+
+        List<TaxRecord> recentPaidTaxes = taxRecordDAO.findRecentPaid(100);
+        Map<Integer, Citizen> paidTaxCitizensById = new HashMap<>();
+        Map<Integer, Payment> paidTaxPaymentsById = new HashMap<>();
+
+        for (TaxRecord taxRecord : recentPaidTaxes) {
+            paidTaxCitizensById.computeIfAbsent(taxRecord.getCitizenId(), citizenId -> {
+                try {
+                    return citizenDAO.findById(citizenId).orElse(null);
+                } catch (SQLException e) {
+                    return null;
+                }
+            });
+            if (taxRecord.getPaymentId() > 0) {
+                paidTaxPaymentsById.computeIfAbsent(taxRecord.getPaymentId(), paymentId -> {
+                    try {
+                        return paymentDAO.findById(paymentId).orElse(null);
+                    } catch (SQLException e) {
+                        return null;
+                    }
+                });
+            }
+        }
+
+        request.setAttribute("recentPaidTaxes", recentPaidTaxes);
+        request.setAttribute("paidTaxCitizensById", paidTaxCitizensById);
+        request.setAttribute("paidTaxPaymentsById", paidTaxPaymentsById);
+        request.setAttribute("paidTaxCount", taxRecordDAO.countPaid());
     }
 
     /**

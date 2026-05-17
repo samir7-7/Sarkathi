@@ -44,6 +44,12 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "applicationServlet", urlPatterns = "/api/applications/*")
 public class ApplicationServlet extends BaseApiServlet {
+    private static final List<String> SINGLE_ACTIVE_SERVICES = List.of(
+            "Birth Certificate",
+            "Marriage Certificate",
+            "Residence Certificate",
+            "Citizenship Recommendation"
+    );
     /**
      * Lists or fetches applications. Three modes, picked by the parameters:
      * <ul>
@@ -130,39 +136,83 @@ public class ApplicationServlet extends BaseApiServlet {
 
             ServiceTypeDAO serviceTypeDAO = new ServiceTypeDAO(connection);
             WardDAO wardDAO = new WardDAO(connection);
-            if (serviceTypeDAO.findAll(false).stream().noneMatch(service -> service.getServiceTypeId() == serviceTypeId && service.isActive())) {
+            List<ServiceType> activeServices = serviceTypeDAO.findAll(false);
+            ServiceType selectedService = activeServices.stream()
+                    .filter(service -> service.getServiceTypeId() == serviceTypeId && service.isActive())
+                    .findFirst()
+                    .orElse(null);
+            if (selectedService == null) {
                 throw new IllegalArgumentException("Selected service type is not available");
             }
             if (wardDAO.findById(wardId).isEmpty()) {
                 throw new IllegalArgumentException("Selected ward does not exist");
             }
 
-            Application application = new Application();
-            application.setTrackingId("UDAS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-            application.setCitizenId(citizenId);
-            application.setServiceTypeId(serviceTypeId);
-            application.setWardId(wardId);
-            application.setStatus("submitted");
-            application.setSubmittedAt(LocalDateTime.now());
             String formData = getOptionalParameter(request, "formData");
             if (formData != null && formData.length() > 8000) {
                 throw new IllegalArgumentException("Application form data is too large");
             }
-            application.setFormData(formData == null || formData.isBlank() ? "{}" : formData);
-            application.setLastUpdatedAt(LocalDateTime.now());
-            application.setRemarks(getOptionalParameter(request, "remarks"));
-            application.setReviewedByAdminId(0);
+            String normalizedFormData = formData == null || formData.isBlank() ? "{}" : formData;
+            String remarks = getOptionalParameter(request, "remarks");
 
             ApplicationDAO applicationDAO = new ApplicationDAO(connection);
             ApplicationDocumentDAO documentDAO = new ApplicationDocumentDAO(connection);
             CitizenDocumentVaultDAO vaultDAO = new CitizenDocumentVaultDAO(connection);
             CitizenDAO citizenDAO = new CitizenDAO(connection);
+            LocalDateTime now = LocalDateTime.now();
 
-            Application savedApplication = applicationDAO.create(application);
+            Application savedApplication;
+            if (isSingleActiveService(selectedService.getServiceName())) {
+                Application existing = applicationDAO.findLatestByCitizenAndService(citizenId, serviceTypeId).orElse(null);
+                if (existing != null && !"rejected".equals(existing.getStatus())) {
+                    throw new IllegalArgumentException(
+                            "You already have an active " + selectedService.getServiceName()
+                                    + " application. You can only submit again if the previous one is rejected.");
+                }
+
+                if (existing != null && "rejected".equals(existing.getStatus())) {
+                    existing.setWardId(wardId);
+                    existing.setStatus("submitted");
+                    existing.setSubmittedAt(now);
+                    existing.setFormData(normalizedFormData);
+                    existing.setLastUpdatedAt(now);
+                    existing.setRemarks(remarks);
+                    existing.setReviewedByAdminId(0);
+                    applicationDAO.resubmit(existing);
+                    savedApplication = applicationDAO.findById(existing.getApplicationId()).orElse(existing);
+                } else {
+                    Application application = new Application();
+                    application.setTrackingId("UDAS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+                    application.setCitizenId(citizenId);
+                    application.setServiceTypeId(serviceTypeId);
+                    application.setWardId(wardId);
+                    application.setStatus("submitted");
+                    application.setSubmittedAt(now);
+                    application.setFormData(normalizedFormData);
+                    application.setLastUpdatedAt(now);
+                    application.setRemarks(remarks);
+                    application.setReviewedByAdminId(0);
+                    savedApplication = applicationDAO.create(application);
+                }
+            } else {
+                Application application = new Application();
+                application.setTrackingId("UDAS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+                application.setCitizenId(citizenId);
+                application.setServiceTypeId(serviceTypeId);
+                application.setWardId(wardId);
+                application.setStatus("submitted");
+                application.setSubmittedAt(now);
+                application.setFormData(normalizedFormData);
+                application.setLastUpdatedAt(now);
+                application.setRemarks(remarks);
+                application.setReviewedByAdminId(0);
+                savedApplication = applicationDAO.create(application);
+            }
+
             attachReusedDocuments(request, savedApplication, documentDAO, vaultDAO);
 
             Map<Integer, Citizen> citizens = mapCitizens(citizenDAO.findAll());
-            Map<Integer, ServiceType> serviceTypes = mapServices(serviceTypeDAO.findAll(false));
+            Map<Integer, ServiceType> serviceTypes = mapServices(activeServices);
             Map<Integer, Ward> wards = mapWards(wardDAO.findAll());
 
             redirectOrWriteJson(request, response, redirectTo, HttpServletResponse.SC_CREATED,
@@ -309,6 +359,16 @@ public class ApplicationServlet extends BaseApiServlet {
             }
         }
         return ids;
+    }
+
+    /**
+     * Certain certificate services may only have one active application at a time.
+     *
+     * @param serviceName selected service name
+     * @return true when duplicate active submissions should be blocked
+     */
+    private boolean isSingleActiveService(String serviceName) {
+        return serviceName != null && SINGLE_ACTIVE_SERVICES.stream().anyMatch(serviceName::equalsIgnoreCase);
     }
 
     /**

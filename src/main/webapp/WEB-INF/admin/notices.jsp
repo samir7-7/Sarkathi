@@ -2,203 +2,71 @@
 <%@ page import="Model.AgricultureNotice" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
-<%! private String esc(Object value) { if (value == null) return ""; return value.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;"); } private String categoryClass(String category) { if ("subsidy".equals(category)) return "bg-emerald-50 text-emerald-700"; if ("training".equals(category)) return "bg-violet-50 text-violet-700"; if ("scheme".equals(category)) return "bg-blue-50 text-blue-700"; return "bg-slate-50 text-slate-600"; } %>
-<% Integer adminId = (Integer) request.getAttribute("adminId"); String adminName = (String) request.getAttribute("adminName"); String adminRole = (String) request.getAttribute("adminRole"); String pageError = (String) request.getAttribute("pageError"); String noticeError = (String) request.getAttribute("noticeError"); String formError = request.getParameter("error"); List<AgricultureNotice> notices = (List<AgricultureNotice>) request.getAttribute("notices"); String editingNoticeId = (String) request.getAttribute("editingNoticeId"); DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy"); if (adminName == null) adminName = "Admin"; if (adminRole == null) adminRole = "admin"; if (notices == null) notices = List.of(); String error = pageError != null ? pageError : (noticeError != null ? noticeError : formError); %>
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <title>
-            Manage Agriculture Notices - SarkarSathi Admin
-        </title>
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-        <script src="https://cdn.tailwindcss.com">
-        </script>
-        <script>
-            tailwind.config={theme:{extend:{fontFamily:{sans:['Outfit','sans-serif']},colors:{brand:{50:'#f0f5fc',500:'#3b82f6',800:'#154a91',900:'#0b3d86'}}}}}
-        </script>
-        <style>
-            body{font-family:'Outfit',sans-serif;-webkit-tap-highlight-color:transparent}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:600}
-            @media (max-width: 1023px) {
-                .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 1.5rem); }
-            }
-        </style>
-            <%@ include file="../includes/lucide-icons.jsp" %>
-    </head>
-    <body class="bg-[#fafafc] text-slate-800 antialiased overflow-x-hidden">
-        <div class="flex min-h-screen relative">
-            <!-- Mobile Bottom Nav (Admin) -->
-            <nav class="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-slate-200 bg-white/90 backdrop-blur-lg px-2 lg:hidden safe-area-bottom">
-                <a href="<%= request.getContextPath() %>/admin/dashboard" class="flex flex-col items-center justify-center gap-1 text-slate-500 transition-all">
-                    <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Home</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/admin/applications" class="flex flex-col items-center justify-center gap-1 text-slate-500 transition-all">
-                    <i data-lucide="clipboard-list" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Review</span>
-                </a>
-                <a href="<%= request.getContextPath() %>/admin/announcements" class="flex flex-col items-center justify-center gap-1 text-slate-500 transition-all">
-                    <i data-lucide="megaphone" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Public</span>
-                </a>
-                <button onclick="toggleSidebar()" class="flex flex-col items-center justify-center gap-1 text-slate-500 transition-all">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                    <span class="text-[10px] font-medium">Menu</span>
-                </button>
-            </nav>
-
-            <!-- Sidebar Overlay -->
-            <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
-            
-            <%@ include file="../includes/sidebar-admin.jsp" %>
-
-            <div class="flex-1 flex flex-col min-h-screen w-full overflow-hidden pb-16 lg:pb-0">
-                <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200 px-6 py-4 sm:px-8">
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">Agricultural Advisory</h1>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">Farm Support Pipeline</p>
-                </header>
-                <main class="flex-1 px-4 py-6 sm:px-8 sm:py-8 overflow-y-auto w-full max-w-4xl mx-auto">
-                    <% if (error != null) { %>
-                        <div class="mb-6 rounded-2xl border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 shadow-sm animate-pulse">
-                            <%= esc(error) %>
-                        </div>
-                    <% } %>
-                    <section class="mb-10 rounded-[2.5rem] border border-slate-100 bg-white p-6 sm:p-8 shadow-sm">
-                        <h3 class="text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2 mb-6">
-                            <i data-lucide="layout-grid" class="h-5 w-5 text-emerald-500"></i>
-                            New Agri Notice
-                        </h3>
-                        <form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" class="space-y-4">
-                            <input type="hidden" name="redirectTo" value="/admin/notices">
-                            <input type="hidden" name="adminId" value="<%= adminId == null ? "" : adminId %>">
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div class="col-span-full">
-                                    <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Notice Headline</label>
-                                    <input name="title" type="text" required placeholder="Title of the notice" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
-                                </div>
-                                <div class="col-span-full">
-                                    <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Notice Content</label>
-                                    <textarea name="content" rows="4" required placeholder="Detailed information for farmers..." class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none resize-none"></textarea>
-                                </div>
-                                <div class="col-span-full sm:col-span-1">
-                                    <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Broadcast Category</label>
-                                    <select name="category" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-black text-slate-700 appearance-none focus:ring-2 focus:ring-emerald-500 outline-none">
-                                        <option value="subsidy">Grant & Subsidy</option>
-                                        <option value="training">Skills & Training</option>
-                                        <option value="scheme">General Scheme</option>
-                                    </select>
-                                </div>
-                                <div class="flex items-end">
-                                    <button class="w-full rounded-2xl bg-emerald-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-emerald-600/10 active:scale-95 transition-transform" type="submit">
-                                        Launch Broadcast
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </section>
-                    <div class="space-y-4">
-                        <h2 class="px-2 text-xl font-extrabold text-slate-900 tracking-tight mb-4">Live Bulletins</h2>
-                        <% if (notices.isEmpty()) { %>
-                            <div class="rounded-[2.5rem] border border-dashed border-slate-200 bg-slate-50/50 p-20 text-center shadow-sm">
-                                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-300 mb-6">
-                                    <i data-lucide="leaf" class="h-8 w-8"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-slate-900">No Bulletins</h3>
-                                <p class="text-sm text-slate-500 mt-1">Operational advisory is currently clear.</p>
-                            </div>
-                        <% } else { for (AgricultureNotice notice : notices) { %>
-                            <article class="group relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:shadow-brand-900/5">
-                                <div class="flex flex-col sm:flex-row items-start justify-between gap-6">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex flex-wrap items-center gap-3 mb-3">
-                                            <span class="rounded-full <%= categoryClass(notice.getCategory()) %> px-4 py-1.5 text-[10px] font-black uppercase tracking-widest ring-1 ring-inset ring-brand-500/10">
-                                                <%= esc(notice.getCategory()) %>
-                                            </span>
-                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                                                <i data-lucide="clock" class="h-3 w-3"></i>
-                                                <%= notice.getPublishedAt() == null ? "" : esc(notice.getPublishedAt().format(dateFormatter)) %>
-                                            </span>
-                                        </div>
-                                        <h3 class="text-lg font-black text-slate-900 mb-2 truncate"><%= esc(notice.getTitle()) %></h3>
-                                        <p class="text-sm leading-relaxed text-slate-600 font-medium whitespace-pre-wrap"><%= esc(notice.getContent()) %></p>
-                                    </div>
-                                    <div class="shrink-0 self-end sm:self-start flex gap-2">
-                                        <form method="get" action="<%= request.getContextPath() %>/admin/notices" class="inline">
-                                            <input type="hidden" name="edit" value="<%= notice.getNoticeId() %>">
-                                            <button class="h-11 w-11 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-all hover:bg-blue-100 active:scale-95" title="Edit" type="submit">
-                                                <i data-lucide="edit-2" class="h-5 w-5"></i>
-                                            </button>
-                                        </form>
-                                        <form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" onsubmit="return confirm('Are you sure you want to delete?')" class="inline">
-                                            <input type="hidden" name="redirectTo" value="/admin/notices">
-                                            <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="noticeId" value="<%= notice.getNoticeId() %>">
-                                            <button class="h-11 w-11 flex items-center justify-center rounded-xl bg-red-50 text-red-600 transition-all hover:bg-red-100 active:scale-95" type="submit" title="Cease Broadcast">
-                                                <i data-lucide="x-circle" class="h-5 w-5"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div <% if(editingNoticeId!=null && editingNoticeId.equals(String.valueOf(notice.getNoticeId()))) { %> style="display:block" <% } else { %> style="display:none" <% } %> id="edit-notice-<%= notice.getNoticeId() %>" class="mt-6 pt-6 border-t border-slate-200">
-                                    <form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" class="space-y-4">
-                                        <input type="hidden" name="noticeId" value="<%= notice.getNoticeId() %>">
-                                        <input type="hidden" name="_method" value="PUT">
-                                        <input type="hidden" name="redirectTo" value="/admin/notices">
-                                        <div class="grid gap-4 sm:grid-cols-2">
-                                            <div class="col-span-full">
-                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Notice Title</label>
-                                                <input name="title" type="text" required value="<%= esc(notice.getTitle()) %>" class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none">
-                                            </div>
-                                            <div class="col-span-full">
-                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Content</label>
-                                                <textarea name="content" rows="3" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500 outline-none resize-none"><%= esc(notice.getContent()) %></textarea>
-                                            </div>
-                                            <div class="col-span-full sm:col-span-1">
-                                                <label class="mb-1.5 ml-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Category</label>
-                                                <select name="category" required class="w-full rounded-2xl border-0 bg-slate-50 px-5 py-4 text-sm font-black text-slate-700 appearance-none focus:ring-2 focus:ring-emerald-500 outline-none">
-                                                    <option value="subsidy" <% if ("subsidy".equals(notice.getCategory())) { %>selected<% } %>>Grant & Subsidy</option>
-                                                    <option value="training" <% if ("training".equals(notice.getCategory())) { %>selected<% } %>>Skills & Training</option>
-                                                    <option value="scheme" <% if ("scheme".equals(notice.getCategory())) { %>selected<% } %>>General Scheme</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-span-full sm:col-span-1 flex gap-2 sm:items-end">
-                                                <button class="flex-1 rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-bold text-white hover:bg-emerald-700 transition-colors" type="submit">Save Changes</button>
-                                                <a href="<%= request.getContextPath() %>/admin/notices" class="flex-1 w-full rounded-2xl bg-slate-200 px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-300 transition-colors text-center">Cancel</a>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </article>
-                        <% }} %>
-                    </div>
-                </main>
-            </div>
-        </div>
-        <script>
-            function toggleSidebar() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebar-overlay');
-                const isHidden = sidebar.classList.contains('translate-x-full');
-                
-                if (isHidden) {
-                    sidebar.classList.remove('translate-x-full');
-                    overlay.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    sidebar.classList.add('translate-x-full');
-                    overlay.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }
-            }
-            function toggleEditForm(noticeId) {
-                const form = document.getElementById('edit-notice-' + noticeId);
-                if (form) {
-                    form.classList.toggle('hidden');
-                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
-            lucide.createIcons();
-        </script>
-    </body>
-</html>
+<%! private String esc(Object v){ if(v==null)return ""; return v.toString().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;"); } private String categoryClass(String c){ if("subsidy".equals(c)) return "bg-emerald-50 text-emerald-700 border-emerald-200"; if("training".equals(c)) return "bg-violet-50 text-violet-700 border-violet-200"; if("scheme".equals(c)) return "bg-blue-50 text-blue-700 border-blue-200"; return "bg-slate-50 text-slate-700 border-slate-200"; } %>
+<%
+Integer adminId=(Integer)request.getAttribute("adminId");
+String adminName=(String)request.getAttribute("adminName");
+String adminRole=(String)request.getAttribute("adminRole");
+String pageError=(String)request.getAttribute("pageError");
+String noticeError=(String)request.getAttribute("noticeError");
+String formError=request.getParameter("error");
+List<AgricultureNotice> notices=(List<AgricultureNotice>)request.getAttribute("notices");
+String editingNoticeId=(String)request.getAttribute("editingNoticeId");
+DateTimeFormatter fmt=DateTimeFormatter.ofPattern("MMM d, yyyy");
+if(notices==null)notices=List.of();
+String error=pageError!=null?pageError:(noticeError!=null?noticeError:formError);
+if(adminName==null)adminName="Admin";
+if(adminRole==null)adminRole="System Controller";
+%>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Agriculture - Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Outfit','sans-serif']},colors:{brand:{500:'#3b82f6',900:'#0b3d86'}}}}}</script>
+<style>body{font-family:'Outfit',sans-serif}.sidebar-link{transition:all .2s}.sidebar-link:hover,.sidebar-link.active{background:#f0f5fc;color:#0b3d86;font-weight:700}.safe-area-bottom{padding-bottom:env(safe-area-inset-bottom,1.5rem)}.mobile-record-card{border:1px solid #e2e8f0;border-radius:1rem;background:#fff;padding:1rem}</style>
+<%@ include file="../includes/lucide-icons.jsp" %></head>
+<body class="bg-slate-100 text-slate-900 antialiased overflow-x-hidden">
+<div class="flex min-h-screen relative">
+<div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm lg:hidden"></div>
+<%@ include file="../includes/sidebar-admin.jsp" %>
+<div class="flex-1 flex flex-col min-h-screen">
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3.5 lg:px-7"><div class="flex items-start justify-between gap-4 sm:items-center"><div class="flex items-start gap-3"><button onclick="toggleSidebar()" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button><div><h1 class="text-lg font-black tracking-tight text-slate-900">Agriculture Center</h1><p class="text-[11px] font-semibold text-slate-500">Create and manage agriculture-facing updates</p></div></div><div class="hidden sm:flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"><div class="h-9 w-9 rounded-full bg-brand-900 flex items-center justify-center text-white text-sm font-bold"><%= adminName.length() > 0 ? adminName.substring(0,1).toUpperCase() : "A" %></div><div><p class="text-sm font-bold text-slate-900"><%= esc(adminName) %></p><p class="text-[11px] font-semibold text-slate-500"><%= esc(adminRole) %></p></div></div></div></header>
+<main class="flex-1 w-full p-3 sm:p-4 lg:p-6">
+<div class="space-y-5 max-w-6xl">
+<% if(error!=null){ %><div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700"><%= esc(error) %></div><% } %>
+<section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+<div class="flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
+<div class="min-w-0"><h2 class="text-sm font-black uppercase tracking-wider text-slate-900">Publish Agriculture Notice</h2><p class="mt-1 text-sm text-slate-500">Share grants, training updates, and scheme information with farming communities.</p></div>
+<span class="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700"><%= notices.size() %> Notices</span>
+</div>
+<form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" class="mt-5 grid gap-4">
+<input type="hidden" name="redirectTo" value="/admin/notices"><input type="hidden" name="adminId" value="<%= adminId==null?"":adminId %>">
+<div class="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+<label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Notice Title</span><input name="title" type="text" required placeholder="Irrigation subsidy, seed training, seasonal scheme..." class="rounded-xl border border-slate-200 px-4 py-3 text-sm"></label>
+<label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Category</span><select name="category" required class="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold"><option value="subsidy">Grant & Subsidy</option><option value="training">Skills & Training</option><option value="scheme">General Scheme</option></select></label>
+</div>
+<label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Notice Content</span><textarea name="content" rows="5" required placeholder="Describe eligibility, timeline, contact point, and how farmers can apply or participate." class="rounded-xl border border-slate-200 px-4 py-3 text-sm resize-none"></textarea></label>
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+<p class="text-xs font-semibold text-slate-400">Use categories consistently so citizens can filter and understand the notice type quickly.</p>
+<button class="rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-wider text-white" type="submit">Publish Notice</button>
+</div>
+</form></section>
+<section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+<div class="flex flex-col gap-2 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div class="min-w-0"><h2 class="text-sm font-black uppercase tracking-wider text-slate-900">Agriculture Notice Records</h2><p class="mt-1 text-xs font-semibold text-slate-500">Manage published agriculture notices from one place.</p></div></div>
+<div class="space-y-3 p-3 sm:hidden"><% if(notices.isEmpty()){ %><div class="mobile-record-card text-center text-sm font-semibold text-slate-500">No agriculture notices yet.</div>
+<% } else { for(AgricultureNotice n:notices){ %>
+<article class="mobile-record-card"><div class="flex items-start justify-between gap-3"><div><p class="text-sm font-black text-slate-900"><%= esc(n.getTitle()) %></p><span class="mt-2 inline-flex px-2.5 py-1 rounded-lg border text-[10px] font-black uppercase tracking-wider <%= categoryClass(n.getCategory()) %>"><%= esc(n.getCategory()) %></span></div><div class="flex gap-2 shrink-0"><form method="get" action="<%= request.getContextPath() %>/admin/notices"><input type="hidden" name="edit" value="<%= n.getNoticeId() %>"><button class="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center" type="submit"><i data-lucide="edit-2" class="h-4 w-4"></i></button></form><form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" onsubmit="return confirm('Delete this notice?')"><input type="hidden" name="redirectTo" value="/admin/notices"><input type="hidden" name="action" value="delete"><input type="hidden" name="noticeId" value="<%= n.getNoticeId() %>"><button class="h-9 w-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center" type="submit"><i data-lucide="trash-2" class="h-4 w-4"></i></button></form></div></div><div class="mt-3 flex items-center justify-between gap-3 text-sm"><span class="text-slate-400 font-semibold">Published</span><span class="text-slate-600 font-medium"><%= n.getPublishedAt()==null?"-":esc(n.getPublishedAt().format(fmt)) %></span></div><p class="mt-3 text-sm leading-6 text-slate-600"><%= esc(n.getContent()) %></p></article>
+<% if(editingNoticeId!=null && editingNoticeId.equals(String.valueOf(n.getNoticeId()))){ %>
+<div class="mobile-record-card bg-slate-50"><form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" class="grid gap-3"><input type="hidden" name="noticeId" value="<%= n.getNoticeId() %>"><input type="hidden" name="_method" value="PUT"><input type="hidden" name="redirectTo" value="/admin/notices"><label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Notice Title</span><input name="title" type="text" required value="<%= esc(n.getTitle()) %>" class="rounded-xl border border-slate-200 px-4 py-3 text-sm"></label><label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Category</span><select name="category" required class="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold"><option value="subsidy" <% if("subsidy".equals(n.getCategory())) { %>selected<% } %>>Grant & Subsidy</option><option value="training" <% if("training".equals(n.getCategory())) { %>selected<% } %>>Skills & Training</option><option value="scheme" <% if("scheme".equals(n.getCategory())) { %>selected<% } %>>General Scheme</option></select></label><label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Notice Content</span><textarea name="content" rows="4" required class="rounded-xl border border-slate-200 px-4 py-3 text-sm resize-none"><%= esc(n.getContent()) %></textarea></label><div class="flex flex-col gap-2"><button class="rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase text-white" type="submit">Save Changes</button><a href="<%= request.getContextPath() %>/admin/notices" class="rounded-xl bg-slate-200 px-5 py-3 text-xs font-black uppercase text-slate-700 text-center">Cancel</a></div></form></div>
+<% } %>
+<% }} %></div>
+<div class="hidden sm:block overflow-x-auto"><table class="w-full text-left"><thead><tr class="bg-slate-50"><th class="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-500">Title</th><th class="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-500">Category</th><th class="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-500">Published</th><th class="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-500">Summary</th><th class="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-500">Actions</th></tr></thead><tbody class="divide-y divide-slate-100">
+<% if(notices.isEmpty()){ %><tr><td colspan="5" class="px-5 py-14 text-center text-sm font-semibold text-slate-500">No agriculture notices yet.</td></tr>
+<% } else { for(AgricultureNotice n:notices){ %>
+<tr class="align-top"><td class="px-5 py-4"><p class="text-sm font-black text-slate-900"><%= esc(n.getTitle()) %></p></td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-lg border text-[10px] font-black uppercase tracking-wider <%= categoryClass(n.getCategory()) %>"><%= esc(n.getCategory()) %></span></td><td class="px-5 py-4 text-sm font-semibold text-slate-600"><%= n.getPublishedAt()==null?"-":esc(n.getPublishedAt().format(fmt)) %></td><td class="px-5 py-4"><p class="max-w-md text-sm leading-6 text-slate-600"><%= esc(n.getContent()) %></p></td><td class="px-5 py-4"><div class="flex gap-2"><form method="get" action="<%= request.getContextPath() %>/admin/notices"><input type="hidden" name="edit" value="<%= n.getNoticeId() %>"><button class="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center" type="submit"><i data-lucide="edit-2" class="h-4 w-4"></i></button></form><form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" onsubmit="return confirm('Delete this notice?')"><input type="hidden" name="redirectTo" value="/admin/notices"><input type="hidden" name="action" value="delete"><input type="hidden" name="noticeId" value="<%= n.getNoticeId() %>"><button class="h-9 w-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center" type="submit"><i data-lucide="trash-2" class="h-4 w-4"></i></button></form></div></td></tr>
+<% if(editingNoticeId!=null && editingNoticeId.equals(String.valueOf(n.getNoticeId()))){ %>
+<tr><td colspan="5" class="bg-slate-50 px-5 py-5"><form method="post" action="<%= request.getContextPath() %>/api/agriculture-notices" class="grid gap-3 lg:grid-cols-2"><input type="hidden" name="noticeId" value="<%= n.getNoticeId() %>"><input type="hidden" name="_method" value="PUT"><input type="hidden" name="redirectTo" value="/admin/notices"><label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Notice Title</span><input name="title" type="text" required value="<%= esc(n.getTitle()) %>" class="rounded-xl border border-slate-200 px-4 py-3 text-sm"></label><label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500"><span>Category</span><select name="category" required class="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold"><option value="subsidy" <% if("subsidy".equals(n.getCategory())) { %>selected<% } %>>Grant & Subsidy</option><option value="training" <% if("training".equals(n.getCategory())) { %>selected<% } %>>Skills & Training</option><option value="scheme" <% if("scheme".equals(n.getCategory())) { %>selected<% } %>>General Scheme</option></select></label><label class="grid gap-2 text-xs font-black uppercase tracking-wider text-slate-500 lg:col-span-2"><span>Notice Content</span><textarea name="content" rows="4" required class="rounded-xl border border-slate-200 px-4 py-3 text-sm resize-none"><%= esc(n.getContent()) %></textarea></label><div class="flex gap-2 lg:col-span-2"><button class="rounded-xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase text-white" type="submit">Save Changes</button><a href="<%= request.getContextPath() %>/admin/notices" class="rounded-xl bg-slate-200 px-5 py-3 text-xs font-black uppercase text-slate-700 text-center">Cancel</a></div></form></td></tr>
+<% } %>
+<% }} %></tbody></table></div></section></div></main></div></div>
+<%@ include file="../includes/responsive-scripts.jsp" %>
+<script>lucide.createIcons();</script>
+</body></html>
