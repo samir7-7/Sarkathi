@@ -227,7 +227,18 @@
                                     <div class="space-y-3 lg:col-span-2"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Place of Marriage</label><input type="text" data-fd="placeOfMarriage" required placeholder="Venue, city, district" class="form-input"></div>
                                     <div class="space-y-3 lg:col-span-2"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Witness Names and Signatures</label><textarea data-fd="witnessNamesAndSignatures" required rows="3" placeholder="List witness names and signature details" class="form-input form-textarea"></textarea></div>
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Marriage Registration Number</label><input type="text" data-fd="marriageRegistrationNumber" placeholder="Registration number" class="form-input"></div>
-                                    <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Photographs of Couple</label><input type="text" data-fd="couplePhotographReference" placeholder="Reference selected from vault" class="form-input"></div>
+                                    <div class="space-y-3 lg:col-span-2">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Photographs of Couple</label>
+                                        <div class="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-slate-50 transition-all p-4">
+                                            <input type="file" data-file-upload="Couple Photograph" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                            <div class="flex flex-col items-center justify-center text-center py-2">
+                                                <i data-lucide="image" class="h-6 w-6 text-slate-400 group-hover:text-brand-500 mb-2"></i>
+                                                <p class="text-[11px] font-bold text-slate-600 upload-status">Click to upload couple photo</p>
+                                                <p class="text-[9px] text-slate-400 mt-1">JPG, JPEG, PNG (max 10MB)</p>
+                                            </div>
+                                            <input type="hidden" data-fd="couplePhotographReference" value="">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -240,10 +251,32 @@
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Permanent Address</label><input type="text" data-fd="permanentAddress" required placeholder="Permanent address" class="form-input"></div>
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Current Address</label><input type="text" data-fd="currentAddress" required placeholder="Current place of stay" class="form-input"></div>
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Duration of Stay at Current Address</label><input type="text" data-fd="durationOfStayAtCurrentAddress" required placeholder="e.g. 5 years" class="form-input"></div>
-                                    <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Purpose of Certificate</label><input type="text" data-fd="purposeOfCertificate" required placeholder="School admission, job application, etc." class="form-input"></div>
+                                    <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Purpose of Certificate</label><input type="text" data-fd="purposeOfCertificate" required placeholder="school admission, job application, etc." class="form-input"></div>
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Identification Number</label><input type="text" data-fd="identificationNumber" placeholder="National ID or other reference" class="form-input"></div>
-                                    <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Photograph</label><input type="text" data-fd="photographReference" placeholder="Reference selected from vault" class="form-input"></div>
-                                    <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Signature / Thumbprint</label><input type="text" data-fd="signatureOrThumbprintReference" placeholder="Reference selected from vault" class="form-input"></div>
+                                    <div class="space-y-3">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Photograph</label>
+                                        <div class="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-slate-50 transition-all p-4">
+                                            <input type="file" data-file-upload="Photograph" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                            <div class="flex flex-col items-center justify-center text-center py-2">
+                                                <i data-lucide="image" class="h-6 w-6 text-slate-400 group-hover:text-brand-500 mb-2"></i>
+                                                <p class="text-[11px] font-bold text-slate-600 upload-status">Click to upload photo</p>
+                                                <p class="text-[9px] text-slate-400 mt-1">JPG, JPEG, PNG (max 10MB)</p>
+                                            </div>
+                                            <input type="hidden" data-fd="photographReference" value="">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Signature / Thumbprint</label>
+                                        <div class="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-slate-50 transition-all p-4">
+                                            <input type="file" data-file-upload="Signature" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                            <div class="flex flex-col items-center justify-center text-center py-2">
+                                                <i data-lucide="edit-3" class="h-6 w-6 text-slate-400 group-hover:text-brand-500 mb-2"></i>
+                                                <p class="text-[11px] font-bold text-slate-600 upload-status">Click to upload signature</p>
+                                                <p class="text-[9px] text-slate-400 mt-1">JPG, JPEG, PNG (max 10MB)</p>
+                                            </div>
+                                            <input type="hidden" data-fd="signatureOrThumbprintReference" value="">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -259,8 +292,30 @@
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Identification Number</label><input type="text" data-fd="identificationNumber" placeholder="National ID or other reference" class="form-input"></div>
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Permanent Address</label><input type="text" data-fd="permanentAddress" required placeholder="Permanent address" class="form-input"></div>
                                     <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Current Address</label><input type="text" data-fd="currentAddress" required placeholder="Current address" class="form-input"></div>
-                                    <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Photograph</label><input type="text" data-fd="photographReference" placeholder="Reference selected from vault" class="form-input"></div>
-                                    <div class="space-y-3"><label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Signature / Thumbprint</label><input type="text" data-fd="signatureOrThumbprintReference" placeholder="Reference selected from vault" class="form-input"></div>
+                                    <div class="space-y-3">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Photograph</label>
+                                        <div class="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-slate-50 transition-all p-4">
+                                            <input type="file" data-file-upload="Photograph" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                            <div class="flex flex-col items-center justify-center text-center py-2">
+                                                <i data-lucide="image" class="h-6 w-6 text-slate-400 group-hover:text-brand-500 mb-2"></i>
+                                                <p class="text-[11px] font-bold text-slate-600 upload-status">Click to upload photo</p>
+                                                <p class="text-[9px] text-slate-400 mt-1">JPG, JPEG, PNG (max 10MB)</p>
+                                            </div>
+                                            <input type="hidden" data-fd="photographReference" value="">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Signature / Thumbprint</label>
+                                        <div class="relative group cursor-pointer border-2 border-dashed border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-slate-50 transition-all p-4">
+                                            <input type="file" data-file-upload="Signature" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                            <div class="flex flex-col items-center justify-center text-center py-2">
+                                                <i data-lucide="edit-3" class="h-6 w-6 text-slate-400 group-hover:text-brand-500 mb-2"></i>
+                                                <p class="text-[11px] font-bold text-slate-600 upload-status">Click to upload signature</p>
+                                                <p class="text-[9px] text-slate-400 mt-1">JPG, JPEG, PNG (max 10MB)</p>
+                                            </div>
+                                            <input type="hidden" data-fd="signatureOrThumbprintReference" value="">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -497,8 +552,64 @@
                         return false;
                     }
                 }
+
+                // File validation
+                const fileFields = activePanel.querySelectorAll('input[type="hidden"][data-fd*="Reference"]');
+                for (const field of fileFields) {
+                    if (!field.value || field.value.trim() === '') {
+                        const label = field.closest('.space-y-3')?.querySelector('label')?.textContent?.trim() || 'File';
+                        showClientError(label + ' must be uploaded to continue');
+                        return false;
+                    }
+                }
+
                 return true;
             }
+
+            // File Upload Handler
+            document.querySelectorAll('input[type="file"][data-file-upload]').forEach(input => {
+                input.addEventListener('change', async function() {
+                    const file = this.files[0];
+                    if (!file) return;
+
+                    const statusEl = this.parentElement.querySelector('.upload-status');
+                    const hiddenInput = this.parentElement.querySelector('input[type="hidden"]');
+                    const container = this.parentElement;
+                    const docType = this.getAttribute('data-file-upload');
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('citizenId', '<%= citizenId %>');
+                    formData.append('documentType', docType);
+                    formData.append('saveToVault', 'true');
+
+                    try {
+                        statusEl.textContent = 'Uploading...';
+                        statusEl.classList.replace('text-slate-600', 'text-brand-500');
+
+                        const response = await fetch('<%= request.getContextPath() %>/api/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+                        if (result.success) {
+                            hiddenInput.value = result.filePath;
+                            statusEl.textContent = 'Uploaded: ' + file.name;
+                            statusEl.classList.replace('text-brand-500', 'text-emerald-600');
+                            container.classList.replace('border-slate-200', 'border-emerald-500');
+                            container.classList.add('bg-emerald-50/30');
+                        } else {
+                            throw new Error(result.message || 'Upload failed');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        statusEl.textContent = 'Upload failed: ' + err.message;
+                        statusEl.classList.replace('text-brand-500', 'text-rose-500');
+                        container.classList.replace('border-slate-200', 'border-rose-300');
+                    }
+                });
+            });
 
             function buildFormDataObject() {
                 const activePanel = getActivePanel();
