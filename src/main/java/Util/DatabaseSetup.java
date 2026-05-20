@@ -18,6 +18,9 @@ import java.sql.Statement;
  * @author SarkarSathi
  */
 public class DatabaseSetup {
+  private static final String DATABASE_NAME = extractDatabaseName();
+  private static final String ROOT_URL = extractRootUrl();
+
   /**
    * Entry point. Connects to MySQL, creates the database if it doesn't
    * exist, then creates every table and seeds the default reference data.
@@ -31,17 +34,16 @@ public class DatabaseSetup {
     System.out.println("========================================\n");
 
     try {
-      String urlWithoutDb = "jdbc:mysql://localhost:3306";
-      try (Connection connection = DriverManager.getConnection(urlWithoutDb, "root", "")) {
+      try (Connection connection = DriverManager.getConnection(ROOT_URL, DatabaseConnection.getUsername(), DatabaseConnection.getPassword())) {
         System.out.println("Connected to MySQL");
         try (Statement stmt = connection.createStatement()) {
-          stmt.execute("CREATE DATABASE IF NOT EXISTS SarkarSathi DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-          System.out.println("Created/Verified database 'SarkarSathi'");
+          stmt.execute("CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME + " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+          System.out.println("Created/Verified database '" + DATABASE_NAME + "'");
         }
       }
 
-      try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/SarkarSathi", "root", "")) {
-        System.out.println("Connected to SarkarSathi database\n");
+      try (Connection connection = DatabaseConnection.getConnection()) {
+        System.out.println("Connected to " + DATABASE_NAME + " database\n");
         System.out.println("Creating tables...\n");
 
         try (Statement stmt = connection.createStatement()) {
@@ -238,5 +240,28 @@ public class DatabaseSetup {
       System.err.println("ERROR: " + e.getMessage());
       e.printStackTrace();
     }
+  }
+
+  private static String extractRootUrl() {
+    String configuredUrl = DatabaseConnection.getUrl();
+    int slashIndex = configuredUrl.lastIndexOf('/');
+    if (slashIndex < 0) {
+      throw new IllegalStateException("Database URL must include a database name: " + configuredUrl);
+    }
+    return configuredUrl.substring(0, slashIndex);
+  }
+
+  private static String extractDatabaseName() {
+    String configuredUrl = DatabaseConnection.getUrl();
+    int slashIndex = configuredUrl.lastIndexOf('/');
+    if (slashIndex < 0 || slashIndex == configuredUrl.length() - 1) {
+      throw new IllegalStateException("Database URL must include a database name: " + configuredUrl);
+    }
+
+    int queryIndex = configuredUrl.indexOf('?', slashIndex);
+    if (queryIndex >= 0) {
+      return configuredUrl.substring(slashIndex + 1, queryIndex);
+    }
+    return configuredUrl.substring(slashIndex + 1);
   }
 }

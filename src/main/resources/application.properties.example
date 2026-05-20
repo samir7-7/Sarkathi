@@ -1,0 +1,4 @@
+db.driver=com.mysql.cj.jdbc.Driver
+db.url=jdbc:mysql://localhost:3306/SarkarSathi
+db.username=root
+db.password=your_mysql_password_here
