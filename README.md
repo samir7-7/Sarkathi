@@ -1,103 +1,183 @@
 # SarkarSathi (सरकार साथी)
 
-SarkarSathi is a comprehensive e-governance web application designed for the Nepalese municipal context. It bridges the gap between citizens and local government by digitizing the application process for vital personal certificates and providing an efficient workflow for administrative review.
+SarkarSathi is a municipal e-governance web application built for the Nepalese local-government context. It gives citizens a digital way to register, apply for ward services, track requests, manage documents, and pay municipal fees, while giving ward administrators tools to review applications, publish notices, and manage budgets.
 
-## 🚀 Key Features
+## Overview
 
-### For Citizens
+- Citizen and admin login flows with BCrypt-hashed passwords
+- Online application workflow for common municipal certificate services
+- Citizen document vault for reusable uploads
+- Application tracking, notifications, and issued certificates
+- Municipal tax and service payment flows, including eSewa callback handling
+- Admin tools for announcements, agriculture notices, budgets, and tax-payment review
 
-- **Self-Registration & Login**: Secure citizen accounts using BCrypt password hashing.
-- **Digital Applications**: Apply for Marriage, Residence, and Citizenship certificates online.
-- **Document Vault**: Upload and store digital copies of essential documents (photos, signatures, identity proofs).
-- **Application Tracking**: Real-time status updates (Submitted → Pending Review → Approved/Rejected).
-- **Tax Management**: View and pay property and land taxes (simulated integration).
+## Tech Stack
 
-### For Administrators
+- Java 22
+- Jakarta EE 10 (`Servlet` + `JSP`)
+- MySQL 8+
+- Maven
+- Apache Tomcat 10.1+
+- BCrypt (`jBCrypt`)
+- Chart.js and Lucide Icons on the frontend
 
-- **Analytical Dashboard**: Visual representation of application trends using Chart.js.
-- **Status Breakdown**: Quick counters for Total, Submitted, Pending, Approved, and Rejected applications.
-- **Review Workflow**: Dedicated screens for reviewing submitted documents and forms.
-- **Ward Management**: Multi-ward support for decentralized administration.
+## Project Structure
 
-## 🛠️ Tech Stack
+- `src/main/java/Controller` - servlet endpoints and page dispatchers
+- `src/main/java/DAO` - database access layer
+- `src/main/java/Model` - application domain models
+- `src/main/java/Util` - database bootstrap, migration, seeding, auth helpers
+- `src/main/resources` - example config and Tomcat support files
+- `src/main/webapp/WEB-INF/pages` - public pages
+- `src/main/webapp/WEB-INF/citizen` - citizen dashboard pages
+- `src/main/webapp/WEB-INF/admin` - admin dashboard pages
 
-- **Language**: Java 22
-- **Framework**: Jakarta EE (Servlets, JSP)
-- **Database**: MySQL 8.x+
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide Icons
-- **Visualization**: Chart.js
-- **Dependency Management**: Maven
+## Prerequisites
 
-## 📋 Prerequisites
+- JDK 22
+- MySQL Server running locally or reachable from the app
+- Apache Tomcat 10.1.x or newer
+- Maven, or use the included Maven wrapper
 
-- **JDK**: Version 22 or higher.
-- **MySQL Server**: Running on `localhost:3306`.
-- **Apache Tomcat**: Version 10.1.x (supports Jakarta EE 10 / Servlet 6.0).
-- **Maven**: To build the project.
+## Setup
 
-## ⚙️ Setup & Installation
+### 1. Create application config
 
-### 1. Database & Initial Setup
+Copy the example file and create your local database config:
 
-The project includes a built-in bootstrapper to set up everything automatically.
+```powershell
+Copy-Item src/main/resources/application.properties.example src/main/resources/application.properties
+```
 
-1. Ensure your MySQL server is running on `localhost:3306` with user `root` (and no password).
-2. Run the following command from the project root:
+Update `src/main/resources/application.properties` with your MySQL details:
 
-   ```bash
-   ./mvnw exec:java@setup-db
-   ```
+```properties
+db.driver=com.mysql.cj.jdbc.Driver
+db.url=jdbc:mysql://localhost:3306/SarkarSathi
+db.username=root
+db.password=your_mysql_password_here
+```
 
-   _This will create the `SarkarSathi` database, all necessary tables, and initial ward data._
+Important:
 
-3. Seed the admin accounts:
-   ```bash
-   ./mvnw exec:java@seed-admins
-   ```
-   _Note: Default admin password is `Admin@123`._
+- `DatabaseConnection` loads `application.properties` at runtime.
+- The app will fail to start if that file is missing.
+- `db.url` must include the database name because the setup utility derives it from that URL.
 
-### 2. Configure Database Connection (Optional)
+### 2. Create the database and seed base data
 
-If your MySQL configuration differs (non-root user or custom password):
+Run the bundled setup utility from the project root:
 
-- Open [src/main/java/Util/DatabaseConnection.java](src/main/java/Util/DatabaseConnection.java) and [src/main/java/Util/DatabaseSetup.java](src/main/java/Util/DatabaseSetup.java).
-- Update the connection constants accordingly.
+```powershell
+.\mvnw.cmd exec:java@setup-db
+```
 
-### 3. Build & Deploy
+This creates the `SarkarSathi` database if needed, creates the tables, and seeds:
 
-1. Build the WAR file:
-   ```bash
-   ./mvnw clean package
-   ```
-2. Move the generated `SarkarSatthi-1.0-SNAPSHOT.war` from `target/` to your Tomcat `webapps/` folder.
-3. Start Tomcat and navigate to `http://localhost:8080/SarkarSatthi`.
+- Wards 1-5 for Birgunj Metropolitan City
+- Default service types:
+  - Birth Certificate
+  - Marriage Certificate
+  - Residence Certificate
+  - Citizenship Recommendation
 
-## 🔑 Default Credentials
+### 3. Seed admin accounts
 
-You can log in as an Admin using one of the following emails (Password: `Admin@123`):
+You can seed the default admin users manually:
 
-- `samir.nepal@sarkarsathi.gov.np` (Supervisor - Ward 1)
-- `prajwal.koirala@sarkarsathi.gov.np` (Officer - Ward 2)
+```powershell
+.\mvnw.cmd exec:java@seed-admins
+```
 
-## 🔍 Debugging & Troubleshooting
+The web app also auto-seeds these accounts on startup if the `ADMIN_USER` table is empty.
 
-| Issue                         | Potential Cause           | Fix                                                                                                                                           |
-| ----------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| **404 Not Found**             | Deployment context path.  | Ensure you use the correct context path (e.g., `/SarkarSatthi/login`) or rename the `.war` to `ROOT.war`.                                     |
-| **500 Internal Server Error** | MySQL Connection failure. | Check if MySQL is running and credentials in `DatabaseConnection.java` are correct.                                                           |
-| **JSP Errors**                | Tomcat Version Mismatch.  | This project uses `Jakarta EE 10`. Ensure you are using **Tomcat 10.1+**. Tomcat 9 or below will not support the `jakarta.servlet` namespace. |
-| **Uploads Failing**           | Directory permissions.    | Ensure the application has write permissions to the server's temp directory or specified storage paths.                                       |
-| **Icons not showing**         | Lucide not initialized.   | Check if `lucide.createIcons()` is called in the `<script>` tag at the bottom of the JSP.                                                     |
+### 4. Build the WAR
 
-## 🏗️ Project Structure
+```powershell
+.\mvnw.cmd clean package
+```
 
-- `src/main/java/Controller`: Servlet-based HTTP handlers.
-- `src/main/java/DAO`: Data Access Objects for database interactions.
-- `src/main/java/Model`: Java POJOs representing database entities.
-- `src/main/webapp/WEB-INF/admin`: Admin dashboard and management screens.
-- `src/main/webapp/WEB-INF/citizen`: Citizen application forms and vault.
+The WAR will be generated in `target/` as `SarkarSatthi-1.0-SNAPSHOT.war`.
 
----
+### 5. Deploy to Tomcat
 
-Developed by **SarkarSathi Team**.
+Copy the WAR into your Tomcat `webapps` directory, start Tomcat, then open:
+
+```text
+http://localhost:8080/SarkarSatthi
+```
+
+## Default Admin Credentials
+
+All seeded admin accounts use this password:
+
+```text
+Admin@123
+```
+
+Available accounts:
+
+- `samir.nepal@sarkarsathi.gov.np` - Supervisor, Ward 1
+- `prajwal.koirala@sarkarsathi.gov.np` - Officer, Ward 2
+- `min.pandey@sarkarsathi.gov.np` - Officer, Ward 3
+- `nabin.adhikari@sarkarsathi.gov.np` - Supervisor, Ward 4
+- `rythm.shrestha@sarkarsathi.gov.np` - Officer, Ward 5
+
+## Main User Flows
+
+### Citizen side
+
+- Register and log in as a citizen
+- Submit certificate/service applications
+- Reuse uploaded documents from the document vault
+- Track application status from the public tracker or citizen area
+- View notifications and issued certificates
+- Pay service and tax charges from the citizen dashboard
+
+### Admin side
+
+- Log in to the admin dashboard
+- Review applications and supporting documents
+- Manage agriculture notices and public announcements
+- Manage budget allocations
+- Review recent tax payments
+
+## Database Utilities
+
+Useful Maven commands:
+
+```powershell
+.\mvnw.cmd exec:java@check-db
+.\mvnw.cmd exec:java@setup-db
+.\mvnw.cmd exec:java@seed-admins
+```
+
+## Troubleshooting
+
+### App fails on startup with missing config
+
+Cause: `src/main/resources/application.properties` has not been created.
+
+Fix: Copy `application.properties.example` and fill in valid database credentials.
+
+### Database connection errors
+
+Cause: MySQL is not running, credentials are wrong, or `db.url` is invalid.
+
+Fix: Verify the values in `application.properties` and confirm MySQL is reachable.
+
+### JSP or servlet namespace errors
+
+Cause: Tomcat version is too old.
+
+Fix: Use Tomcat 10.1+ because this project uses the `jakarta.*` servlet namespace.
+
+### Admin login does not work on a fresh install
+
+Cause: The admin seeder has not run yet, or the database setup was skipped.
+
+Fix: Run `.\mvnw.cmd exec:java@setup-db` and `.\mvnw.cmd exec:java@seed-admins`, then retry.
+
+## Team
+
+Developed by the SarkarSathi team.
