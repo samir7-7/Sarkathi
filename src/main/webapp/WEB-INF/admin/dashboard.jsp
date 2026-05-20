@@ -43,6 +43,9 @@
     int reviewInt = review.intValue();
     int approvedInt = approved.intValue();
     int rejectedInt = rejected.intValue();
+
+    String dailyStatsJson = (String)request.getAttribute("dailyStatsJson");
+    if(dailyStatsJson == null) dailyStatsJson = "[]";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,6 +57,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -108,6 +112,11 @@
         .delay-4 { animation-delay: 0.2s; opacity: 0; }
         .delay-5 { animation-delay: 0.25s; opacity: 0; }
         .mobile-app-card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px; background: #fff; }
+
+        /* Chart Tabs */
+        .chart-tab { @apply px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-slate-200 text-slate-500 bg-white; }
+        .chart-tab.active { @apply border-brand-500 bg-brand-50 text-brand-700; }
+        .chart-tab:hover:not(.active) { @apply bg-slate-50 border-slate-300; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 antialiased overflow-x-hidden">
@@ -195,6 +204,26 @@
                         </div>
                         <p class="text-2xl font-bold text-rose-600 tracking-tight"><%= rejectedInt %></p>
                         <p class="text-[11px] font-medium text-rose-500/70 mt-1">Rejected</p>
+                    </div>
+                </section>
+
+                <!-- Analytics Chart -->
+                <section class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 mb-6 animate-in delay-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h3 class="text-[15px] font-bold text-slate-900">Application Trends</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Daily volume for the last 30 days</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="updateChart('total')" class="chart-tab active" data-type="total">Total</button>
+                            <button onclick="updateChart('submitted')" class="chart-tab" data-type="submitted">Submitted</button>
+                            <button onclick="updateChart('review')" class="chart-tab" data-type="review">Pending</button>
+                            <button onclick="updateChart('approved')" class="chart-tab" data-type="approved">Approved</button>
+                            <button onclick="updateChart('rejected')" class="chart-tab" data-type="rejected">Rejected</button>
+                        </div>
+                    </div>
+                    <div class="h-[300px] w-full">
+                        <canvas id="trendsChart"></canvas>
                     </div>
                 </section>
 
@@ -294,6 +323,105 @@
     </div>
 
     <%@ include file="../includes/responsive-scripts.jsp" %>
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+
+        // Chart.js implementation
+        const rawData = <%= dailyStatsJson %>;
+        const ctx = document.getElementById('trendsChart').getContext('2d');
+        let trendsChart;
+
+        const chartConfig = {
+            total: { label: 'Total Applications', color: '#64748b' },
+            submitted: { label: 'Submitted', color: '#3b82f6' },
+            review: { label: 'Pending Review', color: '#f59e0b' },
+            approved: { label: 'Approved', color: '#10b981' },
+            rejected: { label: 'Rejected', color: '#ef4444' }
+        };
+
+        function initChart() {
+            const labels = rawData.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            trendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Applications',
+                        data: rawData.map(d => d.total),
+                        borderColor: chartConfig.total.color,
+                        backgroundColor: chartConfig.total.color + '20',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleFont: { family: 'Outfit', size: 13 },
+                            bodyFont: { family: 'Outfit', size: 12 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { family: 'Outfit', size: 11 }, color: '#94a3b8', stepSize: 1 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Outfit', size: 11 }, color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(type) {
+            // Update buttons
+            document.querySelectorAll('.chart-tab').forEach(btn => {
+                if (btn.getAttribute('data-type') === type) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Update chart data
+            const config = chartConfig[type];
+            trendsChart.data.datasets[0].label = config.label;
+            trendsChart.data.datasets[0].data = rawData.map(d => d[type]);
+            trendsChart.data.datasets[0].borderColor = config.color;
+            trendsChart.data.datasets[0].backgroundColor = config.color + '20';
+            trendsChart.update();
+        }
+
+        if (rawData && rawData.length > 0) {
+            initChart();
+        } else {
+            document.getElementById('trendsChart').parentElement.innerHTML = `
+                <div class="h-full w-full flex flex-col items-center justify-center text-slate-400">
+                    <i data-lucide="bar-chart-2" class="h-10 w-10 mb-2 opacity-20"></i>
+                    <p class="text-sm font-medium">No trend data available yet</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+    </script>
 </body>
 </html>

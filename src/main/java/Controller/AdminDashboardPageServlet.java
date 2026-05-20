@@ -55,6 +55,7 @@ public class AdminDashboardPageServlet extends HttpServlet {
             request.setAttribute("approvedApplications", applicationDAO.countByStatus("approved"));
             request.setAttribute("rejectedApplications", applicationDAO.countByStatus("rejected"));
             request.setAttribute("recentApplications", applicationDAO.findAll());
+            request.setAttribute("dailyStatsJson", applicationDAO.getDailyStatsJson());
         } catch (SQLException e) {
             request.setAttribute("pageError", "Unable to load dashboard data.");
             request.setAttribute("totalApplications", 0L);
@@ -63,6 +64,7 @@ public class AdminDashboardPageServlet extends HttpServlet {
             request.setAttribute("approvedApplications", 0L);
             request.setAttribute("rejectedApplications", 0L);
             request.setAttribute("recentApplications", java.util.List.of());
+            request.setAttribute("dailyStatsJson", "[]");
         }
         request.getRequestDispatcher("/WEB-INF/admin/dashboard.jsp").forward(request, response);
     }

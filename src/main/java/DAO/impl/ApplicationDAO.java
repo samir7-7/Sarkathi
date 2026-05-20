@@ -78,7 +78,8 @@ public class ApplicationDAO extends BaseDAO implements ApplicationDAOInterface {
      * {@inheritDoc}
      * <p>
      * Sorted newest-first by submission time. Note that this overload does
-     * <em>not</em> join the service type, so {@link Application#getServiceTypeName()}
+     * <em>not</em> join the service type, so
+     * {@link Application#getServiceTypeName()}
      * will be null on the returned objects.
      */
     public List<Application> findAll() throws SQLException {
@@ -244,6 +245,50 @@ public class ApplicationDAO extends BaseDAO implements ApplicationDAOInterface {
      */
     public long countAll() throws SQLException {
         return count("SELECT COUNT(*) FROM APPLICATION");
+    }
+
+    /**
+     * Returns a JSON-formatted string of daily application counts for the last 30
+     * days.
+     * Includes counts for total, submitted, review, approved, and rejected.
+     * 
+     * @return JSON string representing the daily statistics
+     */
+    public String getDailyStatsJson() throws SQLException {
+        String sql = """
+                    SELECT
+                        DATE(SubmittedAt) as date,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN Status = 'submitted' THEN 1 ELSE 0 END) as submitted,
+                        SUM(CASE WHEN Status = 'review' THEN 1 ELSE 0 END) as review,
+                        SUM(CASE WHEN Status = 'approved' THEN 1 ELSE 0 END) as approved,
+                        SUM(CASE WHEN Status = 'rejected' THEN 1 ELSE 0 END) as rejected
+                    FROM APPLICATION
+                    WHERE SubmittedAt >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+                    GROUP BY DATE(SubmittedAt)
+                    ORDER BY DATE(SubmittedAt) ASC
+                """;
+
+        StringBuilder json = new StringBuilder("[");
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet rs = statement.executeQuery()) {
+            boolean first = true;
+            while (rs.next()) {
+                if (!first)
+                    json.append(",");
+                json.append("{")
+                        .append("\"date\":\"").append(rs.getString("date")).append("\",")
+                        .append("\"total\":").append(rs.getInt("total")).append(",")
+                        .append("\"submitted\":").append(rs.getInt("submitted")).append(",")
+                        .append("\"review\":").append(rs.getInt("review")).append(",")
+                        .append("\"approved\":").append(rs.getInt("approved")).append(",")
+                        .append("\"rejected\":").append(rs.getInt("rejected"))
+                        .append("}");
+                first = false;
+            }
+        }
+        json.append("]");
+        return json.toString();
     }
 
     /**
